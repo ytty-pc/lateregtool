@@ -88,12 +88,106 @@ body {
   max-width: 560px;
 }
 
-/* ── MAIN ── */
+/* ── MAIN LAYOUT ── */
 .main {
-  max-width: 760px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 32px 24px 0;
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 28px;
+  align-items: start;
 }
+.main-content { min-width: 0; }
+
+/* ── STICKY PANEL ── */
+.sticky-panel {
+  position: sticky;
+  top: 24px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: none;
+}
+.sticky-panel.show { display: block; }
+.sticky-panel h3 {
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.sticky-panel .s-btn {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 8px;
+  text-align: center;
+  display: block;
+}
+.sticky-panel .s-btn.primary { background: var(--accent); color: #fff; border: none; }
+.sticky-panel .s-btn.primary:hover { background: #0044cc; }
+.sticky-panel .s-btn.secondary { background: var(--white); color: var(--accent); border: 1.5px solid var(--accent); }
+.sticky-panel .s-btn.secondary:hover { background: var(--accent-light); }
+.sticky-progress { margin-bottom: 14px; }
+.sticky-progress-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.sticky-progress-bar { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+.sticky-progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.4s; width: 0%; }
+
+/* ── SLIDER ── */
+.slider-wrap {
+  margin: 16px 0 8px;
+}
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.slider-markers {
+  position: relative;
+  height: 20px;
+  margin-bottom: 4px;
+}
+.slider-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-family: var(--mono);
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  top: 0;
+}
+.slider-marker.fps  { background: #e6eeff; color: var(--accent); }
+.slider-marker.mmo  { background: var(--green-light); color: var(--green); }
+input[type=range] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+.slider-val {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 8px;
+}
+.slider-val span { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
 
 /* ── STEP ── */
 .step-label {
@@ -393,7 +487,7 @@ body {
   </div>
 </header>
 
-<div style="max-width:760px;margin:0 auto;">
+<div style="max-width:1100px;margin:0 auto;">
   <div class="hero">
     <h1>あなたの環境に合った<em>遅延削減設定</em>を見つける</h1>
     <p>GPUメーカーとOSを選択するだけで、有効な設定と手順・コマンドを一覧表示します。コピーして実行するだけで最適化が完了します。</p>
@@ -401,6 +495,7 @@ body {
 </div>
 
 <div class="main">
+<div class="main-content">
 
   <!-- STEP 1: 環境選択 -->
   <div class="step-label">Step 1 — 環境を選択</div>
@@ -437,25 +532,28 @@ body {
   <div id="pingSection" class="ping-section" style="display:none;">
     <div class="env-card" style="margin-bottom:24px;">
       <h2>📡 ネットワーク遅延の計測</h2>
-      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;">サーバーへのpingを10回計測し、平均遅延とジッターを表示します。結果をもとにNICバッファの推奨値を自動で算出します。</p>
-      <button class="export-btn" id="pingBtn" onclick="startPing()">▶ 計測を開始する</button>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:4px;line-height:1.7;">国内サーバーへのHTTPリクエストを30回送信し、中央値でジッターを計算します。</p>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:16px;">⚠️ ICMPではなくHTTPリクエストのため、実際のゲーム内pingとは異なります。あくまで参考値としてご利用ください。</p>
+      <button class="export-btn" id="pingBtn" onclick="startPing()">▶ 計測を開始する（約15秒）</button>
 
       <div id="pingProgress" style="display:none;margin-top:20px;">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px;">計測中... <span id="pingCount">0</span>/10</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px;">計測中... <span id="pingCount">0</span>/30</div>
         <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;">
-          <div id="pingBar" style="height:100%;background:var(--accent);border-radius:4px;width:0%;transition:width 0.3s;"></div>
+          <div id="pingBar" style="height:100%;background:var(--accent);border-radius:4px;width:0%;transition:width 0.2s;"></div>
         </div>
       </div>
 
       <div id="pingResult" style="display:none;margin-top:20px;">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
           <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
-            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">平均PING</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">中央値PING</div>
             <div id="avgPing" style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">参考値</div>
           </div>
           <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
             <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">ジッター</div>
             <div id="jitter" style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">75th - 25th percentile</div>
           </div>
           <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
             <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">判定</div>
@@ -464,6 +562,93 @@ body {
         </div>
         <div id="pingRecommend" style="background:var(--accent-light);border:1px solid #b8ccff;border-radius:8px;padding:12px 16px;font-size:13px;color:#003399;"></div>
       </div>
+    </div>
+
+    <!-- NICバッファ スライダー -->
+    <div class="env-card" style="margin-bottom:24px;">
+      <h2>⚙️ NICバッファ値を設定</h2>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:4px;line-height:1.7;">ping計測結果をもとに推奨値を自動算出しました。スライダーで任意に調整できます。</p>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:16px;">小さい値 → 低遅延・パケットロスリスクあり　／　大きい値 → 安定・遅延増加</p>
+
+      <div style="margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Receive Buffers</div>
+        <div class="slider-wrap">
+          <div class="slider-markers" id="rxMarkers"></div>
+          <input type="range" id="rxSlider" min="64" max="1024" step="64" value="256" oninput="updateSlider()">
+          <div class="slider-val"><span id="rxVal">256</span><span>（推奨: <span id="rxRec">256</span>）</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Transmit Buffers</div>
+        <div class="slider-wrap">
+          <div class="slider-markers" id="txMarkers"></div>
+          <input type="range" id="txSlider" min="64" max="1024" step="64" value="256" oninput="updateSlider()">
+          <div class="slider-val"><span id="txVal">256</span><span>（推奨: <span id="txRec">256</span>）</span></div>
+        </div>
+      </div>
+
+      <div id="bufferCmdWrap" style="margin-top:16px;">
+        <div class="cmd-block">
+          <div class="cmd-label">PowerShell（管理者）</div>
+          <div class="cmd-text" id="bufferCmdText"></div>
+          <button class="copy-btn" onclick="copyBufferCmd(this)">コピー</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- フレームタイム計測 -->
+    <div class="env-card" style="margin-bottom:24px;">
+      <h2>🖥️ フレームタイム安定性チェック</h2>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:4px;line-height:1.7;">ブラウザのフレームタイムを3秒間計測します。設定変更の前後で比較することで改善効果を確認できます。</p>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:16px;">※ ブラウザ上の計測のため参考値です。ゲーム中の実測値はMSI Afterburner等をご利用ください。</p>
+      <button class="export-btn secondary" id="ftBtn" onclick="startFrameTime()">▶ フレームタイムを計測する</button>
+
+      <div id="ftProgress" style="display:none;margin-top:20px;">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px;">計測中... <span id="ftSec">3</span>秒</div>
+        <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;">
+          <div id="ftBar" style="height:100%;background:var(--green);border-radius:4px;width:0%;transition:width 0.1s;"></div>
+        </div>
+      </div>
+
+      <div id="ftResult" style="display:none;margin-top:20px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:6px;">平均FT</div>
+            <div id="ftAvg" style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text);">—</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:6px;">最大FT</div>
+            <div id="ftMax" style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--red);">—</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:6px;">1% Low</div>
+            <div id="ftLow" style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--yellow);">—</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:6px;">判定</div>
+            <div id="ftJudge" style="font-size:16px;font-weight:700;">—</div>
+          </div>
+        </div>
+        <div id="ftRecommend" style="background:var(--green-light);border:1px solid #a0dfc0;border-radius:8px;padding:12px 16px;font-size:13px;color:#0a5c35;"></div>
+      </div>
+    </div>
+
+    <!-- CPUコア情報 -->
+    <div class="env-card" style="margin-bottom:0;">
+      <h2>🔲 CPUコア情報（自動取得）</h2>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;">ブラウザからCPUの論理コア数を取得し、プロセスアフィニティの推奨設定を算出します。</p>
+      <div id="cpuInfo" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">論理コア数</div>
+          <div id="cpuCores" style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent);">—</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">アフィニティマスク推奨値</div>
+          <div id="cpuMask" style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent);">—</div>
+        </div>
+      </div>
+      <div id="cpuRecommend" style="margin-top:14px;background:var(--accent-light);border:1px solid #b8ccff;border-radius:8px;padding:12px 16px;font-size:13px;color:#003399;line-height:1.7;"></div>
     </div>
   </div>
 
@@ -474,18 +659,32 @@ body {
     <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
     <div class="result-summary" id="resultSummary"></div>
     <div class="settings-grid" id="settingsGrid"></div>
-    <div class="export-bar">
-      <p>チェックした設定のコマンドをまとめて.batファイルとしてダウンロードできます。</p>
-      <button class="export-btn secondary" onclick="exportBat()">📄 .batファイルを生成</button>
-      <button class="export-btn" onclick="copyAll()">📋 コマンドを全コピー</button>
-    </div>
   </div>
 
   <div id="placeholder" style="text-align:center;padding:48px 0;color:var(--muted);font-size:13px;">
     ↑ GPU・OS・ゲームジャンルを選択すると設定一覧が表示されます
   </div>
 
+</div><!-- /main-content -->
+
+<!-- STICKY SIDE PANEL -->
+<div class="sticky-panel" id="stickyPanel">
+  <h3>エクスポート</h3>
+  <div class="sticky-progress">
+    <div class="sticky-progress-label">
+      <span>完了した設定</span>
+      <span id="stickyProgressText">0 / 0</span>
+    </div>
+    <div class="sticky-progress-bar">
+      <div class="sticky-progress-fill" id="stickyProgressFill"></div>
+    </div>
+  </div>
+  <button class="s-btn primary" onclick="copyAll()">📋 コマンドを全コピー</button>
+  <button class="s-btn secondary" onclick="exportBat()">📄 .batファイルを生成</button>
+  <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.6;">チェックした設定のコマンドをまとめて出力します。</div>
 </div>
+
+</div><!-- /main -->
 
 <script>
 const env = { gpu: null, os: null, genre: null };
@@ -497,8 +696,100 @@ function select(group, val, btn) {
   btn.classList.add('active');
   if (env.gpu && env.os && env.genre) {
     document.getElementById('pingSection').style.display = 'block';
+    detectCpu();
     renderResults();
   }
+}
+
+// ── CPU CORE DETECTION ──
+function detectCpu() {
+  const cores = navigator.hardwareConcurrency || 4;
+  document.getElementById('cpuCores').textContent = cores;
+
+  // アフィニティマスク：最後の2コア（OSとバックグラウンド用）を除いたビットマスク
+  const gameCores = Math.max(1, cores - 2);
+  const mask = (1 << gameCores) - 1;
+  const maskHex = '0x' + mask.toString(16).toUpperCase();
+  document.getElementById('cpuMask').textContent = maskHex;
+
+  let recommend = '';
+  if (cores <= 4) {
+    recommend = `⚠️ コア数が少ないため、アフィニティの固定は逆効果になる場合があります。プロセス優先度「高」の設定のみ推奨します。`;
+  } else if (cores <= 8) {
+    recommend = `✅ ${cores}コア環境です。ゲームプロセスを最初の${gameCores}コア（マスク値: ${maskHex}）に割り当てることで、残り2コアをOS処理に確保できます。下の設定カードのコマンドにこの値が反映されています。`;
+  } else {
+    recommend = `✅ ${cores}コアの高コア環境です。ゲームプロセスを${gameCores}コア（マスク値: ${maskHex}）に割り当て、残りをOS・バックグラウンド処理に確保します。コア数が多い場合はゲームタイトルによって最適値が異なる場合があります。`;
+  }
+  document.getElementById('cpuRecommend').innerHTML = recommend;
+}
+
+// ── FRAME TIME MEASUREMENT ──
+const ftState = { avg: null, max: null, low1pct: null };
+
+function startFrameTime() {
+  const btn = document.getElementById('ftBtn');
+  btn.disabled = true;
+  document.getElementById('ftProgress').style.display = 'block';
+  document.getElementById('ftResult').style.display = 'none';
+
+  const frames = [];
+  let last = null;
+  const duration = 3000;
+  const startTime = performance.now();
+
+  function tick(ts) {
+    if (last !== null) frames.push(ts - last);
+    last = ts;
+    const elapsed = ts - startTime;
+    const pct = Math.min(elapsed / duration * 100, 100);
+    document.getElementById('ftBar').style.width = pct + '%';
+    document.getElementById('ftSec').textContent = Math.max(0, Math.ceil((duration - elapsed) / 1000));
+
+    if (elapsed < duration) {
+      requestAnimationFrame(tick);
+    } else {
+      finishFrameTime(frames, btn);
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function finishFrameTime(frames, btn) {
+  if (frames.length < 10) return;
+  const sorted = [...frames].sort((a, b) => a - b);
+  const avg = frames.reduce((a, b) => a + b, 0) / frames.length;
+  const max = Math.max(...frames);
+  const low1idx = Math.floor(frames.length * 0.99);
+  const low1 = sorted[low1idx];
+
+  ftState.avg = avg.toFixed(1);
+  ftState.max = max.toFixed(1);
+  ftState.low1pct = low1.toFixed(1);
+
+  let judge, judgeColor, recText;
+  const variance = max - avg;
+  if (variance < 5) {
+    judge = '✅ 安定'; judgeColor = 'var(--green)';
+    recText = '✅ フレームタイムは安定しています。設定変更後も同様の結果が出れば最適化は成功です。';
+  } else if (variance < 15) {
+    judge = '🟡 普通'; judgeColor = 'var(--yellow)';
+    recText = '🟡 若干のばらつきがあります。電源プランの「高パフォーマンス」化・HAGSの有効化で改善する可能性があります。';
+  } else {
+    judge = '🔴 不安定'; judgeColor = 'var(--red)';
+    recText = '🔴 フレームタイムが不安定です。バックグラウンドアプリの終了・プロセス優先度の設定・電源プランの変更を優先的に試してください。';
+  }
+
+  document.getElementById('ftAvg').textContent = avg.toFixed(1) + 'ms';
+  document.getElementById('ftMax').textContent = max.toFixed(1) + 'ms';
+  document.getElementById('ftLow').textContent = low1.toFixed(1) + 'ms';
+  document.getElementById('ftJudge').textContent = judge;
+  document.getElementById('ftJudge').style.color = judgeColor;
+  document.getElementById('ftRecommend').innerHTML = recText;
+
+  document.getElementById('ftProgress').style.display = 'none';
+  document.getElementById('ftResult').style.display = 'block';
+  btn.disabled = false;
+  btn.textContent = '▶ 再計測する';
 }
 
 // ── PING MEASUREMENT ──
@@ -509,63 +800,129 @@ async function startPing() {
   document.getElementById('pingProgress').style.display = 'block';
   document.getElementById('pingResult').style.display = 'none';
 
+  // 国内エンドポイント
   const targets = [
-    'https://www.google.com/favicon.ico',
-    'https://www.cloudflare.com/favicon.ico',
+    'https://www.google.co.jp/favicon.ico',
+    'https://www.amazon.co.jp/favicon.ico',
+    'https://1.1.1.1/',
   ];
   const times = [];
+  const total = 30;
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < total; i++) {
     const url = targets[i % targets.length] + '?_=' + Date.now();
     const t0 = performance.now();
-    try {
-      await fetch(url, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' });
-    } catch(e) {}
-    const t1 = performance.now();
-    times.push(Math.round(t1 - t0));
-
+    try { await fetch(url, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' }); } catch(e) {}
+    times.push(Math.round(performance.now() - t0));
     document.getElementById('pingCount').textContent = i + 1;
-    document.getElementById('pingBar').style.width = ((i + 1) / 10 * 100) + '%';
-    await new Promise(r => setTimeout(r, 200));
+    document.getElementById('pingBar').style.width = ((i + 1) / total * 100) + '%';
+    await new Promise(r => setTimeout(r, 150));
   }
 
-  // 最大値・最小値を除外して計算
+  // 中央値・四分位数でジッター算出
   const sorted = [...times].sort((a, b) => a - b);
-  const trimmed = sorted.slice(1, -1);
-  const avg = Math.round(trimmed.reduce((a, b) => a + b, 0) / trimmed.length);
-  const jitter = Math.round(Math.max(...trimmed) - Math.min(...trimmed));
+  const median = sorted[Math.floor(sorted.length / 2)];
+  const p25 = sorted[Math.floor(sorted.length * 0.25)];
+  const p75 = sorted[Math.floor(sorted.length * 0.75)];
+  const iqr = p75 - p25; // IQR = ジッター指標
 
-  pingState.avg = avg;
-  pingState.jitter = jitter;
+  pingState.avg = median;
+  pingState.jitter = iqr;
 
-  // 判定
-  let judge, judgeColor, judgeText;
-  if (jitter <= 3) {
-    judge = '✅ 安定'; judgeColor = 'var(--green)'; judgeText = '安定';
-  } else if (jitter <= 10) {
-    judge = '🟡 普通'; judgeColor = 'var(--yellow)'; judgeText = '普通';
-  } else {
-    judge = '🔴 不安定'; judgeColor = 'var(--red)'; judgeText = '不安定';
-  }
+  let judge, judgeColor;
+  if (iqr <= 5)       { judge = '✅ 安定';   judgeColor = 'var(--green)'; }
+  else if (iqr <= 15) { judge = '🟡 普通';   judgeColor = 'var(--yellow)'; }
+  else                { judge = '🔴 不安定'; judgeColor = 'var(--red)'; }
 
-  document.getElementById('avgPing').textContent = avg + 'ms';
-  document.getElementById('jitter').textContent = jitter + 'ms';
-  document.getElementById('jitter').style.color = judgeColor;
+  document.getElementById('avgPing').textContent  = median + 'ms';
+  document.getElementById('jitter').textContent   = iqr + 'ms';
+  document.getElementById('jitter').style.color   = judgeColor;
   document.getElementById('pingJudge').textContent = judge;
   document.getElementById('pingJudge').style.color = judgeColor;
 
-  // 推奨値メッセージ
   const rec = getBufferRecommend();
   document.getElementById('pingRecommend').innerHTML =
-    `📊 この結果をもとに <strong>Receive Buffers = ${rec.rx}</strong>、<strong>Transmit Buffers = ${rec.tx}</strong> を推奨します。下の設定カードにコマンドが反映されています。`;
+    `📊 <strong>参考値</strong>として Receive Buffers = <strong>${rec.rx}</strong>、Transmit Buffers = <strong>${rec.tx}</strong> を算出しました。下のスライダーで任意に調整できます。`;
 
   document.getElementById('pingResult').style.display = 'block';
   document.getElementById('pingProgress').style.display = 'none';
   btn.disabled = false;
   btn.textContent = '▶ 再計測する';
 
-  // バッファカードを再描画
+  // スライダーに推奨値を反映
+  document.getElementById('rxSlider').value = rec.rx;
+  document.getElementById('txSlider').value = rec.tx;
+  updateSlider();
   renderResults();
+}
+
+// ── SLIDER ──
+function initSliders() {
+  const isFps = env.genre === 'fps';
+  buildMarkers('rxMarkers', isFps);
+  buildMarkers('txMarkers', isFps);
+  updateSlider();
+}
+
+function buildMarkers(containerId, isFps) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const min = 64, max = 1024;
+  // FPS推奨: 128-256, MMO推奨: 256-512
+  const markers = isFps
+    ? [{ val: 128, label: 'FPS推奨', cls: 'fps' }, { val: 256, label: 'FPS上限', cls: 'fps' }]
+    : [{ val: 256, label: 'MMO推奨', cls: 'mmo' }, { val: 512, label: 'MMO上限', cls: 'mmo' }];
+
+  container.innerHTML = markers.map(m => {
+    const pct = (m.val - min) / (max - min) * 100;
+    return `<span class="slider-marker ${m.cls}" style="left:${pct}%">${m.label}<br>${m.val}</span>`;
+  }).join('');
+}
+
+function updateSlider() {
+  const rx = parseInt(document.getElementById('rxSlider').value);
+  const tx = parseInt(document.getElementById('txSlider').value);
+  document.getElementById('rxVal').textContent = rx;
+  document.getElementById('txVal').textContent = tx;
+  const rec = getBufferRecommend();
+  document.getElementById('rxRec').textContent = rec.rx;
+  document.getElementById('txRec').textContent = rec.tx;
+
+  const cmd =
+`# まず使用中のNIC名を確認
+Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+
+# NIC名を実際の名前に変更して実行
+$nic = "イーサネット"
+
+# Receive Buffers を ${rx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*ReceiveBuffers" -RegistryValue ${rx}
+
+# Transmit Buffers を ${tx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*TransmitBuffers" -RegistryValue ${tx}
+
+Write-Host "NICバッファを設定しました（Rx:${rx} / Tx:${tx}）"`;
+
+  // スライダー下のプレビュー
+  const bufCmdEl = document.getElementById('bufferCmdText');
+  if (bufCmdEl) bufCmdEl.textContent = cmd;
+
+  // 設定カード内のコマンドテキストも同期
+  const cardCmd = document.querySelector('#card-nic_buffer .cmd-text');
+  if (cardCmd) cardCmd.textContent = cmd;
+
+  // カードのサブタイトルも更新
+  const cardSub = document.querySelector('#card-nic_buffer .card-sub');
+  if (cardSub) cardSub.textContent = `スライダーで値を設定 → Rx: ${rx} / Tx: ${tx}`;
+}
+
+function copyBufferCmd(btn) {
+  const text = document.getElementById('bufferCmdText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ コピー済み';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
 }
 
 function getBufferRecommend() {
@@ -682,39 +1039,41 @@ function getSettings() {
       emoji: '⚙️',
       title: 'NIC Receive / Transmit Buffers の最適化',
       sub: (() => {
-        const rec = getBufferRecommend();
-        return pingState.jitter !== null
-          ? `計測結果から推奨値を算出 → Rx: ${rec.rx} / Tx: ${rec.tx}`
-          : 'ping計測後に推奨値が表示されます';
+        const rx = typeof document !== 'undefined' && document.getElementById('rxSlider')
+          ? parseInt(document.getElementById('rxSlider').value)
+          : getBufferRecommend().rx;
+        const tx = typeof document !== 'undefined' && document.getElementById('txSlider')
+          ? parseInt(document.getElementById('txSlider').value)
+          : getBufferRecommend().tx;
+        return `スライダーで値を設定 → Rx: ${rx} / Tx: ${tx}`;
       })(),
-      desc: (() => {
-        const rec = getBufferRecommend();
-        const jStr = pingState.jitter !== null ? `（ジッター ${pingState.jitter}ms・${env.genre === 'fps' ? 'FPS向け低遅延優先' : 'MMO向け安定重視'}）` : '';
-        return `NICのバッファサイズを最適化します。バッファが大きすぎると遅延が増加し、小さすぎるとパケットロスが発生します。ping計測結果${jStr}をもとに推奨値を算出しています。\n\n⚠️ NIC名は環境によって異なります。コマンド実行前に Get-NetAdapter で正しい名前を確認してください。`;
-      })(),
+      desc: `NICのバッファサイズを最適化します。バッファが大きすぎると遅延が増加し、小さすぎるとパケットロスが発生します。上のスライダーで値を調整してください。\n\n⚠️ NIC名は環境によって異なります。コマンド実行前に Get-NetAdapter で正しい名前を確認してください。`,
       risk: 'low', riskLabel: '要動作確認',
       available: true,
       commands: (() => {
-        const rec = getBufferRecommend();
+        const rx = typeof document !== 'undefined' && document.getElementById('rxSlider')
+          ? parseInt(document.getElementById('rxSlider').value)
+          : getBufferRecommend().rx;
+        const tx = typeof document !== 'undefined' && document.getElementById('txSlider')
+          ? parseInt(document.getElementById('txSlider').value)
+          : getBufferRecommend().tx;
         return [{ label: 'PowerShell（管理者）', text:
 `# まず使用中のNIC名を確認
 Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
 
-# NIC名を確認後、"イーサネット" の部分を実際の名前に変更して実行
+# NIC名を実際の名前に変更して実行
 $nic = "イーサネット"
 
-# Receive Buffers を ${rec.rx} に設定
-Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*ReceiveBuffers" -RegistryValue ${rec.rx}
+# Receive Buffers を ${rx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*ReceiveBuffers" -RegistryValue ${rx}
 
-# Transmit Buffers を ${rec.tx} に設定
-Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*TransmitBuffers" -RegistryValue ${rec.tx}
+# Transmit Buffers を ${tx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*TransmitBuffers" -RegistryValue ${tx}
 
-Write-Host "NICバッファを最適化しました（Rx:${rec.rx} / Tx:${rec.tx}）"`
+Write-Host "NICバッファを設定しました（Rx:${rx} / Tx:${tx}）"`
         }];
       })(),
-      manual: pingState.jitter === null
-        ? '⚠️ Step 2のping計測を先に実行すると、あなたの環境に合った推奨値でコマンドが自動生成されます。'
-        : `計測結果（ジッター ${pingState.jitter}ms）をもとに推奨値を算出しました。\n上記コマンドの $nic の値を Get-NetAdapter で確認したNIC名に変更して実行してください。`,
+      manual: 'Step 2のスライダーで値を調整後、上記コマンドの $nic を Get-NetAdapter で確認したNIC名に変更して実行してください。',
     },
     {
       id: 'process',
@@ -744,6 +1103,90 @@ Write-Host "NICバッファを最適化しました（Rx:${rec.rx} / Tx:${rec.tx
       ],
       manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games\n③ GPU Priority → 8、Priority → 6、Scheduling Category → High',
     },
+    {
+      id: 'nic_lso',
+      layer: 'OS', layerColor: '#12b76a',
+      emoji: '⚙️',
+      title: 'LSO・Flow Control・EEE の無効化',
+      sub: 'NIC詳細設定 — まとめて無効化',
+      desc: 'ゲーム用途では不要な3つのNIC機能をまとめて無効化します。\n・LSO（Large Send Offload）：送信データをまとめて処理する機能。遅延が増加するケースあり。\n・Flow Control：ネットワーク混雑時に送信を一時停止する機能。ゲームでは逆効果。\n・EEE（Energy Efficient Ethernet）：アイドル時にNICをスリープさせる省電力機能。復帰遅延の原因になる。',
+      risk: 'low', riskLabel: '要動作確認',
+      available: true,
+      commands: [{
+        label: 'PowerShell（管理者）',
+        text:
+`# まず使用中のNIC名を確認
+Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+
+# NIC名を実際の名前に変更して実行
+$nic = "イーサネット"
+
+# LSO（IPv4 / IPv6）を無効化
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*LsoV2IPv4" -RegistryValue 0
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*LsoV2IPv6" -RegistryValue 0
+
+# Flow Control を無効化
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*FlowControl" -RegistryValue 0
+
+# EEE（Energy Efficient Ethernet）を無効化
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*EEE" -RegistryValue 0
+
+Write-Host "LSO・Flow Control・EEE を無効化しました"`
+      }],
+      manual: '① デバイスマネージャー → ネットワークアダプター → 該当NICを右クリック → プロパティ\n② 「詳細設定」タブで以下を「無効」に変更：\n   ・Large Send Offload V2 (IPv4)\n   ・Large Send Offload V2 (IPv6)\n   ・Flow Control\n   ・Energy Efficient Ethernet\n③ OK → 適用\n\n⚠️ 設定後に通信が不安定になった場合は「設定のリセット」で元に戻せます。',
+    },
+    {
+      id: 'affinity',
+      layer: 'CPU', layerColor: '#f5a623',
+      emoji: '🔲',
+      title: 'ゲームプロセスのCPUアフィニティ設定',
+      sub: (() => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        const mask = (1 << gameCores) - 1;
+        return `検出コア数: ${cores} → 推奨マスク: 0x${mask.toString(16).toUpperCase()}`;
+      })(),
+      desc: (() => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        const mask = (1 << gameCores) - 1;
+        const maskHex = '0x' + mask.toString(16).toUpperCase();
+        if (cores <= 4) return `⚠️ ${cores}コア環境のため、アフィニティ固定は逆効果になる場合があります。この設定はスキップしてプロセス優先度「高」のみ設定することを推奨します。`;
+        return `ゲームプロセスを特定のCPUコアに固定することで、OSのバックグラウンド処理との競合を減らしフレームタイムが安定します。検出されたコア数（${cores}コア）から、ゲーム用に${gameCores}コア（マスク値: ${maskHex}）を割り当てます。`;
+      })(),
+      risk: 'low', riskLabel: '要動作確認',
+      available: (navigator.hardwareConcurrency || 4) > 4,
+      naReason: `検出コア数が4以下のため、アフィニティ固定は推奨しません。プロセス優先度「高」の設定のみ行ってください。`,
+      commands: (() => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        const mask = (1 << gameCores) - 1;
+        const maskHex = '0x' + mask.toString(16).toUpperCase();
+        return [{
+          label: 'PowerShell（ゲーム起動後に実行）',
+          text:
+`# ゲームの.exe名を実際の名前に変更して実行
+# 例: "game_name" → "cs2", "valorant" など
+$procName = "game_name"
+
+$proc = Get-Process -Name $procName -ErrorAction SilentlyContinue
+if ($proc) {
+  # アフィニティマスク設定（${cores}コア検出 → ゲーム用${gameCores}コア）
+  $proc.ProcessorAffinity = ${mask}
+  $proc.PriorityClass = "High"
+  Write-Host "アフィニティ: ${maskHex} / 優先度: 高 に設定しました"
+} else {
+  Write-Host "プロセスが見つかりません。ゲーム起動後に再実行してください。"
+}`
+        }];
+      })(),
+      manual: (() => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        if (cores <= 4) return '⚠️ コア数が少ないためこの設定はスキップを推奨します。';
+        return `① ゲームを起動してからCtrl+Shift+Escでタスクマネージャーを開く\n② 「詳細」タブ → ゲームの.exeを右クリック → 「関係の設定」\n③ 最初の${gameCores}コア（CPU 0〜${gameCores - 1}）にチェックを入れてOK\n④ 同じく右クリック → 「優先度の設定」→「高」\n⚠️ 毎回設定が必要。自動化はProcess Lassoを推奨。`;
+      })(),
+    },
   ];
 }
 
@@ -755,6 +1198,8 @@ function renderResults() {
   document.getElementById('placeholder').style.display = 'none';
   const results = document.getElementById('results');
   results.classList.add('show');
+  document.getElementById('stickyPanel').classList.add('show');
+  initSliders();
 
   const genreLabel = env.genre === 'fps' ? 'FPS・格闘' : 'MMO・RTS';
   document.getElementById('resultSummary').innerHTML =
@@ -834,6 +1279,8 @@ function updateProgress() {
   const checked = document.querySelectorAll('.setting-card.checked');
   const pct = cards.length ? (checked.length / cards.length) * 100 : 0;
   document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('stickyProgressFill').style.width = pct + '%';
+  document.getElementById('stickyProgressText').textContent = `${checked.length} / ${cards.length}`;
 }
 
 function escHtml(str) {
@@ -848,13 +1295,24 @@ function copyCmd(btn, text) {
   });
 }
 
+function getCommandText(s) {
+  // nic_bufferはスライダー連動のためDOMから最新値を取得
+  if (s.id === 'nic_buffer') {
+    const el = document.querySelector('#card-nic_buffer .cmd-text');
+    if (el) return [{ label: 'PowerShell（管理者）', text: el.textContent }];
+  }
+  return s.commands;
+}
+
 function copyAll() {
   const settings = getSettings();
   let out = `# PCゲーム遅延最適化コマンド\n# GPU: ${env.gpu?.toUpperCase()} / OS: ${env.os?.toUpperCase()}\n# 管理者権限のPowerShellで実行してください\n\n`;
   settings.forEach(s => {
-    if (!s.available || !s.commands?.length) return;
+    if (!s.available) return;
+    const cmds = getCommandText(s);
+    if (!cmds?.length) return;
     out += `# ── ${s.title} ──\n`;
-    s.commands.forEach(c => { out += c.text + '\n\n'; });
+    cmds.forEach(c => { out += c.text + '\n\n'; });
   });
   navigator.clipboard.writeText(out).then(() => alert('全コマンドをコピーしました'));
 }
@@ -863,9 +1321,11 @@ function exportBat() {
   const settings = getSettings();
   let bat = `@echo off\nREM PCゲーム遅延最適化バッチファイル\nREM GPU: ${env.gpu?.toUpperCase()} / OS: ${env.os?.toUpperCase()}\nREM 管理者として実行してください\n\n`;
   settings.forEach(s => {
-    if (!s.available || !s.commands?.length) return;
+    if (!s.available) return;
+    const cmds = getCommandText(s);
+    if (!cmds?.length) return;
     bat += `REM ── ${s.title} ──\n`;
-    s.commands.forEach(c => {
+    cmds.forEach(c => {
       if (c.label.includes('PowerShell')) {
         bat += `powershell -Command "${c.text.replace(/\n/g,' ').replace(/"/g,'\\"')}"\n`;
       } else {
