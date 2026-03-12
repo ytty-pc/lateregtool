@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCゲーム遅延最適化ツール</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4KSKP2PF68"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-4KSKP2PF68');
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f7f5;
+  --white: #ffffff;
+  --border: #e4e4e0;
+  --accent: #0055ee;
+  --accent-light: #e6eeff;
+  --green: #0a9e5c;
+  --green-light: #e6f7f0;
+  --red: #d93030;
+  --red-light: #fdeaea;
+  --yellow: #e07b00;
+  --yellow-light: #fff3e0;
+  --text: #111111;
+  --mid: #444444;
+  --muted: #888888;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Noto Sans JP', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  font-family: var(--sans);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 80px;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--text);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.site-header .logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 2px;
+}
+.site-header .logo span { color: #4a9eff; }
+.header-sub {
+  font-size: 11px;
+  color: #666;
+  font-family: var(--mono);
+  margin-left: auto;
+}
+
+/* ── HERO ── */
+.hero {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 24px 32px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.hero h1 {
+  font-size: clamp(20px, 3.5vw, 28px);
+  font-weight: 900;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p {
+  font-size: 13.5px;
+  color: var(--mid);
+  line-height: 1.75;
+  max-width: 560px;
+}
+
+/* ── MAIN ── */
+.main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 24px 0;
+}
+
+/* ── STEP ── */
+.step-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── ENV SELECTOR ── */
+.env-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.env-card h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sel-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--mid);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sel-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.sel-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── RESULTS ── */
+.results {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.results.show { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-summary {
+  background: var(--accent-light);
+  border: 1px solid #b8ccff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 13.5px;
+  color: #003399;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── SETTING CARDS ── */
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.setting-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+
+.setting-card.na {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+.card-header:hover { background: #fafaf8; }
+
+.card-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+.setting-card.checked .card-check {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.card-title-wrap { flex: 1; }
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+
+.badge-layer {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+.badge-risk {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  margin-left: auto;
+}
+.risk-none  { background: var(--green-light);  color: var(--green); }
+.risk-low   { background: var(--yellow-light); color: var(--yellow); }
+.risk-high  { background: var(--red-light);    color: var(--red); }
+
+.card-body {
+  display: none;
+  border-top: 1px solid var(--border);
+  padding: 16px 18px;
+  background: #fdfdfb;
+}
+.setting-card.open .card-body { display: block; }
+
+.card-desc {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 1.75;
+  margin-bottom: 14px;
+}
+
+.cmd-block {
+  background: #1a1e26;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.cmd-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #556;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.cmd-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #a8c8e0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.cmd-text .key { color: #7ec8e3; }
+.cmd-text .val { color: #98d8a0; }
+.cmd-text .comment { color: #445566; }
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  background: #2a3040;
+  color: #7a9ab0;
+  border: 1px solid #3a4050;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+.na-notice {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* ── EXPORT ── */
+.export-bar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.export-bar p { font-size: 13px; color: var(--mid); flex: 1; min-width: 200px; }
+.export-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 22px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.export-btn:hover { background: #0044cc; }
+.export-btn.secondary {
+  background: var(--white);
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
+.export-btn.secondary:hover { background: var(--accent-light); }
+
+/* ── PROGRESS ── */
+.progress-bar-wrap {
+  background: var(--border);
+  border-radius: 4px;
+  height: 4px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 28px 0;
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">LATENCY<span>TOOL</span></div>
+  <div class="header-sub">PCゲーム遅延最適化ガイド</div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
+    <a href="https://ytty-pc.github.io/" target="_blank" style="font-family:var(--mono);font-size:11px;color:#aaa;text-decoration:none;letter-spacing:1px;">by ytty</a>
+    <a href="https://note.com/noted_pothos7691/n/n3016e5312a4f" target="_blank" style="font-family:var(--mono);font-size:10px;color:#fff;background:#41c9b4;padding:5px 12px;border-radius:5px;text-decoration:none;letter-spacing:0.5px;white-space:nowrap;">📝 元記事を読む</a>
+  </div>
+</header>
+
+<div style="max-width:760px;margin:0 auto;">
+  <div class="hero">
+    <h1>あなたの環境に合った<em>遅延削減設定</em>を見つける</h1>
+    <p>GPUメーカーとOSを選択するだけで、有効な設定と手順・コマンドを一覧表示します。コピーして実行するだけで最適化が完了します。</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STEP 1: 環境選択 -->
+  <div class="step-label">Step 1 — 環境を選択</div>
+
+  <div class="env-card">
+    <h2>🎮 GPUメーカー</h2>
+    <div class="btn-group">
+      <button class="sel-btn" data-group="gpu" data-val="nvidia" onclick="select('gpu','nvidia',this)">NVIDIA（GeForce）</button>
+      <button class="sel-btn" data-group="gpu" data-val="amd"    onclick="select('gpu','amd',this)">AMD（Radeon）</button>
+    </div>
+  </div>
+
+  <div class="env-card">
+    <h2>💻 OSバージョン</h2>
+    <div class="btn-group">
+      <button class="sel-btn" data-group="os" data-val="win11" onclick="select('os','win11',this)">Windows 11</button>
+      <button class="sel-btn" data-group="os" data-val="win10" onclick="select('os','win10',this)">Windows 10</button>
+    </div>
+  </div>
+
+  <div class="env-card">
+    <h2>🎯 ゲームジャンル</h2>
+    <div class="btn-group">
+      <button class="sel-btn" data-group="genre" data-val="fps" onclick="select('genre','fps',this)">FPS・格闘（低遅延最優先）</button>
+      <button class="sel-btn" data-group="genre" data-val="mmo" onclick="select('genre','mmo',this)">MMO・RTS（安定性重視）</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 2: 結果 -->
+  <div class="step-label">Step 2 — 推奨設定一覧</div>
+
+  <div id="results" class="results">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="result-summary" id="resultSummary"></div>
+    <div class="settings-grid" id="settingsGrid"></div>
+    <div class="export-bar">
+      <p>チェックした設定のコマンドをまとめて.batファイルとしてダウンロードできます。</p>
+      <button class="export-btn secondary" onclick="exportBat()">📄 .batファイルを生成</button>
+      <button class="export-btn" onclick="copyAll()">📋 コマンドを全コピー</button>
+    </div>
+  </div>
+
+  <div id="placeholder" style="text-align:center;padding:48px 0;color:var(--muted);font-size:13px;">
+    ↑ GPU・OS・ゲームジャンルを選択すると設定一覧が表示されます
+  </div>
+
+</div>
+
+<script>
+const env = { gpu: null, os: null, genre: null };
+
+function select(group, val, btn) {
+  env[group] = val;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (env.gpu && env.os && env.genre) renderResults();
+}
+
+// ── SETTINGS DATA ──
+function getSettings() {
+  const isNvidia = env.gpu === 'nvidia';
+  const isWin11  = env.os  === 'win11';
+
+  return [
+    {
+      id: 'reflex',
+      layer: 'GPU', layerColor: '#0066ff',
+      emoji: '📐',
+      title: isNvidia ? 'NVIDIA Reflex を有効化' : 'AMD Anti-Lag を有効化',
+      sub: isNvidia ? 'ゲーム内設定 → Low Latency ON' : 'AMD Software → Anti-Lag ON',
+      desc: isNvidia
+        ? 'GPU側のレンダリングキューを削減し、入力からフレーム表示までの遅延を短縮します。対応ゲームなら最優先で設定してください。'
+        : 'CPU-GPU間のキュー詰まりを解消します。ドライバーレベルで動作するため、ゲーム非対応でも使えます。ただし対応状況を事前に確認してください。',
+      risk: 'none', riskLabel: 'リスクなし',
+      available: true,
+      commands: isNvidia ? [] : [],
+      manual: isNvidia
+        ? '① ゲームを起動\n② グラフィック設定 → NVIDIA Reflex Low Latency → ON（またはON+Boost）'
+        : '① AMD Software: Adrenalin Edition を開く\n② 「グラフィックス」タブ → Anti-Lag → オン',
+    },
+    {
+      id: 'ull',
+      layer: 'GPU', layerColor: '#0066ff',
+      emoji: '📐',
+      title: isNvidia ? 'Ultra Low Latency Mode（Reflex非対応ゲーム用）' : 'Radeon Boost',
+      sub: isNvidia ? 'NVIDIAコントロールパネル → 事前レンダリング数 Ultra' : 'AMD Software → Radeon Boost',
+      desc: isNvidia
+        ? 'Reflexが使えないゲーム向けの設定です。Reflex対応ゲームではこの設定は自動的に無視されるため、両方設定しても問題ありません。'
+        : '動的解像度スケーリングで描画負荷を下げ、フレームレートを安定させます。遅延削減への直接効果は環境依存です。',
+      risk: 'none', riskLabel: 'リスクなし',
+      available: isNvidia,
+      naReason: 'AMD環境では対象外です',
+      commands: isNvidia ? [
+        { label: 'PowerShell（管理者）', text: '# NVIDIAコントロールパネルで手動設定\n# 3D設定の管理 → 事前レンダリングする最大フレーム数 → Ultra' }
+      ] : [],
+      manual: isNvidia
+        ? '① NVIDIAコントロールパネルを開く\n② 「3D設定の管理」→「グローバル設定」\n③ 「事前レンダリングする最大フレーム数」→「Ultra」'
+        : '',
+    },
+    {
+      id: 'hags',
+      layer: 'GPU', layerColor: '#0066ff',
+      emoji: '📐',
+      title: 'HAGS（ハードウェアアクセラレートGPUスケジューリング）',
+      sub: 'Windows設定 → ディスプレイ → グラフィック',
+      desc: 'GPUスケジューリングをOSからGPUに移譲することで遅延を削減します。DLSS 3 Frame Generationを使う場合は必須です。一部の古いゲームで不安定になる場合があります。',
+      risk: 'low', riskLabel: '要動作確認',
+      available: true,
+      commands: [
+        { label: 'レジストリ（管理者PowerShell）', text: `reg add "HKLM\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f` }
+      ],
+      manual: '① 設定 → システム → ディスプレイ → グラフィック\n② 「ハードウェアアクセラレートによるGPUスケジューリング」→ オン\n③ PC再起動',
+    },
+    {
+      id: 'power',
+      layer: 'OS', layerColor: '#12b76a',
+      emoji: '⚙️',
+      title: '電源プランを「高パフォーマンス」に変更',
+      sub: 'コントロールパネル → 電源オプション',
+      desc: 'CPUのクロックが頻繁に上下するとフレームタイムのばらつきに直結します。高パフォーマンスプランで常時最大クロックを維持します。',
+      risk: 'none', riskLabel: 'リスクなし',
+      available: true,
+      commands: [
+        { label: 'PowerShell（管理者）', text: `# 高パフォーマンスに変更\npowercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\n\n# 究極のパフォーマンスが表示されない場合は先に有効化\npowercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61` }
+      ],
+      manual: '① コントロールパネル → 電源オプション\n② 「高パフォーマンス」を選択',
+    },
+    {
+      id: 'timer',
+      layer: 'OS', layerColor: '#12b76a',
+      emoji: '⚙️',
+      title: 'タイマー解像度を1ms化',
+      sub: isWin11 ? 'Win11 22H2以降は自動設定済み' : 'TimerResolutionツールを使用',
+      desc: isWin11
+        ? 'Windows 11 22H2以降ではゲーム実行中に自動で1msに設定されます。追加設定は不要ですが、旧バージョンの場合はTimerResolutionツールを使用してください。'
+        : 'Windowsの内部タイマー（デフォルト15.6ms）を1ms化することで処理精度が向上します。TimerResolutionをスタートアップに登録して常時有効にしてください。',
+      risk: 'none', riskLabel: 'リスクなし',
+      available: true,
+      commands: isWin11 ? [] : [
+        { label: 'bcdedit（管理者CMD）', text: `# ※Win10向け。HPETは無効推奨（逆効果の場合あり）\nbcdedit /deletevalue useplatformclock` }
+      ],
+      manual: isWin11
+        ? 'Win11 22H2以降は対応不要です。\nバージョン確認：設定 → システム → バージョン情報'
+        : '① TimerResolution（https://cms.lucashale.com/timer-resolution/）をダウンロード\n② 「Maximum」を選択して「Start」\n③ スタートアップに登録して常時有効化',
+    },
+    {
+      id: 'nic',
+      layer: 'OS', layerColor: '#12b76a',
+      emoji: '⚙️',
+      title: 'NIC割り込み節約機能（Interrupt Moderation）を無効化',
+      sub: 'デバイスマネージャー → ネットワークアダプター',
+      desc: 'ネットワークアダプターの割り込み節約機能をOFFにすることで、パケット受信遅延が下がります。オンライン対戦ゲームで特に有効です。',
+      risk: 'none', riskLabel: 'リスクなし',
+      available: true,
+      commands: [],
+      manual: '① デバイスマネージャー → ネットワークアダプター → 該当NICを右クリック → プロパティ\n② 「詳細設定」タブ → 「Interrupt Moderation」→「無効」\n③ OK → 適用',
+    },
+    {
+      id: 'process',
+      layer: 'CPU', layerColor: '#f5a623',
+      emoji: '🔲',
+      title: 'ゲームプロセスの優先度を「高」に設定',
+      sub: 'タスクマネージャー → 詳細 → 優先度の設定',
+      desc: 'ゲームのプロセスにCPU時間を優先的に割り当てます。Process Lassoを使うと起動時に自動で設定できます。「リアルタイム」は設定しないでください。',
+      risk: 'none', riskLabel: 'リスクなし',
+      available: true,
+      commands: [
+        { label: 'PowerShell（ゲーム起動後に実行）', text: `# ゲームの.exe名を変更して使用\n$proc = Get-Process -Name "game_name" -ErrorAction SilentlyContinue\nif ($proc) { $proc.PriorityClass = "High"; Write-Host "優先度を高に設定しました" }` }
+      ],
+      manual: '① Ctrl+Shift+Esc でタスクマネージャーを開く\n② 「詳細」タブ → ゲームの.exeを右クリック\n③ 「優先度の設定」→「高」を選択\n※毎回設定が必要。自動化はProcess Lassoを使用。',
+    },
+    {
+      id: 'registry',
+      layer: 'CPU', layerColor: '#f5a623',
+      emoji: '🔲',
+      title: 'GPUスケジューラ優先度をレジストリで変更',
+      sub: 'HKLM → Multimedia → SystemProfile → Tasks → Games',
+      desc: 'Windowsのマルチメディアスケジューラがゲームに割り当てるGPU優先度を変更します。体感差は微小ですが積み重ねとして有効です。',
+      risk: 'low', riskLabel: '軽微なリスク',
+      available: true,
+      commands: [
+        { label: 'レジストリ（管理者PowerShell）', text: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games"\nSet-ItemProperty -Path $path -Name "GPU Priority" -Value 8 -Type DWord\nSet-ItemProperty -Path $path -Name "Priority" -Value 6 -Type DWord\nSet-ItemProperty -Path $path -Name "Scheduling Category" -Value "High" -Type String\nWrite-Host "GPUスケジューラ優先度を設定しました"` }
+      ],
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games\n③ GPU Priority → 8、Priority → 6、Scheduling Category → High',
+    },
+  ];
+}
+
+function renderResults() {
+  const settings = getSettings();
+  const gpuLabel = env.gpu === 'nvidia' ? 'NVIDIA' : 'AMD';
+  const osLabel  = env.os  === 'win11'  ? 'Windows 11' : 'Windows 10';
+
+  document.getElementById('placeholder').style.display = 'none';
+  const results = document.getElementById('results');
+  results.classList.add('show');
+
+  document.getElementById('resultSummary').innerHTML =
+    `✅ <strong>${gpuLabel} × ${osLabel}</strong> 向けの設定を ${settings.filter(s=>s.available).length} 件表示しています。カードをクリックして手順を確認し、チェックを入れながら進めてください。`;
+
+  const grid = document.getElementById('settingsGrid');
+  grid.innerHTML = '';
+
+  settings.forEach(s => {
+    const card = document.createElement('div');
+    card.className = `setting-card${!s.available ? ' na' : ''}`;
+    card.id = `card-${s.id}`;
+
+    const layerBg = s.layerColor + '18';
+    const riskClass = s.risk === 'none' ? 'risk-none' : s.risk === 'low' ? 'risk-low' : 'risk-high';
+
+    let cmdHTML = '';
+    if (s.commands && s.commands.length > 0) {
+      s.commands.forEach((cmd, i) => {
+        cmdHTML += `
+          <div class="cmd-block">
+            <div class="cmd-label">${cmd.label}</div>
+            <div class="cmd-text">${escHtml(cmd.text)}</div>
+            <button class="copy-btn" onclick="copyCmd(this, ${JSON.stringify(cmd.text).replace(/'/g,"&#39;")})">コピー</button>
+          </div>`;
+      });
+    }
+    if (s.manual) {
+      cmdHTML += `
+        <div style="margin-top:12px;">
+          <div style="font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:2px;margin-bottom:8px;">手順</div>
+          <div style="font-size:13px;color:var(--mid);line-height:1.8;white-space:pre-line;">${escHtml(s.manual)}</div>
+        </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="card-header" onclick="toggleCard('${s.id}')">
+        <div class="card-check" id="check-${s.id}"></div>
+        <div class="card-title-wrap">
+          <div class="card-title">
+            <span>${s.emoji}</span>
+            <span>${s.title}</span>
+            <span class="badge-layer" style="background:${layerBg};color:${s.layerColor}">${s.layer}</span>
+          </div>
+          <div class="card-sub">${s.sub}</div>
+        </div>
+        <span class="badge-risk ${riskClass}">${s.riskLabel}</span>
+      </div>
+      <div class="card-body">
+        ${!s.available ? `<div class="na-notice">⚠️ ${s.naReason || 'この環境では対象外の設定です'}</div>` : `
+          <p class="card-desc">${s.desc}</p>
+          ${cmdHTML}
+        `}
+      </div>`;
+
+    grid.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function toggleCard(id) {
+  const card = document.getElementById(`card-${id}`);
+  const isOpen = card.classList.contains('open');
+  card.classList.toggle('open', !isOpen);
+  if (!card.classList.contains('na')) {
+    card.classList.toggle('checked', !card.classList.contains('checked') || isOpen);
+    if (!isOpen) card.classList.add('checked');
+  }
+  const check = document.getElementById(`check-${id}`);
+  check.textContent = card.classList.contains('checked') ? '✓' : '';
+  updateProgress();
+}
+
+function updateProgress() {
+  const cards = document.querySelectorAll('.setting-card:not(.na)');
+  const checked = document.querySelectorAll('.setting-card.checked');
+  const pct = cards.length ? (checked.length / cards.length) * 100 : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyCmd(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ コピー済み';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyAll() {
+  const settings = getSettings();
+  let out = `# PCゲーム遅延最適化コマンド\n# GPU: ${env.gpu?.toUpperCase()} / OS: ${env.os?.toUpperCase()}\n# 管理者権限のPowerShellで実行してください\n\n`;
+  settings.forEach(s => {
+    if (!s.available || !s.commands?.length) return;
+    out += `# ── ${s.title} ──\n`;
+    s.commands.forEach(c => { out += c.text + '\n\n'; });
+  });
+  navigator.clipboard.writeText(out).then(() => alert('全コマンドをコピーしました'));
+}
+
+function exportBat() {
+  const settings = getSettings();
+  let bat = `@echo off\nREM PCゲーム遅延最適化バッチファイル\nREM GPU: ${env.gpu?.toUpperCase()} / OS: ${env.os?.toUpperCase()}\nREM 管理者として実行してください\n\n`;
+  settings.forEach(s => {
+    if (!s.available || !s.commands?.length) return;
+    bat += `REM ── ${s.title} ──\n`;
+    s.commands.forEach(c => {
+      if (c.label.includes('PowerShell')) {
+        bat += `powershell -Command "${c.text.replace(/\n/g,' ').replace(/"/g,'\\"')}"\n`;
+      } else {
+        bat += c.text.split('\n').filter(l => !l.startsWith('#')).join('\n') + '\n';
+      }
+    });
+    bat += '\n';
+  });
+  bat += `echo.\necho 設定が完了しました。PCを再起動してください。\npause`;
+
+  const blob = new Blob([bat], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `latency-optimize-${env.gpu}-${env.os}.bat`;
+  a.click();
+}
+</script>
+</body>
+</html>
