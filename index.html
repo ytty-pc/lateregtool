@@ -431,8 +431,44 @@ body {
 
   <hr class="divider">
 
-  <!-- STEP 2: 結果 -->
-  <div class="step-label">Step 2 — 推奨設定一覧</div>
+  <!-- STEP 2: ping計測 -->
+  <div class="step-label">Step 2 — ネットワーク遅延を計測</div>
+
+  <div id="pingSection" class="ping-section" style="display:none;">
+    <div class="env-card" style="margin-bottom:24px;">
+      <h2>📡 ネットワーク遅延の計測</h2>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;">サーバーへのpingを10回計測し、平均遅延とジッターを表示します。結果をもとにNICバッファの推奨値を自動で算出します。</p>
+      <button class="export-btn" id="pingBtn" onclick="startPing()">▶ 計測を開始する</button>
+
+      <div id="pingProgress" style="display:none;margin-top:20px;">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px;">計測中... <span id="pingCount">0</span>/10</div>
+        <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;">
+          <div id="pingBar" style="height:100%;background:var(--accent);border-radius:4px;width:0%;transition:width 0.3s;"></div>
+        </div>
+      </div>
+
+      <div id="pingResult" style="display:none;margin-top:20px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">平均PING</div>
+            <div id="avgPing" style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);">—</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">ジッター</div>
+            <div id="jitter" style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);">—</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">判定</div>
+            <div id="pingJudge" style="font-size:18px;font-weight:700;">—</div>
+          </div>
+        </div>
+        <div id="pingRecommend" style="background:var(--accent-light);border:1px solid #b8ccff;border-radius:8px;padding:12px 16px;font-size:13px;color:#003399;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: 結果 -->
+  <div class="step-label">Step 3 — 推奨設定一覧</div>
 
   <div id="results" class="results">
     <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
@@ -453,12 +489,92 @@ body {
 
 <script>
 const env = { gpu: null, os: null, genre: null };
+const pingState = { avg: null, jitter: null };
 
 function select(group, val, btn) {
   env[group] = val;
   document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  if (env.gpu && env.os && env.genre) renderResults();
+  if (env.gpu && env.os && env.genre) {
+    document.getElementById('pingSection').style.display = 'block';
+    renderResults();
+  }
+}
+
+// ── PING MEASUREMENT ──
+async function startPing() {
+  const btn = document.getElementById('pingBtn');
+  btn.disabled = true;
+  btn.textContent = '計測中...';
+  document.getElementById('pingProgress').style.display = 'block';
+  document.getElementById('pingResult').style.display = 'none';
+
+  const targets = [
+    'https://www.google.com/favicon.ico',
+    'https://www.cloudflare.com/favicon.ico',
+  ];
+  const times = [];
+
+  for (let i = 0; i < 10; i++) {
+    const url = targets[i % targets.length] + '?_=' + Date.now();
+    const t0 = performance.now();
+    try {
+      await fetch(url, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' });
+    } catch(e) {}
+    const t1 = performance.now();
+    times.push(Math.round(t1 - t0));
+
+    document.getElementById('pingCount').textContent = i + 1;
+    document.getElementById('pingBar').style.width = ((i + 1) / 10 * 100) + '%';
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  // 最大値・最小値を除外して計算
+  const sorted = [...times].sort((a, b) => a - b);
+  const trimmed = sorted.slice(1, -1);
+  const avg = Math.round(trimmed.reduce((a, b) => a + b, 0) / trimmed.length);
+  const jitter = Math.round(Math.max(...trimmed) - Math.min(...trimmed));
+
+  pingState.avg = avg;
+  pingState.jitter = jitter;
+
+  // 判定
+  let judge, judgeColor, judgeText;
+  if (jitter <= 3) {
+    judge = '✅ 安定'; judgeColor = 'var(--green)'; judgeText = '安定';
+  } else if (jitter <= 10) {
+    judge = '🟡 普通'; judgeColor = 'var(--yellow)'; judgeText = '普通';
+  } else {
+    judge = '🔴 不安定'; judgeColor = 'var(--red)'; judgeText = '不安定';
+  }
+
+  document.getElementById('avgPing').textContent = avg + 'ms';
+  document.getElementById('jitter').textContent = jitter + 'ms';
+  document.getElementById('jitter').style.color = judgeColor;
+  document.getElementById('pingJudge').textContent = judge;
+  document.getElementById('pingJudge').style.color = judgeColor;
+
+  // 推奨値メッセージ
+  const rec = getBufferRecommend();
+  document.getElementById('pingRecommend').innerHTML =
+    `📊 この結果をもとに <strong>Receive Buffers = ${rec.rx}</strong>、<strong>Transmit Buffers = ${rec.tx}</strong> を推奨します。下の設定カードにコマンドが反映されています。`;
+
+  document.getElementById('pingResult').style.display = 'block';
+  document.getElementById('pingProgress').style.display = 'none';
+  btn.disabled = false;
+  btn.textContent = '▶ 再計測する';
+
+  // バッファカードを再描画
+  renderResults();
+}
+
+function getBufferRecommend() {
+  const j = pingState.jitter;
+  const isFps = env.genre === 'fps';
+  if (j === null) return { rx: 256, tx: 256 };
+  if (j <= 3)  return isFps ? { rx: 256, tx: 256 } : { rx: 512, tx: 512 };
+  if (j <= 10) return isFps ? { rx: 128, tx: 256 } : { rx: 256, tx: 512 };
+  return isFps ? { rx: 128, tx: 128 } : { rx: 256, tx: 256 };
 }
 
 // ── SETTINGS DATA ──
@@ -561,6 +677,46 @@ function getSettings() {
       manual: '① デバイスマネージャー → ネットワークアダプター → 該当NICを右クリック → プロパティ\n② 「詳細設定」タブ → 「Interrupt Moderation」→「無効」\n③ OK → 適用',
     },
     {
+      id: 'nic_buffer',
+      layer: 'OS', layerColor: '#12b76a',
+      emoji: '⚙️',
+      title: 'NIC Receive / Transmit Buffers の最適化',
+      sub: (() => {
+        const rec = getBufferRecommend();
+        return pingState.jitter !== null
+          ? `計測結果から推奨値を算出 → Rx: ${rec.rx} / Tx: ${rec.tx}`
+          : 'ping計測後に推奨値が表示されます';
+      })(),
+      desc: (() => {
+        const rec = getBufferRecommend();
+        const jStr = pingState.jitter !== null ? `（ジッター ${pingState.jitter}ms・${env.genre === 'fps' ? 'FPS向け低遅延優先' : 'MMO向け安定重視'}）` : '';
+        return `NICのバッファサイズを最適化します。バッファが大きすぎると遅延が増加し、小さすぎるとパケットロスが発生します。ping計測結果${jStr}をもとに推奨値を算出しています。\n\n⚠️ NIC名は環境によって異なります。コマンド実行前に Get-NetAdapter で正しい名前を確認してください。`;
+      })(),
+      risk: 'low', riskLabel: '要動作確認',
+      available: true,
+      commands: (() => {
+        const rec = getBufferRecommend();
+        return [{ label: 'PowerShell（管理者）', text:
+`# まず使用中のNIC名を確認
+Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+
+# NIC名を確認後、"イーサネット" の部分を実際の名前に変更して実行
+$nic = "イーサネット"
+
+# Receive Buffers を ${rec.rx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*ReceiveBuffers" -RegistryValue ${rec.rx}
+
+# Transmit Buffers を ${rec.tx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*TransmitBuffers" -RegistryValue ${rec.tx}
+
+Write-Host "NICバッファを最適化しました（Rx:${rec.rx} / Tx:${rec.tx}）"`
+        }];
+      })(),
+      manual: pingState.jitter === null
+        ? '⚠️ Step 2のping計測を先に実行すると、あなたの環境に合った推奨値でコマンドが自動生成されます。'
+        : `計測結果（ジッター ${pingState.jitter}ms）をもとに推奨値を算出しました。\n上記コマンドの $nic の値を Get-NetAdapter で確認したNIC名に変更して実行してください。`,
+    },
+    {
       id: 'process',
       layer: 'CPU', layerColor: '#f5a623',
       emoji: '🔲',
@@ -600,8 +756,9 @@ function renderResults() {
   const results = document.getElementById('results');
   results.classList.add('show');
 
+  const genreLabel = env.genre === 'fps' ? 'FPS・格闘' : 'MMO・RTS';
   document.getElementById('resultSummary').innerHTML =
-    `✅ <strong>${gpuLabel} × ${osLabel}</strong> 向けの設定を ${settings.filter(s=>s.available).length} 件表示しています。カードをクリックして手順を確認し、チェックを入れながら進めてください。`;
+    `✅ <strong>${gpuLabel} × ${osLabel} × ${genreLabel}</strong> 向けの設定を ${settings.filter(s=>s.available).length} 件表示しています。カードをクリックして手順を確認し、チェックを入れながら進めてください。`;
 
   const grid = document.getElementById('settingsGrid');
   grid.innerHTML = '';
