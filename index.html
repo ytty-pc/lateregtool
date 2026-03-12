@@ -33,6 +33,25 @@
   --sans: 'Noto Sans JP', sans-serif;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141414;
+    --white: #1e1e1e;
+    --border: #2e2e2e;
+    --accent: #4488ff;
+    --accent-light: #1a2a4a;
+    --green: #2ab870;
+    --green-light: #0e2e1e;
+    --red: #e05050;
+    --red-light: #2e1010;
+    --yellow: #f0a030;
+    --yellow-light: #2e2000;
+    --text: #eeeeee;
+    --mid: #aaaaaa;
+    --muted: #666666;
+  }
+}
+
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
@@ -71,7 +90,7 @@ body {
   background: var(--white);
   border-bottom: 1px solid var(--border);
   padding: 40px 24px 32px;
-  max-width: 760px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 .hero h1 {
@@ -94,11 +113,21 @@ body {
   margin: 0 auto;
   padding: 32px 24px 0;
   display: grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: 1fr 240px;
   gap: 28px;
   align-items: start;
 }
 .main-content { min-width: 0; }
+
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .sticky-panel {
+    position: static;
+    order: -1;
+  }
+}
 
 /* ── STICKY PANEL ── */
 .sticky-panel {
@@ -265,7 +294,7 @@ input[type=range] {
   padding: 16px 20px;
   margin-bottom: 24px;
   font-size: 13.5px;
-  color: #003399;
+  color: var(--accent);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -300,7 +329,7 @@ input[type=range] {
   cursor: pointer;
   user-select: none;
 }
-.card-header:hover { background: #fafaf8; }
+.card-header:hover { background: var(--border); }
 
 .card-check {
   width: 20px;
@@ -358,7 +387,7 @@ input[type=range] {
   display: none;
   border-top: 1px solid var(--border);
   padding: 16px 18px;
-  background: #fdfdfb;
+  background: var(--bg);
 }
 .setting-card.open .card-body { display: block; }
 
@@ -487,11 +516,9 @@ input[type=range] {
   </div>
 </header>
 
-<div style="max-width:1100px;margin:0 auto;">
-  <div class="hero">
-    <h1>あなたの環境に合った<em>遅延削減設定</em>を見つける</h1>
-    <p>GPUメーカーとOSを選択するだけで、有効な設定と手順・コマンドを一覧表示します。コピーして実行するだけで最適化が完了します。</p>
-  </div>
+<div class="hero">
+  <h1>あなたの環境に合った<em>遅延削減設定</em>を見つける</h1>
+  <p>GPUメーカーとOSを選択するだけで、有効な設定と手順・コマンドを一覧表示します。コピーして実行するだけで最適化が完了します。</p>
 </div>
 
 <div class="main">
@@ -503,24 +530,24 @@ input[type=range] {
   <div class="env-card">
     <h2>🎮 GPUメーカー</h2>
     <div class="btn-group">
-      <button class="sel-btn" data-group="gpu" data-val="nvidia" onclick="select('gpu','nvidia',this)">NVIDIA（GeForce）</button>
-      <button class="sel-btn" data-group="gpu" data-val="amd"    onclick="select('gpu','amd',this)">AMD（Radeon）</button>
+      <button class="sel-btn" data-group="gpu" data-val="nvidia" aria-pressed="false" onclick="select('gpu','nvidia',this)">NVIDIA（GeForce）</button>
+      <button class="sel-btn" data-group="gpu" data-val="amd"    aria-pressed="false" onclick="select('gpu','amd',this)">AMD（Radeon）</button>
     </div>
   </div>
 
   <div class="env-card">
     <h2>💻 OSバージョン</h2>
     <div class="btn-group">
-      <button class="sel-btn" data-group="os" data-val="win11" onclick="select('os','win11',this)">Windows 11</button>
-      <button class="sel-btn" data-group="os" data-val="win10" onclick="select('os','win10',this)">Windows 10</button>
+      <button class="sel-btn" data-group="os" data-val="win11" aria-pressed="false" onclick="select('os','win11',this)">Windows 11</button>
+      <button class="sel-btn" data-group="os" data-val="win10" aria-pressed="false" onclick="select('os','win10',this)">Windows 10</button>
     </div>
   </div>
 
   <div class="env-card">
     <h2>🎯 ゲームジャンル</h2>
     <div class="btn-group">
-      <button class="sel-btn" data-group="genre" data-val="fps" onclick="select('genre','fps',this)">FPS・格闘（低遅延最優先）</button>
-      <button class="sel-btn" data-group="genre" data-val="mmo" onclick="select('genre','mmo',this)">MMO・RTS（安定性重視）</button>
+      <button class="sel-btn" data-group="genre" data-val="fps" aria-pressed="false" onclick="select('genre','fps',this)">FPS・格闘（低遅延最優先）</button>
+      <button class="sel-btn" data-group="genre" data-val="mmo" aria-pressed="false" onclick="select('genre','mmo',this)">MMO・RTS（安定性重視）</button>
     </div>
   </div>
 
@@ -533,7 +560,9 @@ input[type=range] {
     <div class="env-card" style="margin-bottom:24px;">
       <h2>📡 ネットワーク遅延の計測</h2>
       <p style="font-size:13px;color:var(--mid);margin-bottom:4px;line-height:1.7;">国内サーバーへのHTTPリクエストを30回送信し、中央値でジッターを計算します。</p>
-      <p style="font-size:11px;color:var(--muted);margin-bottom:16px;">⚠️ ICMPではなくHTTPリクエストのため、実際のゲーム内pingとは異なります。あくまで参考値としてご利用ください。</p>
+      <div style="background:var(--yellow-light);border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#7a4a00;line-height:1.7;">
+        ⚠️ <strong>この計測値はICMP Pingではありません。</strong>ブラウザのfetchによるHTTPリクエストを使用しているため、TLSハンドシェイクやHTTPオーバーヘッドを含みます。実際のICMP Pingより<strong>＋5〜20ms程度大きく表示される</strong>のが正常です。正確なping値はゲーム内HUDやMSI Afterburner等で確認してください。
+      </div>
       <button class="export-btn" id="pingBtn" onclick="startPing()">▶ 計測を開始する（約15秒）</button>
 
       <div id="pingProgress" style="display:none;margin-top:20px;">
@@ -588,7 +617,10 @@ input[type=range] {
         </div>
       </div>
 
-      <div id="bufferCmdWrap" style="margin-top:16px;">
+      <div style="margin-top:12px;">
+        <button class="export-btn secondary" style="font-size:12px;padding:6px 14px;" onclick="toggleBufferCmd(this)">コマンドを表示</button>
+      </div>
+      <div id="bufferCmdWrap" style="margin-top:12px;display:none;">
         <div class="cmd-block">
           <div class="cmd-label">PowerShell（管理者）</div>
           <div class="cmd-text" id="bufferCmdText"></div>
@@ -634,23 +666,7 @@ input[type=range] {
       </div>
     </div>
 
-    <!-- CPUコア情報 -->
-    <div class="env-card" style="margin-bottom:0;">
-      <h2>🔲 CPUコア情報（自動取得）</h2>
-      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;">ブラウザからCPUの論理コア数を取得し、プロセスアフィニティの推奨設定を算出します。</p>
-      <div id="cpuInfo" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
-          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">論理コア数</div>
-          <div id="cpuCores" style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent);">—</div>
-        </div>
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
-          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">アフィニティマスク推奨値</div>
-          <div id="cpuMask" style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent);">—</div>
-        </div>
-      </div>
-      <div id="cpuRecommend" style="margin-top:14px;background:var(--accent-light);border:1px solid #b8ccff;border-radius:8px;padding:12px 16px;font-size:13px;color:#003399;line-height:1.7;"></div>
-    </div>
-  </div>
+  </div><!-- /pingSection -->
 
   <!-- STEP 3: 結果 -->
   <div class="step-label">Step 3 — 推奨設定一覧</div>
@@ -663,6 +679,22 @@ input[type=range] {
 
   <div id="placeholder" style="text-align:center;padding:48px 0;color:var(--muted);font-size:13px;">
     ↑ GPU・OS・ゲームジャンルを選択すると設定一覧が表示されます
+  </div>
+
+  <!-- CPUコア情報（エクスポートと同じ幅） -->
+  <div id="cpuInfoCard" class="export-bar" style="display:none;flex-direction:column;align-items:stretch;margin-top:28px;">
+    <div style="font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;">🔲 CPUコア情報（自動取得）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">論理コア数</div>
+        <div id="cpuCores" style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent);">—</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">アフィニティマスク推奨値</div>
+        <div id="cpuMask" style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent);">—</div>
+      </div>
+    </div>
+    <div id="cpuRecommend" style="background:var(--accent-light);border:1px solid #b8ccff;border-radius:8px;padding:12px 16px;font-size:13px;color:#003399;line-height:1.7;"></div>
   </div>
 
 </div><!-- /main-content -->
@@ -681,7 +713,8 @@ input[type=range] {
   </div>
   <button class="s-btn primary" onclick="copyAll()">📋 コマンドを全コピー</button>
   <button class="s-btn secondary" onclick="exportBat()">📄 .batファイルを生成</button>
-  <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.6;">チェックした設定のコマンドをまとめて出力します。</div>
+  <button class="s-btn secondary" style="border-color:var(--yellow);color:var(--yellow);" onclick="exportRollbackBat()">↩ 復元（ロールバック）.batを生成</button>
+  <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.6;">チェックした設定のコマンドをまとめて出力します。<br>↩ ロールバックは設定変更を元に戻すバッチです。</div>
 </div>
 
 </div><!-- /main -->
@@ -692,8 +725,12 @@ const pingState = { avg: null, jitter: null };
 
 function select(group, val, btn) {
   env[group] = val;
-  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
   btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
   if (env.gpu && env.os && env.genre) {
     document.getElementById('pingSection').style.display = 'block';
     detectCpu();
@@ -703,6 +740,7 @@ function select(group, val, btn) {
 
 // ── CPU CORE DETECTION ──
 function detectCpu() {
+  document.getElementById('cpuInfoCard').style.display = 'flex';
   const cores = navigator.hardwareConcurrency || 4;
   document.getElementById('cpuCores').textContent = cores;
 
@@ -889,11 +927,9 @@ function updateSlider() {
   document.getElementById('txRec').textContent = rec.tx;
 
   const cmd =
-`# まず使用中のNIC名を確認
-Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
-
-# NIC名を実際の名前に変更して実行
-$nic = "イーサネット"
+`# アクティブなNICを自動取得
+$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name
+Write-Host "対象NIC: $nic"
 
 # Receive Buffers を ${rx} に設定
 Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*ReceiveBuffers" -RegistryValue ${rx}
@@ -914,6 +950,13 @@ Write-Host "NICバッファを設定しました（Rx:${rx} / Tx:${tx}）"`;
   // カードのサブタイトルも更新
   const cardSub = document.querySelector('#card-nic_buffer .card-sub');
   if (cardSub) cardSub.textContent = `スライダーで値を設定 → Rx: ${rx} / Tx: ${tx}`;
+}
+
+function toggleBufferCmd(btn) {
+  const wrap = document.getElementById('bufferCmdWrap');
+  const visible = wrap.style.display !== 'none';
+  wrap.style.display = visible ? 'none' : 'block';
+  btn.textContent = visible ? 'コマンドを表示' : 'コマンドを隠す';
 }
 
 function copyBufferCmd(btn) {
@@ -1115,11 +1158,9 @@ Write-Host "NICバッファを設定しました（Rx:${rx} / Tx:${tx}）"`
       commands: [{
         label: 'PowerShell（管理者）',
         text:
-`# まず使用中のNIC名を確認
-Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
-
-# NIC名を実際の名前に変更して実行
-$nic = "イーサネット"
+`# アクティブなNICを自動取得
+$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name
+Write-Host "対象NIC: $nic"
 
 # LSO（IPv4 / IPv6）を無効化
 Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*LsoV2IPv4" -RegistryValue 0
@@ -1152,7 +1193,7 @@ Write-Host "LSO・Flow Control・EEE を無効化しました"`
         const mask = (1 << gameCores) - 1;
         const maskHex = '0x' + mask.toString(16).toUpperCase();
         if (cores <= 4) return `⚠️ ${cores}コア環境のため、アフィニティ固定は逆効果になる場合があります。この設定はスキップしてプロセス優先度「高」のみ設定することを推奨します。`;
-        return `ゲームプロセスを特定のCPUコアに固定することで、OSのバックグラウンド処理との競合を減らしフレームタイムが安定します。検出されたコア数（${cores}コア）から、ゲーム用に${gameCores}コア（マスク値: ${maskHex}）を割り当てます。`;
+        return `ゲームプロセスを特定のCPUコアに固定することで、OSのバックグラウンド処理との競合を減らしフレームタイムが安定します。検出されたコア数（${cores}コア）から、ゲーム用に${gameCores}コア（マスク値: ${maskHex}）を割り当てます。\n\n⚠️ Intel 第12世代（Alder Lake）以降のPコア／Eコア混在CPUをお使いの場合: 単純に「後ろのコアを空ける」設定にすると、性能の低いEコアだけでゲームが実行されるリスクがあります。Pコア番号をタスクマネージャーの「CPU」タブで確認し、Pコアのみを選択するマスク値を手動で計算することを推奨します。`;
       })(),
       risk: 'low', riskLabel: '要動作確認',
       available: (navigator.hardwareConcurrency || 4) > 4,
@@ -1184,7 +1225,7 @@ if ($proc) {
         const cores = navigator.hardwareConcurrency || 4;
         const gameCores = Math.max(1, cores - 2);
         if (cores <= 4) return '⚠️ コア数が少ないためこの設定はスキップを推奨します。';
-        return `① ゲームを起動してからCtrl+Shift+Escでタスクマネージャーを開く\n② 「詳細」タブ → ゲームの.exeを右クリック → 「関係の設定」\n③ 最初の${gameCores}コア（CPU 0〜${gameCores - 1}）にチェックを入れてOK\n④ 同じく右クリック → 「優先度の設定」→「高」\n⚠️ 毎回設定が必要。自動化はProcess Lassoを推奨。`;
+        return `① ゲームを起動してからCtrl+Shift+Escでタスクマネージャーを開く\n② 「詳細」タブ → ゲームの.exeを右クリック → 「関係の設定」\n③ 最初の${gameCores}コア（CPU 0〜${gameCores - 1}）にチェックを入れてOK\n④ 同じく右クリック → 「優先度の設定」→「高」\n⚠️ 毎回設定が必要。自動化はProcess Lassoを推奨。\n\n⚠️ Intel 第12世代（Alder Lake）以降のPコア・Eコア混在環境: 上記の設定ではEコアだけが選ばれる場合があります。タスクマネージャーの「パフォーマンス」→「CPU」→「コア」でPコアの番号を確認し、Pコアのみにチェックを入れてください。`;
       })(),
     },
   ];
@@ -1219,11 +1260,12 @@ function renderResults() {
     let cmdHTML = '';
     if (s.commands && s.commands.length > 0) {
       s.commands.forEach((cmd, i) => {
+        const btnId = `copy-${s.id}-${i}`;
         cmdHTML += `
           <div class="cmd-block">
             <div class="cmd-label">${cmd.label}</div>
-            <div class="cmd-text">${escHtml(cmd.text)}</div>
-            <button class="copy-btn" onclick="copyCmd(this, ${JSON.stringify(cmd.text).replace(/'/g,"&#39;")})">コピー</button>
+            <div class="cmd-text" id="cmdtext-${s.id}-${i}">${escHtml(cmd.text)}</div>
+            <button class="copy-btn" id="${btnId}" data-target="cmdtext-${s.id}-${i}" onclick="copyCmdFromTarget(this)">コピー</button>
           </div>`;
       });
     }
@@ -1295,6 +1337,17 @@ function copyCmd(btn, text) {
   });
 }
 
+function copyCmdFromTarget(btn) {
+  const targetId = btn.dataset.target;
+  const el = document.getElementById(targetId);
+  const text = el ? el.textContent : '';
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ コピー済み';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
 function getCommandText(s) {
   // nic_bufferはスライダー連動のためDOMから最新値を取得
   if (s.id === 'nic_buffer') {
@@ -1327,7 +1380,9 @@ function exportBat() {
     bat += `REM ── ${s.title} ──\n`;
     cmds.forEach(c => {
       if (c.label.includes('PowerShell')) {
-        bat += `powershell -Command "${c.text.replace(/\n/g,' ').replace(/"/g,'\\"')}"\n`;
+        // 特殊文字の安全なエスケープ: シングルクォートで囲みバッチ制御文字を回避
+        const safeCmd = c.text.replace(/\n/g,' ').replace(/"/g,"'").replace(/[&|<>^]/g, '^$&');
+        bat += `powershell -NoProfile -ExecutionPolicy Bypass -Command "${c.text.replace(/\n/g,' ').replace(/"/g,'\\"')}"\n`;
       } else {
         bat += c.text.split('\n').filter(l => !l.startsWith('#')).join('\n') + '\n';
       }
@@ -1340,6 +1395,51 @@ function exportBat() {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `latency-optimize-${env.gpu}-${env.os}.bat`;
+  a.click();
+}
+
+function exportRollbackBat() {
+  const isNvidia = env.gpu === 'nvidia';
+
+  // ロールバック用コマンド定義（設定を元の状態に戻す）
+  const rollbackCmds = [
+    {
+      title: '電源プランを「バランス」に戻す',
+      cmd: `powershell -NoProfile -ExecutionPolicy Bypass -Command "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e"`
+    },
+    {
+      title: 'NIC LSO・Flow Control・EEEを再有効化',
+      cmd: `powershell -NoProfile -ExecutionPolicy Bypass -Command "$nic = (Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.PhysicalMediaType -ne 'Unspecified' } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name; Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword '*LsoV2IPv4' -RegistryValue 1; Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword '*LsoV2IPv6' -RegistryValue 1; Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword '*FlowControl' -RegistryValue 1; Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword '*EEE' -RegistryValue 1; Write-Host 'NIC設定を元に戻しました'"`
+    },
+    {
+      title: 'NICバッファ値をデフォルト（256）に戻す',
+      cmd: `powershell -NoProfile -ExecutionPolicy Bypass -Command "$nic = (Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.PhysicalMediaType -ne 'Unspecified' } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name; Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword '*ReceiveBuffers' -RegistryValue 256; Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword '*TransmitBuffers' -RegistryValue 256; Write-Host 'NICバッファをデフォルト値に戻しました'"`
+    },
+    {
+      title: 'GPUスケジューラ優先度をデフォルトに戻す',
+      cmd: `powershell -NoProfile -ExecutionPolicy Bypass -Command "$path = 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games'; Set-ItemProperty -Path $path -Name 'GPU Priority' -Value 8 -Type DWord; Set-ItemProperty -Path $path -Name 'Priority' -Value 2 -Type DWord; Set-ItemProperty -Path $path -Name 'Scheduling Category' -Value 'Medium' -Type String; Write-Host 'レジストリをデフォルト値に戻しました'"`
+    },
+    ...(isNvidia ? [{
+      title: 'Ultra Low Latency Modeを「アプリケーション制御」に戻す',
+      cmd: `REM NVIDIAコントロールパネルで手動対応:\nREM 3D設定の管理 → 事前レンダリングする最大フレーム数 → 「アプリケーション制御」`
+    }] : []),
+  ];
+
+  let bat = `@echo off\nREM PCゲーム遅延最適化 — ロールバックバッチ\nREM GPU: ${env.gpu?.toUpperCase()} / OS: ${env.os?.toUpperCase()}\nREM 管理者として実行してください\nREM このバッチは最適化設定を元の状態に戻します\n\n`;
+  bat += `echo ロールバック処理を開始します...\necho.\n\n`;
+
+  rollbackCmds.forEach(r => {
+    bat += `REM ── ${r.title} ──\n`;
+    bat += r.cmd + '\n';
+    bat += `echo ${r.title}: 完了\necho.\n\n`;
+  });
+
+  bat += `echo.\necho すべての設定をデフォルトに戻しました。PCを再起動してください。\npause`;
+
+  const blob = new Blob([bat], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `latency-ROLLBACK-${env.gpu}-${env.os}.bat`;
   a.click();
 }
 </script>
