@@ -502,6 +502,67 @@ input[type=range] {
   width: 0%;
 }
 
+/* ── SHARE PANEL ── */
+.share-panel {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.share-panel h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.share-code-box {
+  background: var(--bg);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.share-code {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 2px;
+  flex: 1;
+  word-break: break-all;
+}
+.share-import-wrap {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.share-import-wrap input {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.share-import-wrap input:focus { border-color: var(--accent); }
+.share-import-wrap input.error { border-color: var(--red); }
+.share-msg {
+  font-size: 11px;
+  margin-top: 6px;
+  min-height: 16px;
+  font-family: var(--mono);
+}
+.share-msg.ok  { color: var(--green); }
+.share-msg.err { color: var(--red);   }
+
 .divider {
   border: none;
   border-top: 1px solid var(--border);
@@ -783,6 +844,25 @@ input[type=range] {
   <button class="s-btn secondary" onclick="exportBat()">📄 .batファイルを生成</button>
   <button class="s-btn secondary" style="border-color:var(--yellow);color:var(--yellow);" onclick="exportRollbackBat()">↩ 復元（ロールバック）.batを生成</button>
   <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.6;">チェックした設定のコマンドをまとめて出力します。<br>↩ ロールバックは設定変更を元に戻すバッチです。</div>
+
+  <!-- 共有パネル -->
+  <div class="share-panel">
+    <h4>🔗 設定を共有</h4>
+    <div id="shareCodeWrap" style="display:none;">
+      <div class="share-code-box">
+        <span class="share-code" id="shareCodeText">——</span>
+        <button class="copy-btn" style="position:static;font-size:10px;padding:4px 10px;" onclick="copyShareCode(this)">コピー</button>
+      </div>
+      <button class="s-btn secondary" style="font-size:12px;padding:7px 10px;margin-bottom:6px;" onclick="copyShareUrl(this)">🔗 URLをコピー</button>
+    </div>
+    <button class="s-btn secondary" style="font-size:12px;padding:7px 10px;margin-bottom:8px;" onclick="generateShareCode()">📤 共有コードを生成</button>
+    <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:6px;letter-spacing:1px;">コードを入力して復元</div>
+    <div class="share-import-wrap">
+      <input type="text" id="shareInput" placeholder="例: NW1abc..." oninput="clearShareMsg()" onkeydown="if(event.key==='Enter')importShareCode()">
+      <button class="s-btn primary" style="font-size:12px;padding:7px 10px;margin:0;width:auto;" onclick="importShareCode()">読込</button>
+    </div>
+    <div class="share-msg" id="shareMsg"></div>
+  </div>
 </div>
 
 </div><!-- /main -->
@@ -1667,10 +1747,173 @@ Write-Host "レジストリをデフォルト値に戻しました"`
   a.click();
 }
 
+// ══════════════════════════════════════════════
+// ── SHARE SYSTEM ──
+// 共有データ仕様:
+//   { v:1, g:"nvidia"|"amd", o:"win11"|"win10", genre:"fps"|"mmo",
+//     rx:256, tx:256, checked:["reflex","power",...] }
+// エンコード: JSON → UTF-8 → Base64url → 先頭に"LT-"プレフィックス
+// ══════════════════════════════════════════════
+
+function encodeSharePayload(data) {
+  const json = JSON.stringify(data);
+  // TextEncoder → Uint8Array → Base64url（URLセーフ・パディングなし）
+  const bytes = new TextEncoder().encode(json);
+  let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  const b64 = btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return 'LT-' + b64;
+}
+
+function decodeSharePayload(code) {
+  try {
+    const raw = code.trim().replace(/^LT-/i, '');
+    const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const json = new TextDecoder().decode(bytes);
+    const data = JSON.parse(json);
+    // バリデーション
+    if (!['nvidia','amd'].includes(data.g)) throw new Error('invalid gpu');
+    if (!['win11','win10'].includes(data.o)) throw new Error('invalid os');
+    if (!['fps','mmo'].includes(data.genre)) throw new Error('invalid genre');
+    return data;
+  } catch(e) {
+    return null;
+  }
+}
+
+function buildShareData() {
+  // チェック済みカードのidを収集
+  const checked = [...document.querySelectorAll('.setting-card.checked')]
+    .map(c => c.id.replace('card-', ''));
+  const rx = parseInt(document.getElementById('rxSlider')?.value ?? 256);
+  const tx = parseInt(document.getElementById('txSlider')?.value ?? 256);
+  return {
+    v: 1,
+    g: env.gpu,
+    o: env.os,
+    genre: env.genre,
+    rx,
+    tx,
+    checked,
+  };
+}
+
+function generateShareCode() {
+  if (!env.gpu || !env.os || !env.genre) {
+    showShareMsg('先にGPU・OS・ジャンルを選択してください', 'err');
+    return;
+  }
+  const data = buildShareData();
+  const code = encodeSharePayload(data);
+
+  document.getElementById('shareCodeText').textContent = code;
+  document.getElementById('shareCodeWrap').style.display = 'block';
+
+  // URLハッシュにも反映
+  history.replaceState(null, '', location.pathname + location.search + '#' + code);
+  showShareMsg('✓ コードを生成しました', 'ok');
+}
+
+function copyShareCode(btn) {
+  const code = document.getElementById('shareCodeText').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ コピー済み';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyShareUrl(btn) {
+  const code = document.getElementById('shareCodeText').textContent;
+  const url = location.origin + location.pathname + '#' + code;
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ URLをコピーしました';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  });
+}
+
+function applyShareData(data) {
+  // 環境を復元
+  ['gpu','os','genre'].forEach(key => {
+    const val = key === 'gpu' ? data.g : key === 'os' ? data.o : data.genre;
+    const btn = document.querySelector(`[data-group="${key}"][data-val="${val}"]`);
+    if (btn) select(key, val, btn);
+  });
+
+  // NICバッファ値を復元
+  if (data.rx) {
+    const rxEl = document.getElementById('rxSlider');
+    if (rxEl) { rxEl.value = data.rx; }
+  }
+  if (data.tx) {
+    const txEl = document.getElementById('txSlider');
+    if (txEl) { txEl.value = data.tx; }
+  }
+  if (data.rx || data.tx) updateSlider();
+
+  // チェック済みカードを復元（renderResults後に実行）
+  if (data.checked?.length) {
+    requestAnimationFrame(() => {
+      data.checked.forEach(id => {
+        const card = document.getElementById('card-' + id);
+        if (card && !card.classList.contains('na') && !card.classList.contains('checked')) {
+          toggleCard(id);
+        }
+      });
+    });
+  }
+}
+
+function importShareCode() {
+  const input = document.getElementById('shareInput');
+  const code = input.value.trim();
+  if (!code) { showShareMsg('コードを入力してください', 'err'); return; }
+
+  const data = decodeSharePayload(code);
+  if (!data) {
+    input.classList.add('error');
+    showShareMsg('無効なコードです。コードを確認してください', 'err');
+    return;
+  }
+  input.classList.remove('error');
+  input.value = '';
+  applyShareData(data);
+  showShareMsg('✓ 設定を復元しました', 'ok');
+}
+
+function tryImportFromUrl() {
+  const hash = location.hash.slice(1);
+  if (!hash.startsWith('LT-')) return;
+  const data = decodeSharePayload(hash);
+  if (!data) return;
+  applyShareData(data);
+  // ハッシュを残したままバッジを表示
+  showShareMsg('✓ URLから設定を復元しました', 'ok');
+  document.getElementById('shareCodeText').textContent = hash;
+  document.getElementById('shareCodeWrap').style.display = 'block';
+}
+
+function clearShareMsg() {
+  document.getElementById('shareInput').classList.remove('error');
+  document.getElementById('shareMsg').textContent = '';
+  document.getElementById('shareMsg').className = 'share-msg';
+}
+
+function showShareMsg(msg, type) {
+  const el = document.getElementById('shareMsg');
+  el.textContent = msg;
+  el.className = 'share-msg ' + type;
+}
+
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
   restoreEnv();
   loadCompareLog();
+  tryImportFromUrl();
 });
 </script>
 </body>
