@@ -858,7 +858,7 @@ input[type=range] {
     <button class="s-btn secondary" style="font-size:12px;padding:7px 10px;margin-bottom:8px;" onclick="generateShareCode()">📤 共有コードを生成</button>
     <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:6px;letter-spacing:1px;">コードを入力して復元</div>
     <div class="share-import-wrap">
-      <input type="text" id="shareInput" placeholder="例: NW1abc..." oninput="clearShareMsg()" onkeydown="if(event.key==='Enter')importShareCode()">
+      <input type="text" id="shareInput" placeholder="例: LTBiAS" oninput="clearShareMsg()" onkeydown="if(event.key==='Enter')importShareCode()">
       <button class="s-btn primary" style="font-size:12px;padding:7px 10px;margin:0;width:auto;" onclick="importShareCode()">読込</button>
     </div>
     <div class="share-msg" id="shareMsg"></div>
@@ -1749,56 +1749,70 @@ Write-Host "レジストリをデフォルト値に戻しました"`
 
 // ══════════════════════════════════════════════
 // ── SHARE SYSTEM ──
-// 共有データ仕様:
-//   { v:1, g:"nvidia"|"amd", o:"win11"|"win10", genre:"fps"|"mmo",
-//     rx:256, tx:256, checked:["reflex","power",...] }
-// エンコード: JSON → UTF-8 → Base64url → 先頭に"LT-"プレフィックス
+// 全設定を3バイト(24bit)にパックしBase64urlで常に6文字固定
+//
+// bit layout:
+//   [23]    gpu   : 0=nvidia 1=amd
+//   [22]    os    : 0=win11  1=win10
+//   [21]    genre : 0=fps    1=mmo
+//   [20:17] rx    : 0~15 → (idx+1)*64 = 64~1024
+//   [16:13] tx    : 0~15 → (idx+1)*64 = 64~1024
+//   [12:1]  mask  : チェック済みカードのビットマスク(12設定)
+//   [0]     spare : 予備
 // ══════════════════════════════════════════════
 
+const SHARE_IDS = [
+  'reflex','ull','hags','power','timer','irq',
+  'registry','nic_lso','nic_buffer','affinity','priority','nic_interrupt'
+];
+
 function encodeSharePayload(data) {
-  const json = JSON.stringify(data);
-  // TextEncoder → Uint8Array → Base64url（URLセーフ・パディングなし）
-  const bytes = new TextEncoder().encode(json);
-  let bin = '';
-  bytes.forEach(b => bin += String.fromCharCode(b));
-  const b64 = btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return 'LT-' + b64;
+  const GPU   = { nvidia: 0, amd: 1 };
+  const OS    = { win11: 0, win10: 1 };
+  const GENRE = { fps: 0, mmo: 1 };
+
+  const mask  = SHARE_IDS.reduce((m, id, i) => data.checked?.includes(id) ? m | (1 << i) : m, 0);
+  const rx_i  = Math.max(0, Math.min(15, Math.round(data.rx / 64) - 1));
+  const tx_i  = Math.max(0, Math.min(15, Math.round(data.tx / 64) - 1));
+
+  const n = (GPU[data.g] << 23) | (OS[data.o] << 22) | (GENRE[data.genre] << 21)
+          | (rx_i << 17) | (tx_i << 13) | (mask << 1);
+
+  const bytes = [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff];
+  const bin   = String.fromCharCode(...bytes);
+  return 'LT' + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 function decodeSharePayload(code) {
   try {
-    const raw = code.trim().replace(/^LT-/i, '');
+    const raw = code.trim().toUpperCase().startsWith('LT')
+      ? code.trim().slice(2)
+      : code.trim();
     const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
-    const bin = atob(b64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    const json = new TextDecoder().decode(bytes);
-    const data = JSON.parse(json);
-    // バリデーション
-    if (!['nvidia','amd'].includes(data.g)) throw new Error('invalid gpu');
-    if (!['win11','win10'].includes(data.o)) throw new Error('invalid os');
-    if (!['fps','mmo'].includes(data.genre)) throw new Error('invalid genre');
-    return data;
+    const pad = 4 - b64.length % 4; if (pad < 4) b64.padEnd(b64.length + pad, '=');
+    const bin = atob(b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '='));
+    const n   = (bin.charCodeAt(0) << 16) | (bin.charCodeAt(1) << 8) | bin.charCodeAt(2);
+
+    const gpuVal   = ['nvidia','amd'][(n >> 23) & 1];
+    const osVal    = ['win11','win10'][(n >> 22) & 1];
+    const genreVal = ['fps','mmo'][(n >> 21) & 1];
+    const rx       = (((n >> 17) & 0xF) + 1) * 64;
+    const tx       = (((n >> 13) & 0xF) + 1) * 64;
+    const mask     = (n >> 1) & 0xFFF;
+    const checked  = SHARE_IDS.filter((_, i) => (mask >> i) & 1);
+
+    return { g: gpuVal, o: osVal, genre: genreVal, rx, tx, checked };
   } catch(e) {
     return null;
   }
 }
 
 function buildShareData() {
-  // チェック済みカードのidを収集
   const checked = [...document.querySelectorAll('.setting-card.checked')]
     .map(c => c.id.replace('card-', ''));
   const rx = parseInt(document.getElementById('rxSlider')?.value ?? 256);
   const tx = parseInt(document.getElementById('txSlider')?.value ?? 256);
-  return {
-    v: 1,
-    g: env.gpu,
-    o: env.os,
-    genre: env.genre,
-    rx,
-    tx,
-    checked,
-  };
+  return { g: env.gpu, o: env.os, genre: env.genre, rx, tx, checked };
 }
 
 function generateShareCode() {
@@ -1814,7 +1828,7 @@ function generateShareCode() {
 
   // URLハッシュにも反映
   history.replaceState(null, '', location.pathname + location.search + '#' + code);
-  showShareMsg('✓ コードを生成しました', 'ok');
+  showShareMsg('✓ コードを生成しました（6文字）', 'ok');
 }
 
 function copyShareCode(btn) {
@@ -1887,11 +1901,10 @@ function importShareCode() {
 
 function tryImportFromUrl() {
   const hash = location.hash.slice(1);
-  if (!hash.startsWith('LT-')) return;
+  if (hash.length !== 6 || !hash.toUpperCase().startsWith('LT')) return;
   const data = decodeSharePayload(hash);
   if (!data) return;
   applyShareData(data);
-  // ハッシュを残したままバッジを表示
   showShareMsg('✓ URLから設定を復元しました', 'ok');
   document.getElementById('shareCodeText').textContent = hash;
   document.getElementById('shareCodeWrap').style.display = 'block';
