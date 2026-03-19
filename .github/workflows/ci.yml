@@ -1,0 +1,31 @@
+name: CI — 構文チェック & 品質検証
+
+on:
+  push:
+    paths:
+      - 'lateregtool/index.html'
+      - '.github/workflows/ci.yml'
+      - 'lateregtool/scripts/check.js'
+  pull_request:
+    paths:
+      - 'lateregtool/index.html'
+
+jobs:
+  lint:
+    name: JS構文チェック & 品質検証
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: チェックスクリプト実行
+        run: node lateregtool/scripts/check.js lateregtool/index.html
+
+      - name: 成功通知
+        if: success()
+        run: echo "✅ 全チェック通過"
