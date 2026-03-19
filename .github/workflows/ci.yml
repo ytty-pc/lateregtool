@@ -24,8 +24,7 @@ jobs:
           node-version: '20'
 
       - name: チェックスクリプト実行
-        run: node scripts/check.js index.html
-        working-directory: lateregtool
+        run: node lateregtool/scripts/check.js lateregtool/index.html
 
       - name: 成功通知
         if: success()
