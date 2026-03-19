@@ -1,0 +1,4189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCゲーム遅延最適化ツール</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4KSKP2PF68"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-4KSKP2PF68');
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f7f5;
+  --white: #ffffff;
+  --border: #e4e4e0;
+  --accent: #0055ee;
+  --accent-light: #e6eeff;
+  --green: #0a9e5c;
+  --green-light: #e6f7f0;
+  --red: #d93030;
+  --red-light: #fdeaea;
+  --yellow: #e07b00;
+  --yellow-light: #fff3e0;
+  --text: #111111;
+  --mid: #444444;
+  --muted: #888888;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Noto Sans JP', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141414;
+    --white: #1e1e1e;
+    --border: #2e2e2e;
+    --accent: #4488ff;
+    --accent-light: #1a2a4a;
+    --green: #2ab870;
+    --green-light: #0e2e1e;
+    --red: #e05050;
+    --red-light: #2e1010;
+    --yellow: #f0a030;
+    --yellow-light: #2e2000;
+    --text: #eeeeee;
+    --mid: #aaaaaa;
+    --muted: #666666;
+  }
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  font-family: var(--sans);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 80px;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--text);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.site-header .logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 2px;
+}
+.site-header .logo span { color: #4a9eff; }
+.header-sub {
+  font-size: 11px;
+  color: #666;
+  font-family: var(--mono);
+  margin-left: auto;
+}
+
+/* ── HERO ── */
+.hero {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 24px 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.hero h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p {
+  font-size: 13.5px;
+  color: var(--mid);
+  line-height: 1.75;
+  max-width: 560px;
+}
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 0;
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 28px;
+  align-items: start;
+}
+.main-content { min-width: 0; }
+
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .sticky-panel {
+    position: static;
+    order: -1;
+  }
+}
+
+/* ── STICKY PANEL ── */
+.sticky-panel {
+  position: sticky;
+  top: 24px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: none;
+}
+.sticky-panel.show { display: block; }
+.sticky-panel h3 {
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.sticky-panel .s-btn {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 8px;
+  text-align: center;
+  display: block;
+}
+.sticky-panel .s-btn.primary { background: var(--accent); color: #fff; border: none; }
+.sticky-panel .s-btn.primary:hover { background: #0044cc; }
+.sticky-panel .s-btn.secondary { background: var(--white); color: var(--accent); border: 1.5px solid var(--accent); }
+.sticky-panel .s-btn.secondary:hover { background: var(--accent-light); }
+.sticky-progress { margin-bottom: 14px; }
+.sticky-progress-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.sticky-progress-bar { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+.sticky-progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.4s; width: 0%; }
+
+/* ── SLIDER ── */
+.slider-wrap {
+  margin: 16px 0 8px;
+}
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.slider-markers {
+  position: relative;
+  height: 20px;
+  margin-bottom: 4px;
+  /* つまみ幅（約16px）の半分を両端に確保して位置を補正 */
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+.slider-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-family: var(--mono);
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  top: 0;
+  /* left はJS側で calc() を使って設定する */
+}
+.slider-marker.fps  { background: var(--accent-light); color: var(--accent); }
+.slider-marker.mmo  { background: var(--green-light); color: var(--green); }
+input[type=range] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+.slider-val {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 8px;
+}
+.slider-val span { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+
+/* ── STEP ── */
+/* ── STEPPER ── */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 32px;
+  position: relative;
+}
+.stepper::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+.stepper-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
+.stepper-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  transition: all 0.25s;
+}
+.stepper-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  transition: color 0.25s;
+}
+.stepper-item.active   .stepper-circle { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.stepper-item.active   .stepper-label  { color: var(--accent); }
+.stepper-item.done     .stepper-circle { border-color: var(--green); background: var(--green); color: #fff; }
+.stepper-item.done     .stepper-label  { color: var(--green); }
+
+/* ── STEP PANELS ── */
+.step-panel {
+  display: none;
+  animation: stepIn 0.2s ease;
+}
+.step-panel.active { display: block; }
+.step-panel.collapsed {
+  display: block;
+}
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* collapsed step summary bar */
+.step-summary {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.step-summary:hover { border-color: var(--accent); }
+.step-panel.collapsed .step-summary { display: flex; }
+.step-panel.collapsed .step-content { display: none; }
+.step-summary-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.step-summary-value {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  font-weight: 600;
+}
+.step-summary-edit {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.step-done-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  background: var(--green-light);
+  color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-weight: 700;
+}
+
+/* ── STEP 2 TWO-COLUMN ── */
+.step2-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 680px) {
+  .step2-grid { grid-template-columns: 1fr; }
+  .stepper::before { display: none; }
+}
+
+@media (max-width: 480px) {
+  .stepper-label { display: none; }
+  .stepper-item { flex: 0 0 auto; }
+  .hero { padding: 24px 16px 20px; }
+  .hero h1 { font-size: 22px; }
+  .setting-card .card-header { padding: 12px 14px; }
+  .preset-bar { flex-wrap: wrap; gap: 6px; }
+  .preset-btn { font-size: 11px; padding: 6px 10px; }
+}
+
+/* ── STEP 3 SIDEBAR LAYOUT ── */
+.step3-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 24px;
+  align-items: start;
+}
+.step3-main {}
+.step3-sidebar {
+  position: sticky;
+  top: 68px;
+}
+.sidebar-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.sidebar-card-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.sidebar-progress-ring {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.sidebar-progress-nums {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.sidebar-progress-nums span {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.sidebar-prog-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.sidebar-prog-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+  width: 0%;
+}
+.sidebar-btn {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.15s;
+  margin-bottom: 7px;
+}
+.sidebar-btn.primary   { background: var(--accent); color: #fff; border-color: var(--accent); }
+.sidebar-btn.primary:hover { opacity: 0.88; }
+.sidebar-btn.secondary { background: var(--white); color: var(--mid); border-color: var(--border); }
+.sidebar-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-btn.danger    { background: var(--white); color: var(--red); border-color: var(--red); }
+.sidebar-preset-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sidebar-preset-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  background: var(--white);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sidebar-preset-btn:hover  { border-color: var(--accent); color: var(--accent); }
+.sidebar-preset-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+.sidebar-preset-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+@media (max-width: 860px) {
+  .step3-layout { grid-template-columns: 1fr; }
+  .step3-sidebar { position: static; }
+}
+
+/* ── SHARE (in sidebar) ── */
+.share-section { margin-top: 0; }
+
+
+/* ── KR EXPORT TOGGLE ── */
+.kr-toggle { position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; }
+.kr-toggle input { opacity: 0; width: 0; height: 0; }
+.kr-toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--border);
+  border-radius: 24px;
+  transition: background 0.2s;
+}
+.kr-toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 3px; bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.kr-toggle input:checked + .kr-toggle-slider { background: var(--accent); }
+.kr-toggle input:checked + .kr-toggle-slider::before { transform: translateX(20px); }
+
+.keyrepeat-target {
+  width: 100%;
+  padding: 20px;
+  background: var(--bg);
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: all 0.15s;
+  outline: none;
+  user-select: none;
+}
+.keyrepeat-target.ready   { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.keyrepeat-target.holding { border-color: var(--green); color: var(--green); background: var(--green-light); }
+.kr-bar-wrap {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  margin: 6px 0 12px;
+  overflow: hidden;
+}
+.kr-bar { height: 100%; background: var(--accent); border-radius: 3px; width: 0%; transition: width 0.05s; }
+
+/* ── PRIORITY BADGE on cards ── */
+.badge-priority {
+  font-size: 9px;
+  font-family: var(--mono);
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  background: #fff0cc;
+  color: #a06000;
+  border: 1px solid #e0b040;
+}
+
+
+/* ── ENV SELECTOR ── */
+.env-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.env-card h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sel-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--mid);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sel-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.sel-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── RESULTS ── */
+.results {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.results.show { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-summary {
+  background: var(--accent-light);
+  border: 1px solid #b8ccff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 13.5px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── SETTING CARDS ── */
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.setting-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+
+.setting-card.na {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+}
+
+/* ── 競合ハイライト ── */
+.setting-card.conflict {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 2px rgba(224,123,0,0.18),
+              0 2px 12px rgba(0,0,0,0.07);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.setting-card.conflict .card-header {
+  background: var(--yellow-light);
+}
+.setting-card.conflict .card-check {
+  border-color: var(--yellow);
+}
+.setting-card.conflict.checked .card-check {
+  background: var(--yellow);
+  border-color: var(--yellow);
+}
+.conflict-icon {
+  font-size: 12px;
+  margin-left: 4px;
+  animation: conflictPulse 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes conflictPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+.card-header:hover { background: var(--border); }
+
+.card-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+.setting-card.checked .card-check {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.card-title-wrap { flex: 1; }
+.card-badge-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 5px 0 4px;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+
+.badge-layer {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+.badge-risk {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  margin-left: auto;
+}
+.risk-none  { background: var(--green-light);  color: var(--green); }
+.risk-low   { background: var(--yellow-light); color: var(--yellow); }
+.risk-high  { background: var(--red-light);    color: var(--red); }
+
+.card-body {
+  display: none;
+  border-top: 1px solid var(--border);
+  padding: 16px 18px;
+  background: var(--bg);
+}
+.setting-card.open .card-body { display: block; }
+
+.card-desc {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 1.75;
+  margin-bottom: 14px;
+}
+
+.cmd-block {
+  background: #1a1e26;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.cmd-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #556;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.cmd-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #a8c8e0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.cmd-text .key { color: #7ec8e3; }
+.cmd-text .val { color: #98d8a0; }
+.cmd-text .comment { color: #445566; }
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  background: #2a3040;
+  color: #7a9ab0;
+  border: 1px solid #3a4050;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+.na-notice {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* ── EXPORT ── */
+.export-bar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.export-bar p { font-size: 13px; color: var(--mid); flex: 1; min-width: 200px; }
+.export-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 22px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.export-btn:hover { background: #0044cc; }
+.export-btn.secondary {
+  background: var(--white);
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
+.export-btn.secondary:hover { background: var(--accent-light); }
+
+/* ── PROGRESS ── */
+.progress-bar-wrap {
+  background: var(--border);
+  border-radius: 4px;
+  height: 4px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* ── SHARE PANEL ── */
+.share-panel {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.share-panel h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.share-code-box {
+  background: var(--bg);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.share-code {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 2px;
+  flex: 1;
+  word-break: break-all;
+}
+.share-import-wrap {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  align-items: stretch;
+}
+.share-import-wrap input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.share-import-wrap button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.share-import-wrap input:focus { border-color: var(--accent); }
+.share-import-wrap input.error { border-color: var(--red); }
+.share-msg {
+  font-size: 11px;
+  margin-top: 6px;
+  min-height: 16px;
+  font-family: var(--mono);
+}
+.share-msg.ok  { color: var(--green); }
+.share-msg.err { color: var(--red);   }
+
+/* ── PRESETS ── */
+.grade-btn {
+  padding: 5px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: var(--white);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.grade-btn.active        { border-color: var(--accent); background: var(--accent); color: #fff; }
+.grade-btn.grade-a.active { border-color: #12b76a; background: #12b76a; }
+.grade-btn.grade-b.active { border-color: #4ade80; background: #4ade80; color: #065f46; }
+.grade-btn.grade-c.active { border-color: var(--yellow); background: var(--yellow); color: #7a4a00; }
+.grade-btn.grade-d.active { border-color: #f97316; background: #f97316; color: #fff; }
+.grade-btn.grade-f.active { border-color: var(--red); background: var(--red); color: #fff; }
+
+.preset-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.preset-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.preset-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.preset-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+.preset-btn .preset-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+.preset-clear {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.preset-clear:hover { border-color: var(--red); color: var(--red); }
+
+.settings-category {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 4px;
+}
+.settings-category:first-child { margin-top: 0; }
+.settings-category-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+.settings-category-line { flex:1; height:1px; background:var(--border); }
+
+/* ── CONFLICT WARNING ── */
+.conflict-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--yellow-light);
+  border: 1px solid var(--yellow);
+  border-radius: 7px;
+  padding: 10px 14px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #7a4a00;
+  line-height: 1.6;
+  animation: conflictFadeIn 0.2s ease;
+}
+.conflict-warning-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+@keyframes conflictFadeIn { from { opacity:0; transform:translateY(-3px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── VERIFY BLOCK ── */
+.verify-block { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
+.verify-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.badge-impact-high   { background: #fff0e0; color: #c05000; border: 1px solid #e0a060; font-size: 9px; font-family: var(--mono); font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px; }
+.badge-impact-medium { background: var(--accent-light); color: var(--accent); border: 1px solid #a0b8f0; font-size: 9px; font-family: var(--mono); font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px; }
+.badge-impact-low    { background: var(--border); color: var(--muted); border: 1px solid var(--border); font-size: 9px; font-family: var(--mono); font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px; }
+
+.setting-card.checked { border-color: var(--accent); }
+.setting-card.checked .card-header { background: var(--accent-light); }
+
+.info-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: 10px;
+  padding: 16px 20px; display: flex; align-items: center; gap: 16px;
+}
+.info-card-icon { font-size: 20px; flex-shrink: 0; }
+.info-card-body { flex: 1; min-width: 0; }
+.info-card-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.info-card-desc  { font-size: 12px; color: var(--mid); line-height: 1.6; }
+.info-card-link  {
+  display: inline-flex; align-items: center; gap: 5px; margin-top: 8px;
+  font-size: 11px; font-weight: 700; color: var(--accent); text-decoration: none;
+  padding: 4px 10px; border: 1px solid var(--accent); border-radius: 5px; transition: background 0.15s;
+}
+.info-card-link:hover { background: var(--accent-light); }
+
+.badge-fps { background: #e6eeff; color: var(--accent); font-size: 9px; font-family: var(--mono); font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px; }
+.badge-mmo { background: var(--green-light); color: var(--green); font-size: 9px; font-family: var(--mono); font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px; }
+.badge-na-tag { background: var(--border); color: var(--muted); font-size: 9px; font-family: var(--mono); font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px; }
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 28px 0;
+}
+
+/* ── PRESETS ── */
+.grade-btn {
+  padding: 5px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: var(--white);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.grade-btn.active        { border-color: var(--accent); background: var(--accent); color: #fff; }
+.grade-btn.grade-a.active { border-color: #12b76a; background: #12b76a; }
+.grade-btn.grade-b.active { border-color: #4ade80; background: #4ade80; color: #065f46; }
+.grade-btn.grade-c.active { border-color: var(--yellow); background: var(--yellow); color: #7a4a00; }
+.grade-btn.grade-d.active { border-color: #f97316; background: #f97316; color: #fff; }
+.grade-btn.grade-f.active { border-color: var(--red); background: var(--red); color: #fff; }
+
+.preset-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.preset-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.preset-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.preset-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+.preset-btn .preset-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+.preset-clear {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.preset-clear:hover { border-color: var(--red); color: var(--red); }
+
+.settings-category {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 4px;
+}
+.settings-category:first-child { margin-top: 0; }
+.settings-category-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+.settings-category-line { flex:1; height:1px; background:var(--border); }
+
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 28px 0;
+}
+
+/* ── COMPARISON LOG ── */
+.compare-log {
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.compare-log-header {
+  background: var(--bg);
+  padding: 10px 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.compare-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr 1fr 70px;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.compare-row:last-child { border-bottom: none; }
+.compare-row.header-row {
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+.compare-cell {
+  padding: 10px 12px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+}
+.compare-cell:last-child { border-right: none; }
+.compare-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+.badge-before { background: var(--yellow-light); color: var(--yellow); }
+.badge-after  { background: var(--green-light);  color: var(--green);  }
+.delta-better { color: var(--green); font-weight: 700; }
+.delta-worse  { color: var(--red);   font-weight: 700; }
+.delta-same   { color: var(--muted); }
+</style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">LATENCY<span>TOOL</span></div>
+  <div class="header-sub">PCゲーム遅延最適化ガイド</div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
+    <a href="https://github.com/ytty-pc" target="_blank" style="font-family:var(--mono);font-size:11px;color:#aaa;text-decoration:none;letter-spacing:1px;">by ytty</a>
+    <a href="https://note.com/noted_pothos7691/n/nfaa8c322d641" target="_blank" style="font-family:var(--mono);font-size:10px;color:#fff;background:#41c9b4;padding:5px 12px;border-radius:5px;text-decoration:none;letter-spacing:0.5px;white-space:nowrap;">📝 元記事を読む</a>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>PCゲーム<em>遅延最適化</em>ツール</h1>
+  <p>GPU・OS・ジャンルを選ぶだけ。あなたの環境に効く設定だけを絞り込み、コマンドをそのまま貼り付けて実行できます。</p>
+  <div id="storeBadge" style="display:none;margin-top:12px;font-size:11px;font-family:var(--mono);color:var(--green);background:var(--green-light);border:1px solid var(--green);border-radius:5px;padding:4px 10px;display:inline-block;">↺ 前回の選択を復元しました</div>
+</div>
+
+<div class="main">
+<div class="main-content">
+
+  <!-- STEPPER -->
+  <div class="stepper" id="stepperNav">
+    <div class="stepper-item active" id="stepNav-1">
+      <div class="stepper-circle" id="stepCircle-1">1</div>
+      <div class="stepper-label">環境選択</div>
+    </div>
+    <div class="stepper-item" id="stepNav-2">
+      <div class="stepper-circle" id="stepCircle-2">2</div>
+      <div class="stepper-label">診断</div>
+    </div>
+    <div class="stepper-item" id="stepNav-3">
+      <div class="stepper-circle" id="stepCircle-3">3</div>
+      <div class="stepper-label">設定一覧</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-panel active" id="stepPanel-1">
+    <div class="step-summary" data-action="expandStep:1">
+      <span class="step-summary-label">Step 1</span>
+      <span class="step-summary-value" id="step1Summary">—</span>
+      <span class="step-done-badge">✓ 完了</span>
+      <span class="step-summary-edit">編集</span>
+    </div>
+    <div class="step-content">
+      <div class="env-card">
+        <h2>🎮 GPUメーカー</h2>
+        <div class="btn-group">
+          <button class="sel-btn" data-group="gpu" data-val="nvidia" aria-pressed="false">NVIDIA（GeForce）</button>
+          <button class="sel-btn" data-group="gpu" data-val="amd"    aria-pressed="false">AMD（Radeon）</button>
+        </div>
+      </div>
+      <div class="env-card">
+        <h2>💻 OSバージョン</h2>
+        <div class="btn-group">
+          <button class="sel-btn" data-group="os" data-val="win11" aria-pressed="false">Windows 11</button>
+          <button class="sel-btn" data-group="os" data-val="win10" aria-pressed="false">Windows 10</button>
+        </div>
+      </div>
+      <div class="env-card">
+        <h2>🎯 ゲームジャンル</h2>
+        <div class="btn-group">
+          <button class="sel-btn" data-group="genre" data-val="fps" aria-pressed="false">FPS・格闘（低遅延最優先）</button>
+          <button class="sel-btn" data-group="genre" data-val="mmo" aria-pressed="false">MMO・RTS（安定性重視）</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-panel" id="stepPanel-2">
+    <div class="step-summary" data-action="expandStep:2">
+      <span class="step-summary-label">Step 2</span>
+      <span class="step-summary-value" id="step2Summary">診断</span>
+      <span class="step-done-badge">✓ 完了</span>
+      <span class="step-summary-edit">編集</span>
+    </div>
+    <div class="step-content">
+
+      <!-- ① Waveform -->
+      <div class="env-card" style="margin-bottom:20px;">
+        <h2>📡 ネットワーク品質を計測する</h2>
+        <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;"><strong>Waveform Bufferbloat Test</strong> で計測後、結果を入力してください。NICバッファ推奨値を自動算出します。</p>
+
+        <a href="https://www.waveform.com/tools/bufferbloat" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;margin-bottom:20px;">
+          🔗 Waveform でテストする <span style="font-size:10px;opacity:0.8;">（外部サイト）</span>
+        </a>
+
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start;margin-bottom:16px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">Bufferbloat Grade</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="gradeButtons">
+              <button class="grade-btn active" data-grade="?" data-action="selectGrade">未計測</button>
+              <button class="grade-btn grade-a" data-grade="A" data-action="selectGrade">A</button>
+              <button class="grade-btn grade-b" data-grade="B" data-action="selectGrade">B</button>
+              <button class="grade-btn grade-c" data-grade="C" data-action="selectGrade">C</button>
+              <button class="grade-btn grade-d" data-grade="D" data-action="selectGrade">D</button>
+              <button class="grade-btn grade-f" data-grade="F" data-action="selectGrade">F</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">Ping under load（ms）</div>
+            <input type="number" id="pingInput" min="1" max="999" placeholder="例: 12" aria-label="Ping under load（ms）"
+              style="width:160px;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:14px;background:var(--bg);color:var(--text);"
+              data-action="updateFromWaveform">
+          </div>
+        </div>
+        <div id="waveformResult" style="display:none;background:var(--accent-light);border:1px solid #b8ccff;border-radius:8px;padding:12px 16px;font-size:13px;color:#003399;line-height:1.7;margin-bottom:16px;"></div>
+
+        <!-- NICバッファ -->
+        <div style="border-top:1px solid var(--border);padding-top:16px;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px;">⚙️ NICバッファ値</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:6px;">Receive Buffers</div>
+              <div class="slider-wrap">
+                <div class="slider-markers" id="rxMarkers"></div>
+                <input type="range" id="rxSlider" min="64" max="1024" step="64" value="256" data-action="updateSlider" aria-label="受信バッファサイズ（64〜1024）" aria-describedby="rxVal">
+                <div class="slider-val"><span id="rxVal">256</span><span>（推奨: <span id="rxRec">256</span>）</span></div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;margin-bottom:6px;">Transmit Buffers</div>
+              <div class="slider-wrap">
+                <div class="slider-markers" id="txMarkers"></div>
+                <input type="range" id="txSlider" min="64" max="1024" step="64" value="256" data-action="updateSlider" aria-label="送信バッファサイズ（64〜1024）" aria-describedby="txVal">
+                <div class="slider-val"><span id="txVal">256</span><span>（推奨: <span id="txRec">256</span>）</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <button class="export-btn secondary" style="font-size:12px;padding:6px 14px;" data-action="toggleBufferCmd">コマンドを表示</button>
+          </div>
+          <div id="bufferCmdWrap" style="margin-top:10px;display:none;">
+            <div class="cmd-block">
+              <div class="cmd-label">PowerShell（管理者）</div>
+              <div class="cmd-text" id="bufferCmdText"></div>
+              <button class="copy-btn" data-action="copyBufferCmd">コピー</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② キーリピート -->
+      <div class="env-card" style="margin-bottom:28px;">
+        <h2>⌨️ キーリピート遅延を計測する</h2>
+        <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;">キーを押しっぱなしにして、リピート開始遅延とリピート間隔を計測します。最適化が必要な場合、エクスポートに自動的に含めることができます。</p>
+
+        <div class="keyrepeat-target" id="krTarget" data-action="krFocus" role="button" tabindex="0" aria-label="キーリピート計測エリア。クリック後キーを押し続けてください">
+          ここをクリックしてキーを押しっぱなし
+        </div>
+        <div class="kr-bar-wrap"><div class="kr-bar" id="krBar"></div></div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">リピート開始</div>
+            <div id="krDelay" style="font-family:var(--mono);font-size:22px;font-weight:700;">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">ms</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">リピート間隔</div>
+            <div id="krInterval" style="font-family:var(--mono);font-size:22px;font-weight:700;">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">ms</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">推定Hz</div>
+            <div id="krHz" style="font-family:var(--mono);font-size:22px;font-weight:700;">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Hz</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;" id="krJudgeBox">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">判定</div>
+            <div id="krJudge" style="font-size:18px;font-weight:700;">—</div>
+          </div>
+        </div>
+
+        <div id="krResult" style="display:none;border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.7;margin-bottom:14px;"></div>
+
+        <!-- トグル: エクスポートに含める -->
+        <div id="krExportToggleWrap" style="display:none;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px;">
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px;">⚡ キーリピート最速化をエクスポートに含める</div>
+            <div style="font-size:11px;color:var(--muted);">KeyboardDelay=0 / KeyboardSpeed=31 をbat・コピーに追加します</div>
+          </div>
+          <label class="kr-toggle" style="flex-shrink:0;margin-left:16px;">
+            <input type="checkbox" id="krExportToggle" data-action="toggleKrExport" aria-label="キーリピート最速化をエクスポートに含める">
+            <span class="kr-toggle-slider"></span>
+          </label>
+        </div>
+
+        <button class="export-btn secondary" style="font-size:12px;padding:6px 14px;" data-action="krReset">リセット</button>
+      </div>
+
+      <!-- 設定一覧へ進むボタン -->
+      <div style="text-align:center;padding:8px 0 24px;">
+        <button class="s-btn primary" data-action="goStep3" style="font-size:15px;padding:14px 48px;border-radius:10px;letter-spacing:0.5px;">
+          設定一覧へ進む →
+        </button>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);">診断はスキップ可能です。上のボタンでいつでも先に進めます。</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-panel" id="stepPanel-3">
+    <div class="step-summary" data-action="expandStep:3">
+      <span class="step-summary-label">Step 3</span>
+      <span class="step-summary-value">設定一覧</span>
+      <span class="step-done-badge">✓ 完了</span>
+      <span class="step-summary-edit">編集</span>
+    </div>
+    <div class="step-content">
+      <div id="results" class="results">
+
+        <!-- プリセットバー -->
+        <div class="preset-bar" id="presetBar" style="display:none;">
+          <button class="preset-btn" data-action="preset:beginner">🔰 初心者向け<span class="preset-count" id="presetCount-beginner">—</span></button>
+          <button class="preset-btn" data-action="preset:safe">🛡️ 安全重視<span class="preset-count" id="presetCount-safe">—</span></button>
+          <button class="preset-btn" data-action="preset:secure">🔒 セキュリティ優先<span class="preset-count" id="presetCount-secure">—</span></button>
+          <button class="preset-btn" data-action="preset:all">⚡ 全部盛り<span class="preset-count" id="presetCount-all">—</span></button>
+          <button class="preset-clear" data-action="preset:clear">✕ クリア</button>
+        </div>
+
+        <!-- 3:1 レイアウト -->
+        <div class="step3-layout">
+
+          <!-- メインカラム: 設定カード -->
+          <div class="step3-main">
+            <div class="result-summary" id="resultSummary"></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="settings-grid" id="settingsGrid"></div>
+            <div id="placeholder" style="text-align:center;padding:48px 0;color:var(--muted);font-size:13px;">
+              ↑ GPU・OS・ゲームジャンルを選択すると設定一覧が表示されます
+            </div>
+          </div>
+
+          <!-- サイドバー: エクスポート -->
+          <div class="step3-sidebar" id="step3Sidebar" style="display:none;">
+
+            <!-- 進捗 -->
+            <div class="sidebar-card">
+              <div class="sidebar-card-title">進捗</div>
+              <div class="sidebar-progress-ring">
+                <div class="sidebar-progress-nums" id="stickyProgressText">0 <span>/ 0</span></div>
+              </div>
+              <div class="sidebar-prog-bar">
+                <div class="sidebar-prog-fill" id="stickyProgressFill"></div>
+              </div>
+            </div>
+
+            <!-- エクスポート -->
+            <div class="sidebar-card">
+              <div class="sidebar-card-title">エクスポート</div>
+              <button class="sidebar-btn primary" data-action="copyAll">📋 コマンドを全コピー</button>
+              <button class="sidebar-btn secondary" data-action="exportBat">📦 .zip を生成</button>
+              <button class="sidebar-btn secondary" style="border-color:var(--yellow);color:var(--yellow);" data-action="exportRollbackBat">↩ ロールバック .zip</button>
+              <div style="margin-top:8px;font-size:10px;color:var(--muted);line-height:1.6;">ZIP形式（.bat + .ps1）で出力。展開後 .bat を右クリック →「管理者として実行」。</div>
+              <div id="nipStep4Btn" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+                <button class="sidebar-btn primary" data-action="goStep4" style="background:var(--text);border-color:var(--text);">📐 NVIDIA Inspector プロファイルを生成</button>
+              </div>
+            </div>
+
+            <!-- 競合警告 -->
+            <div id="sidebarConflictWrap" style="display:none;">
+              <div class="sidebar-card" style="border-color:var(--yellow);background:var(--yellow-light);">
+                <div class="sidebar-card-title" style="color:var(--yellow);">⚠️ 競合チェック</div>
+                <div id="sidebarConflictList" style="display:flex;flex-direction:column;gap:8px;"></div>
+              </div>
+            </div>
+
+            <!-- 共有 -->
+            <div class="sidebar-card">
+              <div class="sidebar-card-title">設定を共有</div>
+              <button class="sidebar-btn secondary" data-action="generateShareCode">📤 共有コードを生成</button>
+              <div id="shareCodeWrap" style="display:none;margin-bottom:8px;">
+                <div class="share-code-box" style="margin-bottom:6px;">
+                  <span class="share-code" id="shareCodeText">——</span>
+                  <button class="copy-btn" style="position:static;font-size:10px;padding:4px 10px;" data-action="copyShareCode">コピー</button>
+                </div>
+                <button class="sidebar-btn secondary" data-action="copyShareUrl">🔗 URLをコピー</button>
+              </div>
+              <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin:8px 0 4px;letter-spacing:1px;">コードを入力して復元</div>
+              <div class="share-import-wrap">
+                <input type="text" id="shareInput" placeholder="例: LTBiAS" aria-label="共有コードを入力">
+                <button style="flex-shrink:0;padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" data-action="importShareCode">読込</button>
+              </div>
+              <div class="share-msg" id="shareMsg"></div>
+            </div>
+
+            <!-- CPUコア情報 -->
+            <div id="cpuInfoCard" class="sidebar-card" style="display:none;">
+              <div class="sidebar-card-title">🔲 CPUコア情報</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+                  <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">論理コア数</div>
+                  <div id="cpuCores" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);">—</div>
+                </div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+                  <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">推奨マスク</div>
+                  <div id="cpuMask" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);">—</div>
+                </div>
+              </div>
+              <div id="cpuRecommend" style="font-size:11px;color:var(--mid);line-height:1.6;"></div>
+            </div>
+
+          </div><!-- /step3-sidebar -->
+
+        </div><!-- /step3-layout -->
+      </div><!-- /results -->
+    </div>
+  </div>
+
+  <!-- STEP 4: NVIDIA Inspector -->
+  <div id="stepPanel-4" style="display:none;margin-top:0;">
+    <div>
+      <div class="env-card" style="margin-bottom:20px;">
+
+        <h2>📐 NVIDIA Inspector プロファイル生成</h2>
+        <p style="font-size:13px;color:var(--mid);margin-bottom:6px;line-height:1.7;">ゲームごとに最適化されたNVIDIA Inspector用プロファイル（.nipファイル）を生成します。NVIDIA Profile InspectorでインポートするとGPUドライバーレベルで設定が適用されます。</p>
+        <div style="background:var(--yellow-light);border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:20px;font-size:12px;color:#7a4a00;line-height:1.7;">
+          ⚠️ ドライバー更新後は設定がリセットされる場合があります。更新後は再度.nipをインポートしてください。<br>
+          NVIDIA Profile Inspector: <a href="https://github.com/Orbmu2k/nvidiaProfileInspector/releases" target="_blank" rel="noopener" style="color:var(--accent);">GitHub Releases →</a>
+        </div>
+
+        <!-- ゲーム選択プルダウン -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">ゲームを選択</div>
+            <select id="nipGameSelect" data-action="nipSelectGame"
+              style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-weight:600;background:var(--white);color:var(--text);cursor:pointer;appearance:auto;">
+              <option value="fortnite">Fortnite</option>
+              <option value="valorant">VALORANT</option>
+              <option value="apex">Apex Legends</option>
+              <option value="ow2">Overwatch 2</option>
+              <option value="custom">カスタム</option>
+            </select>
+          </div>
+          <div id="nipCustomNameWrap" style="display:none;">
+            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">ゲーム名 / .exe名</div>
+            <input type="text" id="nipCustomName" placeholder="例: Counter-Strike 2"
+              style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);margin-bottom:8px;box-sizing:border-box;">
+            <input type="text" id="nipCustomExe" placeholder="例: cs2.exe"
+              style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+          </div>
+          <div id="nipGameInfoWrap">
+            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">実行ファイル</div>
+            <div id="nipExeDisplay" style="font-family:var(--mono);font-size:12px;color:var(--mid);background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 12px;"></div>
+          </div>
+        </div>
+
+        <!-- 設定項目チェックリスト -->
+        <div style="font-size:12px;font-weight:700;margin-bottom:10px;">適用する設定（チェックした項目のみ.nipに含まれます）</div>
+        <div id="nipSettingsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
+
+        <!-- カスタムモード: FPSリミッター -->
+        <div id="nipFpsLimitWrap" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:20px;">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px;">🎯 Frame Rate Limiter（任意）</div>
+          <p style="font-size:11px;color:var(--mid);margin-bottom:10px;line-height:1.6;">モニターのリフレッシュレート −3fps を推奨。例: 144Hz → 141fps。GPUが常にVSyncの直前まで余裕を持って動作しスタッターが減ります。空欄の場合は設定しません。</p>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="number" id="nipFpsLimit" min="30" max="500" placeholder="例: 141" aria-label="FPSリミット値（30〜500）"
+              style="width:120px;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:14px;background:var(--white);color:var(--text);">
+            <span style="font-size:12px;color:var(--muted);">fps</span>
+          </div>
+        </div>
+
+        <!-- Shader Cache クリア案内 -->
+        <div style="background:var(--green-light);border:1px solid var(--green);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#0a5c35;line-height:1.7;">
+          💡 <strong>Shader Cache: Unlimited 適用後の推奨手順</strong><br>
+          .nipインポート → 再起動 → <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">Win+R → cleanmgr</code> → 「DirectX Shader Cache」にチェック → 削除 → 再起動。これにより新しい設定でキャッシュが再構築されます。
+        </div>
+
+        <button class="s-btn primary" data-action="nipExport" style="font-size:14px;padding:12px 36px;border-radius:9px;">
+          📥 .nip ファイルをダウンロード
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+</div><!-- /main -->
+
+<script>
+const APP_VERSION = 'v21';
+const env = { gpu: null, os: null, genre: null };
+const pingState = { avg: null, jitter: null };
+
+function selectEnv(group, val, btn) {
+  env[group] = val;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
+  localStorage.setItem('env_' + group, val);
+  if (env.gpu && env.os && env.genre) {
+    // Step1完了サマリーを更新してStep2へ
+    const gpuLabel   = env.gpu === 'nvidia' ? 'NVIDIA' : 'AMD';
+    const osLabel    = env.os  === 'win11'  ? 'Win 11' : 'Win 10';
+    const genreLabel = env.genre === 'fps'  ? 'FPS'    : 'MMO';
+    const s1sum = document.getElementById('step1Summary');
+    if (s1sum) s1sum.textContent = `${gpuLabel} × ${osLabel} × ${genreLabel}`;
+    goStep(2);
+    initSliders();
+    renderResults();
+  }
+}
+
+// ── 起動時: 前回の選択を復元 ──
+function restoreEnv() {
+  let restored = false;
+  ['gpu', 'os', 'genre'].forEach(group => {
+    const saved = localStorage.getItem('env_' + group);
+    if (!saved) return;
+    const btn = document.querySelector(`[data-group="${group}"][data-val="${saved}"]`);
+    if (btn) { selectEnv(group, saved, btn); restored = true; }
+  });
+  if (restored) {
+    const badge = document.getElementById('storeBadge');
+    if (badge) badge.style.display = 'inline-block';
+  }
+}
+
+function copyKrCmd(btn) {
+  const text = document.getElementById('krCmdText').textContent;
+  clipboardCopy(btn, text);
+}
+
+// ── PRESETS ──
+function getPresetIds(type) {
+  const settings = getSettings();
+  let targets;
+  if (type === 'beginner') {
+    targets = settings.filter(s => s.available && s.risk === 'none' && s.commands && s.commands.length > 0);
+  } else if (type === 'safe') {
+    targets = settings.filter(s => s.available && s.risk !== 'high' && s.id !== 'msi_mode');
+  } else if (type === 'secure') {
+    // セキュリティリスク低下なし（vbs・spectre等 securityRisk:true を除外）
+    targets = settings.filter(s => s.available && !(s.securityRisk === true));
+  } else if (type === 'all') {
+    targets = settings.filter(s => s.available);
+  }
+  return (targets || []).map(s => s.id);
+}
+
+function applyPreset(type) {
+  if (type === 'clear') {
+    // 全チェック解除
+    document.querySelectorAll('.setting-card').forEach(card => {
+      card.classList.remove('checked', 'open');
+      const id = card.id.replace('card-', '');
+      const check = document.getElementById(`check-${id}`);
+      if (check) check.textContent = '';
+    });
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    updateProgress();
+    return;
+  }
+
+  const ids = getPresetIds(type);
+
+  // 全カードをリセット
+  document.querySelectorAll('.setting-card').forEach(card => {
+    card.classList.remove('checked', 'open');
+    const id = card.id.replace('card-', '');
+    const check = document.getElementById(`check-${id}`);
+    if (check) check.textContent = '';
+  });
+
+  // 対象カードをチェック
+  ids.forEach(id => {
+    const card = document.getElementById(`card-${id}`);
+    if (card && !card.classList.contains('na')) {
+      card.classList.add('checked');
+      const check = document.getElementById(`check-${id}`);
+      if (check) check.textContent = '✓';
+    }
+  });
+
+  // アクティブ状態を更新
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.action === `preset:${type}`);
+  });
+
+  updateProgress();
+  saveCheckedCards();
+  checkConflicts(null);
+
+  // Step 3 設定一覧の先頭へスクロール
+  const grid = document.getElementById('settingsGrid');
+  if (grid) {
+    setTimeout(() => {
+      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+}
+
+function updatePresetCounts() {
+  ['beginner', 'safe', 'secure', 'all'].forEach(type => {
+    const ids = getPresetIds(type);
+    const el = document.getElementById(`presetCount-${type}`);
+    if (el) el.textContent = ids.length;
+  });
+}
+
+function goStep4() {
+  const panel4 = document.getElementById('stepPanel-4');
+  if (!panel4) return;
+  const isOpen = panel4.style.display !== 'none';
+  panel4.style.display = isOpen ? 'none' : 'block';
+  // ボタンテキストを更新
+  const btn = document.getElementById('nipStep4Btn')?.querySelector('button');
+  if (btn) btn.textContent = isOpen ? '📐 NVIDIA Inspector プロファイルを生成' : '📐 Inspector プロファイルを閉じる';
+  if (!isOpen) {
+    panel4.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    nipSelectGame();
+  }
+}
+
+// ── STEPPER ──
+function goStep(n) {
+  [1, 2, 3].forEach(i => {
+    const panel = document.getElementById(`stepPanel-${i}`);
+    const nav   = document.getElementById(`stepNav-${i}`);
+    if (!panel || !nav) return;
+    if (i < n) {
+      panel.className = 'step-panel collapsed';
+      nav.className   = 'stepper-item done';
+      document.getElementById(`stepCircle-${i}`).textContent = '✓';
+    } else if (i === n) {
+      panel.className = 'step-panel active';
+      nav.className   = 'stepper-item active';
+      document.getElementById(`stepCircle-${i}`).textContent = i;
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      panel.className = 'step-panel';
+      nav.className   = 'stepper-item';
+      document.getElementById(`stepCircle-${i}`).textContent = i;
+    }
+  });
+}
+
+function expandStep(n) {
+  // 折りたたみ済みステップを再展開
+  const panel = document.getElementById(`stepPanel-${n}`);
+  panel.className = 'step-panel active';
+  document.getElementById(`stepNav-${n}`).className = 'stepper-item active';
+  // それより後のステップを非表示に
+  for (let i = n + 1; i <= 3; i++) {
+    document.getElementById(`stepPanel-${i}`).className = 'step-panel';
+    const nav = document.getElementById(`stepNav-${i}`);
+    nav.className = 'stepper-item';
+    document.getElementById(`stepCircle-${i}`).textContent = i;
+  }
+}
+
+// ── KEY REPEAT ──
+const krState = { firstTs: null, lastTs: null, intervals: [], done: false, active: false };
+
+function krFocus() {
+  const t = document.getElementById('krTarget');
+  t.focus();
+  t.className = 'keyrepeat-target ready';
+  t.textContent = '⌨️ キーを押しっぱなしにしてください';
+  krState.active = true;
+  krState.firstTs = null;
+  krState.lastTs  = null;
+  krState.intervals = [];
+  krState.done = false;
+}
+
+function krReset() {
+  krState.firstTs = null; krState.lastTs = null;
+  krState.intervals = []; krState.done = false; krState.active = false;
+  const t = document.getElementById('krTarget');
+  t.className = 'keyrepeat-target';
+  t.textContent = 'ここをクリックしてキーを押しっぱなし';
+  document.getElementById('krBar').style.width = '0%';
+  ['krDelay','krInterval','krHz'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('krJudge').textContent = '—';
+  document.getElementById('krJudgeBox').style.background = '';
+  document.getElementById('krResult').style.display = 'none';
+  document.getElementById('krExportToggleWrap').style.display = 'none';
+  const toggle = document.getElementById('krExportToggle');
+  if (toggle) toggle.checked = false;
+}
+
+document.addEventListener('keydown', e => {
+  if (!krState.active || krState.done) return;
+  e.preventDefault();
+  const now = performance.now();
+  if (krState.firstTs === null) {
+    krState.firstTs = now;
+    krState.lastTs  = now;
+    return;
+  }
+  const delta = now - krState.lastTs;
+  krState.lastTs = now;
+
+  if (krState.intervals.length === 0 && delta > 150) {
+    // 最初の大きい間隔 = リピート開始遅延
+    document.getElementById('krDelay').textContent = Math.round(delta);
+  } else {
+    krState.intervals.push(delta);
+  }
+
+  // プログレスバー（20回で100%）
+  const pct = Math.min(krState.intervals.length / 20 * 100, 100);
+  document.getElementById('krBar').style.width = pct + '%';
+
+  if (krState.intervals.length >= 20) {
+    krState.done = true;
+    krState.active = false;
+    document.getElementById('krTarget').className = 'keyrepeat-target';
+    document.getElementById('krTarget').textContent = '✓ 計測完了';
+    showKrResult();
+  }
+});
+
+document.addEventListener('keyup', e => {
+  if (krState.active && !krState.done) {
+    krState.active = false;
+    document.getElementById('krTarget').className = 'keyrepeat-target';
+    if (krState.intervals.length < 5) {
+      document.getElementById('krTarget').textContent = '⚠️ もう少し長く押してください';
+      krState.firstTs = null; krState.lastTs = null; krState.intervals = [];
+      setTimeout(() => {
+        if (!krState.done) {
+          document.getElementById('krTarget').className = 'keyrepeat-target ready';
+          document.getElementById('krTarget').textContent = '⌨️ キーを押しっぱなしにしてください';
+          krState.active = true;
+        }
+      }, 800);
+    }
+  }
+});
+
+function showKrResult() {
+  const ints = krState.intervals;
+  if (!ints.length) return;
+  const avg    = ints.reduce((s,v)=>s+v,0) / ints.length;
+  const hz     = Math.round(1000 / avg);
+  document.getElementById('krInterval').textContent = Math.round(avg);
+  document.getElementById('krHz').textContent = hz;
+
+  // 判定
+  const delayEl = document.getElementById('krDelay');
+  const delay   = parseInt(delayEl.textContent) || 500;
+  let emoji, label, bg, recommend;
+
+  if (avg <= 35 && delay <= 300) {
+    emoji = '🟢'; label = '最速設定'; bg = 'var(--green-light)';
+    recommend = null;
+  } else if (avg <= 60) {
+    emoji = '🟡'; label = '標準';    bg = 'var(--yellow-light)';
+    recommend = { delay: 250, interval: 31 };
+  } else {
+    emoji = '🔴'; label = '低速設定'; bg = 'var(--red-light)';
+    recommend = { delay: 250, interval: 31 };
+  }
+
+  document.getElementById('krJudge').textContent = emoji;
+  document.getElementById('krJudge').nextElementSibling?.remove();
+  document.getElementById('krJudgeBox').style.background = bg;
+
+  const resultEl = document.getElementById('krResult');
+  resultEl.style.cssText = `display:block;background:${bg};border-radius:8px;padding:10px 14px;font-size:12px;line-height:1.6;margin-bottom:12px;`;
+
+  if (!recommend) {
+    resultEl.innerHTML = `✅ <strong>${label}</strong> — キーリピートは既に最速に近い設定です。`;
+    document.getElementById('krExportToggleWrap').style.display = 'none';
+  } else {
+    resultEl.innerHTML = `${emoji} <strong>${label}</strong> — リピート間隔が ${Math.round(avg)}ms です。下のトグルをONにするとエクスポート時に最速設定が自動で含まれます。`;
+    document.getElementById('krExportToggleWrap').style.display = 'flex';
+  }
+
+  // Step3のキーリピート関連カードに優先バッジを追加
+  if (recommend) {
+    ['process'].forEach(id => {
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        const title = card.querySelector('.card-title');
+        if (title && !title.querySelector('.badge-priority')) {
+          const badge = document.createElement('span');
+          badge.className = 'badge-priority';
+          badge.textContent = '⚡ 優先';
+          title.appendChild(badge);
+        }
+      }
+    });
+  }
+}
+
+
+// ── STEP 4: NVIDIA INSPECTOR ──
+
+const NIP_SETTINGS = {
+  shader_cache: {
+    label: 'Shader Cache: Unlimited',
+    desc: '初見の場所やスキルでのカクつき（シェーダーコンパイル）を防止',
+    settingID: 238026757,
+    value: 4294967295,
+    games: ['fortnite','valorant','apex','ow2'],
+  },
+  texture_filtering: {
+    label: 'Texture Filtering: High Performance',
+    desc: 'GPU負荷を軽減・テクスチャユニットのレイテンシを最小化',
+    settingID: 238017536,
+    value: 32,
+    games: ['fortnite','valorant','apex','ow2'],
+  },
+  threaded_opt: {
+    label: 'Threaded Optimization: On',
+    desc: 'DX9/DX11エンジンでメインスレッドの詰まりを解消（Apex・VALORANT向け）',
+    settingID: 238017539,
+    value: 1,
+    games: ['valorant','apex'],
+  },
+  low_latency: {
+    label: 'Low Latency Mode: On',
+    desc: 'Reflex非対応環境でレンダーキューを1に制限。Ultraは不安定になるケースあり、Onが推奨',
+    settingID: 274197840,
+    value: 1,
+    games: ['fortnite','valorant','apex','ow2'],
+  },
+  power_management: {
+    label: 'Power Management: Prefer Maximum Performance',
+    desc: '電圧降下を防ぎGPUクロックを安定維持（軽量ゲームで特に重要）',
+    settingID: 238010369,
+    value: 1,
+    games: ['fortnite','valorant','apex','ow2'],
+  },
+  prerendered_frames: {
+    label: 'Max Pre-rendered Frames: 1',
+    desc: 'マウス入力から描画完了までの待機フレームを最小化',
+    settingID: 8792993,
+    value: 1,
+    games: ['fortnite','valorant','apex','ow2'],
+  },
+  rbar_feature: {
+    label: 'Resizable BAR: 強制有効化（rBAR Options・Size Limitも同時適用）',
+    desc: 'CPUからVRAMへのアクセス効率向上・1% Low FPS改善（OW2・Fortniteで効果大）',
+    settingID: 284098575,
+    value: 2,
+    games: ['fortnite','ow2'],
+    group: 'rbar',
+  },
+  rbar_options: {
+    label: 'rBAR Options', desc: '',
+    settingID: 284098576, value: 1,
+    games: ['fortnite','ow2'], group: 'rbar', hidden: true,
+  },
+  rbar_size: {
+    label: 'rBAR Size Limit', desc: '',
+    settingID: 284098577, value: 1610612736,
+    games: ['fortnite','ow2'], group: 'rbar', hidden: true,
+  },
+  cuda_p2: {
+    label: 'CUDA - Force P2 State: Off',
+    desc: 'VRAMクロックを最大状態でロック・軽量ゲームでのクロック変動ラグを排除',
+    settingID: 1343754334,
+    value: 0,
+    games: ['valorant'],
+  },
+  memory_allocation: {
+    label: 'Memory Allocation Policy: Aggressive',
+    desc: 'VRAM先行確保でプレイ中のメモリ再確保によるカクつきを防止（VRAM 8GB以上推奨）',
+    settingID: 238010375,
+    value: 2,
+    games: ['apex','ow2'],
+  },
+  async_compute: {
+    label: 'Async Compute: Disable',
+    desc: 'DX12版Apexで「FPSは出るが操作感が重い」場合に試す（環境依存・要検証）',
+    settingID: 275202975,
+    value: 0,
+    games: ['apex'],
+  },
+  aa_transparency: {
+    label: 'AA Transparency Supersampling: All',
+    desc: '草木・フェンスのジャギー抑制・遠距離視認性向上（Apex専用）',
+    settingID: 282362066,
+    value: 8,
+    games: ['apex'],
+  },
+  predefined_aniso: {
+    label: 'NVIDIA Predefined Aniso: Disallow',
+    desc: 'ドライバ側の余計な異方性フィルタリングを禁止・FSR/DLSSとの競合解消',
+    settingID: 282297713,
+    value: 0,
+    games: ['ow2'],
+  },
+};
+
+const NIP_GAMES = {
+  fortnite: { name: 'Fortnite',     exe: 'FortniteClient-Win64-Shipping.exe' },
+  valorant: { name: 'VALORANT',     exe: 'VALORANT-Win64-Shipping.exe' },
+  apex:     { name: 'Apex Legends', exe: 'r5apex.exe' },
+  ow2:      { name: 'Overwatch 2',  exe: 'Overwatch.exe' },
+  custom:   { name: '',             exe: '' },
+};
+
+function nipSelectGame() {
+  const sel    = document.getElementById('nipGameSelect').value;
+  const isCustom = sel === 'custom';
+  document.getElementById('nipCustomNameWrap').style.display = isCustom ? 'block' : 'none';
+  document.getElementById('nipGameInfoWrap').style.display   = isCustom ? 'none'  : 'block';
+  document.getElementById('nipFpsLimitWrap').style.display   = isCustom ? 'block' : 'none';
+  if (!isCustom) document.getElementById('nipExeDisplay').textContent = NIP_GAMES[sel].exe;
+  renderNipSettings(sel);
+}
+
+function renderNipSettings(gameKey) {
+  const list = document.getElementById('nipSettingsList');
+  list.innerHTML = '';
+  Object.entries(NIP_SETTINGS).forEach(([key, s]) => {
+    if (s.hidden) return;
+    const relevant = gameKey === 'custom' || s.games.includes(gameKey);
+    if (!relevant) return;
+    const checked = s.games.includes(gameKey) || gameKey === 'custom';
+    const row = document.createElement('label');
+    row.style.cssText = 'display:flex;align-items:flex-start;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border-color 0.15s;';
+    row.innerHTML = `
+      <input type="checkbox" data-nip-key="${key}" ${checked ? 'checked' : ''}
+        style="margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;">${s.label}</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">${s.desc}</div>
+      </div>`;
+    list.appendChild(row);
+  });
+}
+
+function nipExport() {
+  const sel  = document.getElementById('nipGameSelect').value;
+  const game = sel === 'custom'
+    ? { name: document.getElementById('nipCustomName').value || 'Custom Game',
+        exe:  document.getElementById('nipCustomExe').value  || '' }
+    : NIP_GAMES[sel];
+
+  const fpsLimit = parseInt(document.getElementById('nipFpsLimit')?.value) || 0;
+  const checked  = new Set(
+    [...document.querySelectorAll('[data-nip-key]:checked')].map(el => el.dataset.nipKey)
+  );
+  if (checked.has('rbar_feature')) {
+    checked.add('rbar_options');
+    checked.add('rbar_size');
+  }
+
+  let settingNodes = '';
+  Object.entries(NIP_SETTINGS).forEach(([key, s]) => {
+    if (!checked.has(key)) return;
+    settingNodes += `\n        <ProfileSetting>\n          <SettingNameInfo />\n          <SettingID>${s.settingID}</SettingID>\n          <SettingValue>${s.value}</SettingValue>\n        </ProfileSetting>`;
+  });
+  if (fpsLimit >= 30) {
+    settingNodes += `\n        <ProfileSetting>\n          <SettingNameInfo />\n          <SettingID>274183178</SettingID>\n          <SettingValue>${fpsLimit * 1000}</SettingValue>\n        </ProfileSetting>`;
+  }
+
+  const safeName = escXml(game.name);
+  const safeExe  = escXml(game.exe);
+  const exeNode = safeExe
+    ? `<Executeables>\n          <string>${safeExe}</string>\n        </Executeables>`
+    : `<Executeables />`;
+
+  const xml = `<?xml version="1.0" encoding="utf-16"?>\n<ArrayOfProfile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">\n  <Profile>\n    <ProfileName>${safeName}</ProfileName>\n    ${exeNode}\n    <Settings>${settingNodes}\n    </Settings>\n  </Profile>\n</ArrayOfProfile>`;
+
+  // UTF-16LE BOM付き出力
+  const utf16 = [];
+  const bom = '\uFEFF' + xml;
+  for (let i = 0; i < bom.length; i++) {
+    const c = bom.charCodeAt(i);
+    utf16.push(c & 0xff, (c >> 8) & 0xff);
+  }
+  const blob = new Blob([new Uint8Array(utf16)], { type: 'text/xml' });
+  const a = document.createElement('a');
+  const objUrl1 = URL.createObjectURL(blob);
+  a.href = objUrl1;
+  a.download = `${game.name.replace(/\s+/g, '_')}_latencytool.nip`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(objUrl1), 10000);
+}
+
+const waveformState = { grade: '?', ping: null };
+
+function selectGrade(btn) {
+  waveformState.grade = btn.dataset.grade;
+  document.querySelectorAll('#gradeButtons .grade-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateFromWaveform();
+}
+
+function updateFromWaveform() {
+  const pingVal = parseInt(document.getElementById('pingInput')?.value) || null;
+  waveformState.ping = pingVal;
+
+  // pingState.jitter として既存のバッファ推奨ロジックに渡す
+  // BufferbloatグレードをジッターのProxyに変換
+  const gradeToJitter = { 'A': 2, 'B': 5, 'C': 12, 'D': 25, 'F': 50, '?': null };
+  pingState.jitter = gradeToJitter[waveformState.grade] ?? null;
+  if (pingVal) pingState.avg = pingVal;
+
+  // 推奨値を更新
+  const rec = getBufferRecommend();
+  const rxSlider = document.getElementById('rxSlider');
+  const txSlider = document.getElementById('txSlider');
+  if (rxSlider) { rxSlider.value = rec.rx; }
+  if (txSlider) { txSlider.value = rec.tx; }
+  updateSlider();
+
+  // 結果メッセージ
+  const resultEl = document.getElementById('waveformResult');
+  if (!resultEl) return;
+
+  if (waveformState.grade === '?') {
+    resultEl.style.display = 'none';
+    return;
+  }
+
+  const gradeMsg = {
+    'A': '✅ <strong>Grade A</strong> — Bufferbloat は良好です。NICバッファはデフォルト（256）推奨。',
+    'B': '✅ <strong>Grade B</strong> — 概ね良好。NICバッファを少し低めに設定しました。',
+    'C': '⚠️ <strong>Grade C</strong> — Bufferbloat が発生しています。Nagle無効化・LSO無効化を優先してください。',
+    'D': '⚠️ <strong>Grade D</strong> — Bufferbloat が深刻です。NICバッファを低めに設定し、Nagle無効化・LSO無効化・ルーターのQoS設定を確認してください。',
+    'F': '🔴 <strong>Grade F</strong> — 深刻なBufferbloat。ルーターのQoS（fq_codel / cake）の有効化を最優先で検討してください。NICの設定だけでは改善に限界があります。',
+  };
+  const pingMsg = pingVal ? ` Ping under load: <strong>${pingVal}ms</strong>。` : '';
+  resultEl.innerHTML = (gradeMsg[waveformState.grade] || '') + pingMsg;
+  resultEl.style.display = 'block';
+}
+
+// ── CPU CORE DETECTION ──
+function detectCpu() {
+  document.getElementById('cpuInfoCard').style.display = 'flex';
+  const cores = navigator.hardwareConcurrency || 4;
+  document.getElementById('cpuCores').textContent = cores;
+
+  // アフィニティマスク：最後の2コア（OSとバックグラウンド用）を除いたビットマスク
+  const gameCores = Math.max(1, cores - 2);
+  // 32コア超でのビットシフトオーバーフロー防止（JS は32bit整数シフト）
+  const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+  const maskHex = '0x' + Math.floor(mask).toString(16).toUpperCase();
+  document.getElementById('cpuMask').textContent = maskHex;
+
+  let recommend = '';
+  if (cores <= 4) {
+    recommend = `⚠️ コア数が少ないため、アフィニティの固定は逆効果になる場合があります。プロセス優先度「高」の設定のみ推奨します。`;
+  } else if (cores <= 8) {
+    recommend = `✅ ${cores}コア環境です。ゲームプロセスを最初の${gameCores}コア（マスク値: ${maskHex}）に割り当てることで、残り2コアをOS処理に確保できます。下の設定カードのコマンドにこの値が反映されています。`;
+  } else {
+    recommend = `✅ ${cores}コアの高コア環境です。ゲームプロセスを${gameCores}コア（マスク値: ${maskHex}）に割り当て、残りをOS・バックグラウンド処理に確保します。コア数が多い場合はゲームタイトルによって最適値が異なる場合があります。`;
+  }
+  document.getElementById('cpuRecommend').innerHTML = recommend;
+}
+
+// ── SLIDER ──
+function initSliders() {
+  const isFps = env.genre === 'fps';
+  buildMarkers('rxMarkers', isFps);
+  buildMarkers('txMarkers', isFps);
+  updateSlider();
+}
+
+function buildMarkers(containerId, isFps) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const min = 64, max = 1024;
+  const markers = isFps
+    ? [{ val: 128, label: 'FPS推奨', cls: 'fps' }, { val: 256, label: 'FPS上限', cls: 'fps' }]
+    : [{ val: 256, label: 'MMO推奨', cls: 'mmo' }, { val: 512, label: 'MMO上限', cls: 'mmo' }];
+
+  container.innerHTML = markers.map(m => {
+    const pct = (m.val - min) / (max - min) * 100;
+    // calc() でつまみ幅（16px）の補正: left = pct% の可動域内の実位置
+    const leftStyle = `calc(${pct}% * (1 - 16px / 100%) + 16px * ${pct / 100})`;
+    return `<span class="slider-marker ${m.cls}" style="left:calc(8px + (100% - 16px) * ${pct / 100})">${m.label} ${m.val}</span>`;
+  }).join('');
+}
+
+function updateSlider() {
+  const rx = parseInt(document.getElementById('rxSlider').value);
+  const tx = parseInt(document.getElementById('txSlider').value);
+  document.getElementById('rxVal').textContent = rx;
+  document.getElementById('txVal').textContent = tx;
+  const rec = getBufferRecommend();
+  document.getElementById('rxRec').textContent = rec.rx;
+  document.getElementById('txRec').textContent = rec.tx;
+
+  const cmd =
+`# アクティブなNICを自動取得
+$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name
+Write-Host "対象NIC: $nic"
+
+# Receive Buffers を ${rx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*ReceiveBuffers" -RegistryValue ${rx}
+
+# Transmit Buffers を ${tx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*TransmitBuffers" -RegistryValue ${tx}
+
+Write-Host "NICバッファを設定しました（Rx:${rx} / Tx:${tx}）"`;
+
+  // スライダー下のプレビュー
+  const bufCmdEl = document.getElementById('bufferCmdText');
+  if (bufCmdEl) bufCmdEl.textContent = cmd;
+
+  // 設定カード内のコマンドテキストも同期
+  const cardCmd = document.querySelector('#card-nic_buffer .cmd-text');
+  if (cardCmd) cardCmd.textContent = cmd;
+
+  // カードのサブタイトルも更新
+  const cardSub = document.querySelector('#card-nic_buffer .card-sub');
+  if (cardSub) cardSub.textContent = `スライダーで値を設定 → Rx: ${rx} / Tx: ${tx}`;
+}
+
+function toggleBufferCmd(btn) {
+  const wrap = document.getElementById('bufferCmdWrap');
+  const visible = wrap.style.display !== 'none';
+  wrap.style.display = visible ? 'none' : 'block';
+  btn.textContent = visible ? 'コマンドを表示' : 'コマンドを隠す';
+}
+
+function copyBufferCmd(btn) {
+  const text = document.getElementById('bufferCmdText').textContent;
+  clipboardCopy(btn, text);
+}
+
+function getBufferRecommend() {
+  const j = pingState.jitter;
+  const isFps = env.genre === 'fps';
+  if (j === null) return { rx: 256, tx: 256 };
+  if (j <= 3)  return isFps ? { rx: 256, tx: 256 } : { rx: 512, tx: 512 };
+  if (j <= 10) return isFps ? { rx: 128, tx: 256 } : { rx: 256, tx: 512 };
+  return isFps ? { rx: 128, tx: 128 } : { rx: 256, tx: 256 };
+}
+
+// ══════════════════════════════════════════════
+// ── SETTINGS CONFIG (JSON-driven) ──
+//
+// 各カードオブジェクトの構造:
+//   id          : 一意ID。shareコード・CSS・ローカルストレージで使用
+//   layer       : 'GPU' | 'OS' | 'CPU'  カテゴリ表示に使用
+//   layerColor  : カテゴリバッジの色（hex）
+//   emoji       : カードアイコン
+//   title       : (string | fn(env)) カードタイトル
+//   sub         : (string | fn(env)) カードサブタイトル
+//   desc        : (string | fn(env)) 詳細説明
+//   risk        : 'none' | 'low' | 'high'
+//   riskLabel   : バッジに表示するリスク文言
+//   impact      : 'high' | 'medium' | 'low'
+//   fps         : '◎' | '○' | null
+//   mmo         : '◎' | '○' | null
+//   available   : (bool | fn(env))  falseの場合はグレーアウト
+//   naReason    : available=false の理由テキスト
+//   securityRisk: true の場合は「secureプリセット」から除外
+//   commands    : (Array<{label,text}> | fn(env))
+//   manual      : (string | fn(env))
+//   verify      : (string | fn(env)) | null
+//
+// fn(env) は { gpu, os, genre } を受け取る関数として定義可能。
+// getSettings() が env を渡して解決する。
+// ══════════════════════════════════════════════
+
+const SETTINGS_CONFIG = [
+  // ════════════════════════════════════════════
+  // 📐 GPU
+  // ════════════════════════════════════════════
+  {
+    id: 'reflex',
+    layer: 'GPU', layerColor: '#0066ff',
+    emoji: '📐',
+    title: e => e.gpu === 'nvidia' ? 'NVIDIA Reflex を有効化' : 'AMD Anti-Lag を有効化',
+    sub:   e => e.gpu === 'nvidia' ? 'ゲーム内設定 → Low Latency ON' : 'AMD Software → Anti-Lag ON',
+    desc:  e => e.gpu === 'nvidia'
+      ? 'GPU側のレンダリングキューを削減し、入力からフレーム表示までの遅延を短縮します。対応ゲームなら最優先で設定してください。'
+      : 'CPU-GPU間のキュー詰まりを解消します。ドライバーレベルで動作するため、ゲーム非対応でも使えます。ただし対応状況を事前に確認してください。',
+    risk: 'none', riskLabel: 'リスクなし',
+    impact: 'high',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [],
+    manual: e => e.gpu === 'nvidia'
+      ? '① ゲームを起動\n② グラフィック設定 → NVIDIA Reflex Low Latency → ON（またはON+Boost）'
+      : '① AMD Software: Adrenalin Edition を開く\n② 「グラフィックス」タブ → Anti-Lag → オン',
+  },
+  {
+    id: 'ull',
+    layer: 'GPU', layerColor: '#0066ff',
+    emoji: '📐',
+    title: e => e.gpu === 'nvidia' ? 'Ultra Low Latency Mode（Reflex非対応ゲーム用）' : 'Radeon Boost',
+    sub:   e => e.gpu === 'nvidia' ? 'NVIDIAコントロールパネル → 事前レンダリング数 Ultra' : 'AMD Software → Radeon Boost',
+    desc:  e => e.gpu === 'nvidia'
+      ? 'Reflexが使えないゲーム向けの設定です。Reflex対応ゲームではこの設定は自動的に無視されるため、両方設定しても問題ありません。'
+      : '動的解像度スケーリングで描画負荷を下げ、フレームレートを安定させます。遅延削減への直接効果は環境依存です。',
+    risk: 'none', riskLabel: 'リスクなし',
+    impact: 'high',
+    fps: '◎', mmo: '○',
+    available: e => e.gpu === 'nvidia',
+    naReason: 'AMD環境では対象外です',
+    commands: e => e.gpu === 'nvidia' ? [
+      { label: 'PowerShell（管理者）', text: '# NVIDIAコントロールパネルで手動設定\n# 3D設定の管理 → 事前レンダリングする最大フレーム数 → Ultra' }
+    ] : [],
+    manual: e => e.gpu === 'nvidia'
+      ? '① NVIDIAコントロールパネルを開く\n② 「3D設定の管理」→「グローバル設定」\n③ 「事前レンダリングする最大フレーム数」→「Ultra」'
+      : '',
+  },
+  {
+    id: 'shader_cache',
+    layer: 'GPU', layerColor: '#0066ff',
+    emoji: '📐',
+    title: 'NVIDIAシェーダーキャッシュのサイズ制限を解除',
+    sub: 'レジストリ → デフォルト4GBキャップを無制限化',
+    desc: 'NVIDIAドライバーのシェーダーキャッシュはデフォルトで4GBに制限されています。上限に達するとシェーダーの再コンパイルが発生し、ゲーム中に一瞬フリーズするスタッタリングの原因になります。レジストリで無制限（4294967295 = UINT_MAX）に設定することで解消できます。',
+    risk: 'none', riskLabel: 'リスクなし',
+    impact: 'high',
+    fps: '◎', mmo: '◎',
+    available: e => e.gpu === 'nvidia',
+    naReason: 'AMD環境では対象外です（AMD Software内で管理）',
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# NVIDIAシェーダーキャッシュのサイズ制限を無効化
+$path = "HKLM:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak"
+If (!(Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+Set-ItemProperty -Path $path -Name "Shaders" -Value 4294967295 -Type DWord
+
+# ドライバーキャッシュも合わせて設定
+$path2 = "HKCU:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak"
+If (!(Test-Path $path2)) { New-Item -Path $path2 -Force | Out-Null }
+Set-ItemProperty -Path $path2 -Name "Shaders" -Value 4294967295 -Type DWord
+
+Write-Host "シェーダーキャッシュの上限を解除しました（4GB → 無制限）"`,
+    }],
+    manual: '① NVIDIAコントロールパネル → 「3D設定の管理」\n② 「シェーダーキャッシュサイズ」→ 「ドライバーのデフォルト」または「無制限」に変更\n③ または上記PowerShellコマンドを実行（より確実）',
+    verify: `(Get-ItemProperty 'HKLM:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak' -ErrorAction SilentlyContinue).Shaders`,
+  },
+  {
+    id: 'hypr_rx',
+    layer: 'GPU', layerColor: '#0066ff',
+    emoji: '📐',
+    title: 'AMD HYPR-RX / AFMF 2 を有効化',
+    sub: 'AMD Software Adrenalin 24.x以降 → HYPR-RX + AFMF 2',
+    desc: 'HYPR-RXはAnti-Lag 2・Radeon Boost・FSR 3 Frame Generationをワンクリックで有効化する統合機能です。Anti-Lag 2はゲームコード側で動作するため従来版より精度が高く、対応ゲームでは顕著な遅延削減効果があります。\n\nAFMF 2（AMD Fluid Motion Frames 2）はドライバーレベルでフレーム補間を行い、FPSを視覚的に向上させます。AFMF 2を有効化するとAnti-Lagが自動で有効になります。\n\n⚠️ AFMF 2の重要な注意点:\n・入力遅延はベースFPSのまま残ります（120fps表示でも入力は60fps相当）\n・FPS・Valorant・Apexなどの競技ゲームでは無効推奨\n・Radeon Chillと併用する場合はChill値をリフレッシュレートの半分に設定\n・VSync（FreeSync）はオフ、フルスクリーンまたはボーダーレスが必要',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'high',
+    fps: '○', mmo: '◎',
+    available: e => e.gpu !== 'nvidia',
+    naReason: 'NVIDIA環境では対象外です（NVIDIA ReflexとDLSS Frame Generationを使用してください）',
+    commands: [],
+    manual: '【HYPR-RX】\n① AMD Software: Adrenalin Edition を開く（バージョン 24.x以降が必要）\n② 「ゲーム」タブ → 対象ゲームを選択 → 「グラフィックス」\n③ HYPR-RX のトグルをオンにする\n\n【AFMF 2（単体有効化）】\n① AMD Software → 「ゲーム」→「グラフィックス」\n② AMD Fluid Motion Frames 2 をオン\n③ Anti-Lag がオン、AMD FreeSync がオフになっていることを確認\n④ ゲームを再起動して動作確認\n\n⚠️ 競技ゲームには非推奨。シングルプレイ・MMO・RTS向けです。',
+  },
+  // ════════════════════════════════════════════
+  // 📐 GPU — 追加カード（v2）
+  // ════════════════════════════════════════════
+  {
+    // ──────────────────────────────────────────
+    // MPO（Multi-Plane Overlay）無効化
+    //
+    // 【技術的背景】
+    //   DWMがデスクトップ合成にMPO（マルチプレーンオーバーレイ）を
+    //   使用すると、ゲームのPresent経路がOverlayスタックを経由するため
+    //   ドライバーのバグや合成タイミングのずれでスタッタリングが発生。
+    //   OverlayTestMode=5 でDWMのMPO使用を強制的にフォールバックさせる。
+    //   NVIDIAでは公式ドキュメント外だが広く実績のある値（2019年頃から）。
+    //   AMDでは効果はあるが、ドライバー内部でも同等の無効化設定が存在。
+    //
+    // 【副作用リスク】
+    //   ・Win11 + DirectFlip（ハードウェアアクセラレートPresent）に
+    //     依存するHDRやMiniLEDのバックライトゾーン制御が無効化される場合あり
+    //   ・再起動が必要
+    //   ・OverlayTestMode は非公式APIのため将来削除されるリスクあり
+    // ──────────────────────────────────────────
+    id: 'mpo',
+    layer: 'GPU', layerColor: '#0066ff',
+    emoji: '📐',
+    title: 'MPO（Multi-Plane Overlay）を無効化',
+    sub: 'DWM Overlay → スタッタリングの主要因を排除',
+    desc: 'DWM（Desktop Window Manager）のMPOはウィンドウ合成を高速化しますが、ドライバーのバグによりゲームでフレーム間隔の乱れ（スタッタリング）を引き起こすケースが多数報告されています。OverlayTestMode=5 でDWMのMPO使用をフォールバックさせることで解消できます。\n\n⚠️ 副作用: HDRや一部のMiniLEDバックライト機能が無効化される場合があります。デスクトップPCかつHDR非使用環境であれば安全に適用できます。再起動が必要です。\n\n【確認手順】: 設定前後でPresentMonやCapFrameXでフレームタイムを計測し、スパイクが減少しているか確認してください。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'high',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）— 再起動が必要',
+      text:
+`# MPO（Multi-Plane Overlay）を無効化
+# DWMのオーバーレイ合成をフォールバックさせてスタッタリングを防止
+$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm"
+If (!(Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+Set-ItemProperty -Path $path -Name "OverlayTestMode" -Value 5 -Type DWord
+
+Write-Host "MPOを無効化しました。再起動後に反映されます。"
+Write-Host "確認: フレームタイムをCapFrameX等で計測してください"`,
+    }],
+    manual: '① 上記コマンドを管理者PowerShellで実行\n② PCを再起動\n③ フレームタイム計測ツール（CapFrameX / PresentMon）で効果を確認\n\n復元方法:\n$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm"\nRemove-ItemProperty -Path $path -Name "OverlayTestMode" -ErrorAction SilentlyContinue\nWrite-Host "OverlayTestMode を削除して標準設定に戻しました"',
+    verify: `(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm' -ErrorAction SilentlyContinue).OverlayTestMode`,
+  },
+  {
+    // ──────────────────────────────────────────
+    // MMCSS SystemResponsiveness 強化
+    //
+    // 【技術的背景】
+    //   SystemResponsiveness=0 にするとMMCSSが全CPUタイムを
+    //   マルチメディア（ゲーム含む）スレッドに割り当てる。
+    //   デフォルト値は20（20%をバックグラウンド用に確保）。
+    //   Tasks\Games のGPU Priority・SFIO Priority との組み合わせで
+    //   ゲームスレッドのCPUスケジューリングが最優先になる。
+    //   既存の 'registry'（GPUスケジューラ優先度）カードと一部重複するが、
+    //   こちらはSystemResponsiveness + NetworkThrottlingIndex の両値を
+    //   ひとつのカードで統合管理する点が差別化ポイント。
+    //
+    // 【副作用リスク】
+    //   ・バックグラウンドでOBSやDiscordを同時使用する場合、
+    //     音声・映像のドロップが増加する可能性がある
+    //   ・Value=0 は「全リソースをマルチメディアに割り当て」のため
+    //     MMO・RTS向けのバックグラウンド通信処理も影響を受ける
+    //   ・再起動不要（即時反映）
+    // ──────────────────────────────────────────
+    id: 'mmcss_sr',
+    layer: 'GPU', layerColor: '#0066ff',
+    emoji: '📐',
+    title: 'MMCSS SystemResponsiveness をゲーム最優先に設定',
+    sub: 'NetworkThrottlingIndex 無効化 + SystemResponsiveness=0 の統合設定',
+    desc: 'MMCSS（Multimedia Class Scheduler Service）のSystemResponsivenessをデフォルト（20）からゲーム最優先（0）に変更します。これによりゲームスレッドが受け取るCPUタイムが最大化されます。NetworkThrottlingIndexの無効化も同時に行い、ゲーム中のネットワーク帯域制限（デフォルト10Mbps）も解除します。\n\n⚠️ 注意: バックグラウンドでOBSやDiscordを同時使用している場合、音声・映像の処理に影響が出る可能性があります。ゲーム専用PCや、録画・配信なしの対戦ゲーム専用環境での使用を推奨します。\n\n💡 既存の「GPUスケジューラ優先度」カードとの関係: このカードはSystemResponsivenessとNetworkThrottlingIndexを一括管理します。両方適用しても干渉はありませんが、Tasks\\Gamesの値が二重設定になるため、どちらか一方のみの適用でも効果があります。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'high',
+    fps: '◎', mmo: '○',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）— 再起動不要・即時反映',
+      text:
+`# MMCSS SystemResponsiveness をゲーム最優先に設定
+$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"
+
+# SystemResponsiveness: 0 = ゲーム優先 / 10 = デフォルト / 20 = バックグラウンド優先
+Set-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 0 -Type DWord
+
+# NetworkThrottlingIndex: 0xFFFFFFFF = 制限なし（デフォルトは10Mbps制限）
+Set-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 0xFFFFFFFF -Type DWord
+
+# Tasks\Games のスケジューリング優先度を最大化
+$gamesPath = "$path\\Tasks\\Games"
+Set-ItemProperty -Path $gamesPath -Name "GPU Priority"         -Value 8    -Type DWord
+Set-ItemProperty -Path $gamesPath -Name "Priority"             -Value 6    -Type DWord
+Set-ItemProperty -Path $gamesPath -Name "Scheduling Category"  -Value "High" -Type String
+Set-ItemProperty -Path $gamesPath -Name "SFIO Priority"        -Value "High" -Type String
+
+Write-Host "MMCSS設定を適用しました（SystemResponsiveness=0 / NetworkThrottlingIndex=無制限）"
+Write-Host "設定確認:"
+Get-ItemProperty $path | Select-Object SystemResponsiveness, NetworkThrottlingIndex`,
+    }],
+    manual: '① 上記コマンドを管理者PowerShellで実行\n② 再起動不要（即時反映）\n③ ゲームを起動して体感またはフレームタイムで効果を確認\n\n復元方法（デフォルト値に戻す）:\n$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"\nSet-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 20 -Type DWord\nSet-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 10 -Type DWord\nWrite-Host "デフォルト値に復元しました"',
+    verify: `Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile' | Select-Object SystemResponsiveness, NetworkThrottlingIndex`,
+  },
+  {
+    id: 'hags',
+    layer: 'GPU', layerColor: '#0066ff',
+    emoji: '📐',
+    title: 'HAGS（ハードウェアアクセラレートGPUスケジューリング）',
+    sub: 'Windows設定 → ディスプレイ → グラフィック',
+    desc: 'GPUスケジューリングをOSからGPUに移譲することで遅延を削減します。DLSS 3 Frame Generationを使う場合は必須です。一部の古いゲームで不安定になる場合があります。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [
+      { label: 'レジストリ（管理者PowerShell）', text: `Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers" -Name "HwSchMode" -Value 2 -Type DWord\nWrite-Host "HAGS を有効化しました。再起動後に反映されます。"` }
+    ],
+    manual: '① 設定 → システム → ディスプレイ → グラフィック\n② 「ハードウェアアクセラレートによるGPUスケジューリング」→ オン\n③ PC再起動',
+  },
+
+
+  // ════════════════════════════════════════════
+  // ⚙️ OS
+  // ════════════════════════════════════════════
+  {
+    id: 'power',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: '電源プランを「高パフォーマンス」に変更',
+    sub: 'コントロールパネル → 電源オプション',
+    desc: 'CPUのクロックが頻繁に上下するとフレームタイムのばらつきに直結します。高パフォーマンスプランで常時最大クロックを維持します。',
+    risk: 'none', riskLabel: 'リスクなし',
+    impact: 'high',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [
+      { label: 'PowerShell（管理者）', text: `# 高パフォーマンスに変更\nStart-Process powercfg -ArgumentList '/setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c' -Wait -NoNewWindow\n\n# 究極のパフォーマンスが表示されない場合は先に有効化\nStart-Process powercfg -ArgumentList '-duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61' -Wait -NoNewWindow\nWrite-Host "電源プランを高パフォーマンスに変更しました"` }
+    ],
+    manual: '① コントロールパネル → 電源オプション\n② 「高パフォーマンス」を選択',
+    verify: `Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power' -Name ActivePowerScheme -ErrorAction SilentlyContinue | Select-Object ActivePowerScheme`,
+  },
+  {
+    id: 'nagle',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'Nagle アルゴリズムを無効化',
+    sub: 'レジストリ → 小パケットのバッファリングをOFF',
+    desc: 'Nagleアルゴリズムは複数の小パケットをまとめて送信することで帯域効率を高めますが、ゲームの入力パケットに遅延を加えます。TCPNoDelayとTcpAckFrequencyをレジストリで設定することで無効化します。オンライン対戦ゲームで特に有効です。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'high',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# アクティブなNICのインターフェースIDを取得
+$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1)
+$ifIndex = $nic.ifIndex
+Write-Host "対象NIC: $($nic.Name) / Index: $ifIndex"
+
+# Nagle無効化（TCPNoDelay）
+$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces"
+Get-ChildItem $path | ForEach-Object {
+  Set-ItemProperty -Path $_.PSPath -Name "TcpAckFrequency" -Value 1 -Type DWord -ErrorAction SilentlyContinue
+  Set-ItemProperty -Path $_.PSPath -Name "TCPNoDelay" -Value 1 -Type DWord -ErrorAction SilentlyContinue
+}
+Write-Host "Nagleアルゴリズムを無効化しました"`,
+    }],
+    manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\n③ 各インターフェースキーを開き、以下を追加/変更（DWORD値）:\n   ・TcpAckFrequency = 1\n   ・TCPNoDelay = 1\n④ 再起動',
+    verify: `Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\*' -ErrorAction SilentlyContinue | Select TCPNoDelay,TcpAckFrequency | Where{$_.TCPNoDelay -ne $null}`,
+  },
+  {
+    id: 'vbs',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'VBS / HVCI（仮想化ベースセキュリティ）を無効化',
+    sub: 'Windows セキュリティ機能 — セキュリティリスクあり・理解した上で実行',
+    desc: 'VBS（Virtualization Based Security）とHVCI（Hypervisor Protected Code Integrity）はWindows 11のセキュリティ機能です。有効化されていると仮想化レイヤーのオーバーヘッドによりゲームのフレームレートが5〜15%低下するケースがあります。\n\n⚠️ 無効化するとカーネルレベルのセキュリティ保護が失われます。企業環境・マルウェア感染リスクが高い環境では絶対に無効化しないでください。個人ゲーミングPCで内容を十分理解した上でのみ実行してください。',
+    risk: 'high', riskLabel: '高リスク（セキュリティ低下）',
+    impact: 'high',
+    fps: '◎', mmo: '◎',
+    available: e => e.os === 'win11',
+    securityRisk: true,
+    naReason: 'Windows 10では対象外です',
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# VBS / HVCI 無効化
+# ⚠️ セキュリティリスクを理解した上で実行してください
+Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard" \`
+  -Name "EnableVirtualizationBasedSecurity" -Value 0 -Type DWord
+Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity" \`
+  -Name "Enabled" -Value 0 -Type DWord
+Write-Host "VBS/HVCIを無効化しました。再起動後に反映されます。"`,
+    }],
+    manual: '① Win+R → msinfo32 で現在のVBS状態を確認\n② 上記コマンドを管理者PowerShellで実行\n③ 再起動\n④ msinfo32 で「仮想化ベースのセキュリティ: 無効」を確認',
+    verify: `(Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard').EnableVirtualizationBasedSecurity`,
+  },
+  {
+    id: 'spectre',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'Spectre / Meltdown パッチを無効化',
+    sub: 'CPU投機実行の脆弱性パッチ — セキュリティリスクあり・競技専用PC向け',
+    desc: 'Spectre・Meltdownの緩和パッチはCPUの投機的実行を制限するため、ゲームによっては5〜15%のCPU性能低下を引き起こします。個人のゲーム専用PCで外部ネットワークからのコード実行リスクが低い環境に限り、無効化することでFPSと1% Low FPSが向上します。\n\n⚠️ 無効化するとCPUのサイドチャネル攻撃に対して脆弱になります。企業環境・共有PCでは絶対に実行しないでください。',
+    risk: 'high', riskLabel: '高リスク（セキュリティ低下）',
+    impact: 'high',
+    fps: '◎', mmo: '◎',
+    available: true,
+    securityRisk: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# Spectre / Meltdown 緩和パッチを無効化
+# ⚠️ セキュリティリスクを十分理解した上で実行してください
+$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"
+Set-ItemProperty -Path $path -Name "FeatureSettingsOverride" -Value 3 -Type DWord
+Set-ItemProperty -Path $path -Name "FeatureSettingsOverrideMask" -Value 3 -Type DWord
+Write-Host "Spectre/Meltdown パッチを無効化しました。再起動後に反映されます。"
+Write-Host "確認: Get-SpeculationControlSettings で Enabled が False になっていることを確認"`,
+    }],
+    manual: '① 管理者PowerShellで上記コマンドを実行\n② 再起動\n③ PowerShellで Get-SpeculationControlSettings を実行して確認\n\n復元方法: FeatureSettingsOverride と FeatureSettingsOverrideMask を削除すると元に戻ります。',
+    verify: `(Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management').FeatureSettingsOverride`,
+  },
+  {
+    id: 'timer',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'タイマー解像度を1ms化',
+    sub: e => e.os === 'win11' ? 'Win11 22H2以降は自動設定済み' : 'TimerResolutionツールを使用',
+    desc: e => e.os === 'win11'
+      ? 'Windows 11 22H2以降ではゲーム実行中に自動で1msに設定されます。追加設定は不要ですが、旧バージョンの場合はTimerResolutionツールを使用してください。'
+      : 'Windowsの内部タイマー（デフォルト15.6ms）を1ms化することで処理精度が向上します。TimerResolutionをスタートアップに登録して常時有効にしてください。',
+    risk: 'none', riskLabel: 'リスクなし',
+    impact: 'medium',
+    fps: '◎', mmo: '○',
+    available: true,
+    commands: e => e.os === 'win11' ? [] : [
+      { label: 'PowerShell（管理者）', text: `# ※Win10向け。HPETは無効推奨（逆効果の場合あり）\nStart-Process bcdedit -ArgumentList '/deletevalue useplatformclock' -Wait -NoNewWindow\nWrite-Host "useplatformclock を削除しました（再起動後に反映）"` }
+    ],
+    manual: e => e.os === 'win11'
+      ? 'Win11 22H2以降は対応不要です。\nバージョン確認：設定 → システム → バージョン情報'
+      : '① TimerResolution（https://cms.lucashale.com/timer-resolution/）をダウンロード\n② 「Maximum」を選択して「Start」\n③ スタートアップに登録して常時有効化',
+  },
+  {
+    id: 'network_throttle',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'NetworkThrottlingIndex を無効化',
+    sub: 'レジストリ → マルチメディアスケジューラのネットワーク制限を解除',
+    desc: 'WindowsのMultimedia Class Scheduler Service（MMCSS）はマルチメディア処理を優先するため、ゲーム中のネットワーク帯域を10Mbpsに制限する場合があります。NetworkThrottlingIndexを0xFFFFFFFFに設定することでこの制限を解除し、ゲーム中のパケット処理が改善されます。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# NetworkThrottlingIndex を無効化（0xFFFFFFFF = 制限なし）
+$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"
+Set-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 0xFFFFFFFF -Type DWord
+Set-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 0 -Type DWord
+
+Write-Host "NetworkThrottlingIndex を無効化しました"`,
+    }],
+    manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\n③ NetworkThrottlingIndex を DWORD で ffffffff に変更\n④ SystemResponsiveness を 0 に変更\n⑤ 再起動',
+    verify: `(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile').NetworkThrottlingIndex`,
+  },
+  {
+    id: 'nic_lso',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'LSO・Flow Control・EEE の無効化',
+    sub: 'NIC詳細設定 — まとめて無効化',
+    desc: 'ゲーム用途では不要な3つのNIC機能をまとめて無効化します。\n・LSO（Large Send Offload）：送信データをまとめて処理する機能。遅延が増加するケースあり。\n・Flow Control：ネットワーク混雑時に送信を一時停止する機能。ゲームでは逆効果。\n・EEE（Energy Efficient Ethernet）：アイドル時にNICをスリープさせる省電力機能。復帰遅延の原因になる。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# アクティブなNICを自動取得
+$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name
+Write-Host "対象NIC: $nic"
+
+# LSO（IPv4 / IPv6）を無効化
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*LsoV2IPv4" -RegistryValue 0
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*LsoV2IPv6" -RegistryValue 0
+
+# Flow Control を無効化
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*FlowControl" -RegistryValue 0
+
+# EEE（Energy Efficient Ethernet）を無効化
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*EEE" -RegistryValue 0 -ErrorAction SilentlyContinue
+
+Write-Host "LSO・Flow Control・EEE を無効化しました"`
+    }],
+    manual: '① デバイスマネージャー → ネットワークアダプター → 該当NICを右クリック → プロパティ\n② 「詳細設定」タブで以下を「無効」に変更：\n   ・Large Send Offload V2 (IPv4)\n   ・Large Send Offload V2 (IPv6)\n   ・Flow Control\n   ・Energy Efficient Ethernet\n③ OK → 適用\n\n⚠️ 設定後に通信が不安定になった場合は「設定のリセット」で元に戻せます。',
+    verify: `Get-NetAdapterAdvancedProperty -Name (Get-NetAdapter|Where-Object Status -eq Up|Sort-Object LinkSpeed -Desc|Select-Object -First 1 -Exp Name) | Where-Object {$_.RegistryKeyword -match 'LsoV2'} | Select-Object RegistryKeyword,RegistryValue`,
+  },
+  {
+    id: 'nic_buffer',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'NIC Receive / Transmit Buffers の最適化',
+    sub: () => {
+      const rx = typeof document !== 'undefined' && document.getElementById('rxSlider')
+        ? parseInt(document.getElementById('rxSlider').value)
+        : getBufferRecommend().rx;
+      const tx = typeof document !== 'undefined' && document.getElementById('txSlider')
+        ? parseInt(document.getElementById('txSlider').value)
+        : getBufferRecommend().tx;
+      return `スライダーで値を設定 → Rx: ${rx} / Tx: ${tx}`;
+    },
+    desc: `NICのバッファサイズを最適化します。バッファが大きすぎると遅延が増加し、小さすぎるとパケットロスが発生します。上のスライダーで値を調整してください。\n\n⚠️ NIC名は環境によって異なります。コマンド実行前に Get-NetAdapter で正しい名前を確認してください。`,
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: () => {
+      const rx = typeof document !== 'undefined' && document.getElementById('rxSlider')
+        ? parseInt(document.getElementById('rxSlider').value)
+        : getBufferRecommend().rx;
+      const tx = typeof document !== 'undefined' && document.getElementById('txSlider')
+        ? parseInt(document.getElementById('txSlider').value)
+        : getBufferRecommend().tx;
+      return [{ label: 'PowerShell（管理者）', text:
+`# アクティブなNICを自動取得
+$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name
+Write-Host "対象NIC: $nic"
+
+# Receive Buffers を ${rx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*ReceiveBuffers" -RegistryValue ${rx}
+
+# Transmit Buffers を ${tx} に設定
+Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword "*TransmitBuffers" -RegistryValue ${tx}
+
+Write-Host "NICバッファを設定しました（Rx:${rx} / Tx:${tx}）"`
+      }];
+    },
+    manual: 'Step 2のスライダーで値を調整後、上記コマンドの $nic を Get-NetAdapter で確認したNIC名に変更して実行してください。',
+    verify: `Get-NetAdapterAdvancedProperty -Name (Get-NetAdapter|Where-Object Status -eq Up|Sort-Object LinkSpeed -Desc|Select-Object -First 1 -Exp Name) | Where-Object {$_.RegistryKeyword -match 'Buffers'} | Select-Object RegistryKeyword,RegistryValue`,
+  },
+  {
+    id: 'usb_suspend',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'USB セレクティブサスペンドを無効化',
+    sub: '電源プラン → USB設定 — 高ポーリング環境（500Hz+）で特に有効',
+    desc: 'USBセレクティブサスペンドはアイドル状態のUSBデバイスをスリープさせる省電力機能です。高ポーリングレート（500Hz/1000Hz以上）のマウス・キーボードを使用している場合、スリープからの復帰遅延が入力遅延として現れることがあります。デスクトップPCではデメリットなく無効化できます。',
+    risk: 'low', riskLabel: '低リスク（デスクトップ推奨）',
+    impact: 'medium',
+    fps: '◎', mmo: '○',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# 現在の電源プランでUSBセレクティブサスペンドを無効化
+$guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'
+Start-Process powercfg -ArgumentList "/setacvalueindex $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0" -Wait -NoNewWindow
+Start-Process powercfg -ArgumentList "/setdcvalueindex $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0" -Wait -NoNewWindow
+Start-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow
+Write-Host "USBセレクティブサスペンドを無効化しました"`,
+    }],
+    manual: '① コントロールパネル → 電源オプション → プラン設定の変更 → 詳細な電源設定の変更\n② USB設定 → USBのセレクティブサスペンドの設定 → 「無効」\n③ 適用・OK',
+    verify: '$guid=(& powercfg /getactivescheme)-replace \'.*GUID: ([a-f0-9-]+).*\',\'$1\'; & powercfg /query $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 | Select-String \'Current AC\'',
+  },
+  {
+    id: 'rss',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'RSS（Receive Side Scaling）の最適化',
+    sub: 'NICの受信処理を複数CPUコアに分散',
+    desc: 'RSSはネットワーク受信処理を複数のCPUコアに分散させる機能です。デフォルト設定ではコアの割り当てが最適でない場合があり、ゲームが使用するコアと受信処理が競合してフレームタイムが不安定になることがあります。コア数の多い環境で特に効果があります。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# アクティブなNICを自動取得
+$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name
+Write-Host "対象NIC: $nic"
+
+# RSS を有効化して受信キューを最適化
+Enable-NetAdapterRss -Name $nic
+# NICの対応最大キュー数を取得して上限内で設定
+$maxQ = (Get-NetAdapterRss -Name $nic).MaxNumberOfReceiveQueues
+$targetQ = [Math]::Min(4, $maxQ)
+Set-NetAdapterRss -Name $nic -NumberOfReceiveQueues $targetQ -BaseProcessorNumber 2
+
+Write-Host "RSSを最適化しました（受信キュー: $targetQ / 開始コア: 2）"
+# 設定確認
+Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueues`,
+    }],
+    manual: '① 管理者PowerShellで上記コマンドを実行\n② 設定後にオンラインゲームをプレイしてジッターの改善を確認\n\n⚠️ NumberOfReceiveQueues はCPUコア数に合わせて調整してください（4コア以下なら2推奨）',
+    verify: `Get-NetAdapterRss -Name (Get-NetAdapter|Where-Object Status -eq Up|Sort-Object LinkSpeed -Desc|Select-Object -First 1 -Exp Name) | Select-Object Enabled,NumberOfReceiveQueues`,
+  },
+  {
+    id: 'tcp_autotuning',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'TCP 自動チューニングを無効化',
+    sub: 'netsh → 受信ウィンドウサイズの自動変動を停止',
+    desc: 'WindowsのTCP自動チューニングは受信ウィンドウサイズを動的に変化させます。Nagle無効化（TcpAckFrequency=1）と組み合わせた場合、OSが受信ウィンドウを勝手に変動させることでパケット間隔がばらつく原因になります。無効化してウィンドウサイズを固定することで通信の安定性が向上します。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '◎',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# TCP 自動チューニングを無効化\nStart-Process netsh -ArgumentList 'int tcp set global autotuninglevel=disabled' -Wait -NoNewWindow\nWrite-Host "TCP自動チューニングを無効化しました"\n\n# 設定確認\n& netsh int tcp show global | Select-String 'Receive Window'`
+    }],
+    manual: '① 管理者コマンドプロンプトで上記コマンドを実行\n② 再起動後に netsh int tcp show global で「Receive Window Auto-Tuning Level: disabled」を確認\n\n復元方法: netsh int tcp set global autotuninglevel=normal\n\n⚠️ Nagle無効化と合わせて適用することで相乗効果があります',
+    verify: '& netsh int tcp show global | Select-String -Pattern "Receive Window Auto-Tuning"',
+  },
+  {
+    id: 'hpet',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'HPET（High Precision Event Timer）を無効化',
+    sub: 'システムタイマー — タイマー解像度カードと併用推奨',
+    desc: 'HPETはWindowsが精密な時間計測に使用するハードウェアタイマーです。一部のシステムではHPETの割り込みオーバーヘッドがCPUの処理に影響し、フレームタイムの不安定さにつながります。bcdeditでHPETを無効化し、TSCベースのタイマーに切り替えることで改善が見込めます。効果は環境によって異なるため、前後でフレームタイムを比較してください。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '○',
+    available: e => e.os !== 'win11',
+    naReason: 'Windows 11ではHPETの扱いが変更されており、この設定の効果は限定的です',
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# HPET を無効化してTSCタイマーに切り替え\nStart-Process bcdedit -ArgumentList '/deletevalue useplatformclock' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/set useplatformtick yes' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/set disabledynamictick yes' -Wait -NoNewWindow\nWrite-Host "HPET を無効化しました。再起動後に反映されます。"`
+    }],
+    manual: '① 管理者PowerShellで上記コマンドを実行\n② 再起動\n③ フレームタイムを計測して変化を確認\n\n復元方法:\nbcdedit /set useplatformclock true\nbcdedit /deletevalue useplatformtick\nbcdedit /deletevalue disabledynamictick',
+    verify: '& bcdedit /enum | Select-String -Pattern "useplatformclock|useplatformtick|disabledynamictick"',
+  },
+  {
+    id: 'gamedvr',
+    layer: 'OS', layerColor: '#12b76a',
+    emoji: '⚙️',
+    title: 'Xbox Game Bar / Game DVR を無効化',
+    sub: 'レジストリ + Windowsの設定',
+    desc: 'Xbox Game BarとGame DVRはバックグラウンドでフレームをキャプチャしているか常時チェックを行います。特に古いPCや統合グラフィック環境でフレームタイムの悪化要因になります。オフにしても録画機能が完全に失われるわけではなく、OBSなどサードパーティは引き続き使えます。',
+    risk: 'none', riskLabel: 'リスクなし',
+    impact: 'low',
+    fps: '◎', mmo: '○',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# Game DVR を無効化
+$path = "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR"
+If (!(Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+Set-ItemProperty -Path $path -Name "AppCaptureEnabled" -Value 0 -Type DWord
+
+# Game Bar を無効化
+$path2 = "HKCU:\\System\\GameConfigStore"
+If (!(Test-Path $path2)) { New-Item -Path $path2 -Force | Out-Null }
+Set-ItemProperty -Path $path2 -Name "GameDVR_Enabled" -Value 0 -Type DWord
+
+Write-Host "Game Bar / Game DVR を無効化しました"`,
+    }],
+    manual: '① 設定 → ゲーム → Xbox Game Bar → オフ\n② 設定 → ゲーム → キャプチャ → 「ゲームの記録中...」→ オフ\n③ 上記コマンドでレジストリも合わせて設定すると確実です',
+    verify: `(Get-ItemProperty 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR').AppCaptureEnabled`,
+  },
+
+  // ════════════════════════════════════════════
+  // 🔲 CPU
+  // ════════════════════════════════════════════
+  {
+    id: 'msi_mode',
+    layer: 'CPU', layerColor: '#f5a623',
+    emoji: '🔲',
+    title: 'MSI モード（Message Signaled Interrupts）を有効化',
+    sub: 'GPU・NICの割り込み処理を最適化',
+    desc: 'デフォルトのLine-based割り込みに対し、MSIはCPUに割り込みを直接メッセージとして送るため、割り込み処理の遅延が削減されます。GPUとNICの両方に適用することで入力遅延・描画遅延の微小な改善が期待できます。設定後に起動しない場合はSafeモードでレジストリを元に戻してください。',
+    risk: 'high', riskLabel: '上級者向け',
+    impact: 'high',
+    fps: '◎', mmo: '○',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）— GPUのMSI有効化',
+      text:
+`# GPUデバイスのレジストリパスを特定して MSI を有効化
+$gpuPath = Get-ChildItem "HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\PCI" -Recurse -ErrorAction SilentlyContinue |
+  Where-Object { try { $_.GetValue("ClassGuid") -eq "{4d36e968-e325-11ce-bfc1-08002be10318}" } catch { $false } } |
+  Select-Object -First 1 -ExpandProperty PSPath
+
+if ($gpuPath) {
+  $msiPath = "$gpuPath\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties"
+  If (!(Test-Path $msiPath)) { New-Item -Path $msiPath -Force | Out-Null }
+  Set-ItemProperty -Path $msiPath -Name "MSISupported" -Value 1 -Type DWord
+  Write-Host "GPU MSI モードを有効化しました: $gpuPath"
+} else {
+  Write-Host "GPUのレジストリパスが見つかりませんでした。手動で設定してください。"
+}`,
+    }],
+    manual: '① Win+R → devmgmt.msc → ディスプレイアダプター → GPUを右クリック → プロパティ\n② 「詳細」タブ → 「デバイスインスタンスパス」をコピー\n③ regedit で HKLM\\SYSTEM\\CurrentControlSet\\Enum\\[コピーしたパス]\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties\n④ MSISupported を 1 に変更\n⑤ 再起動\n\n⚠️ 起動しない場合: Windows回復環境 → コマンドプロンプト → regedit で値を 0 に戻す',
+    verify: `Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\PCI\\*\\*\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties' -ErrorAction SilentlyContinue | Select PSParentPath,MSISupported`,
+  },
+  {
+    id: 'interrupt_affinity',
+    layer: 'CPU', layerColor: '#f5a623',
+    emoji: '🔲',
+    title: 'NVIDIA ドライバー割り込みアフィニティの最適化',
+    sub: 'nvlddmkm.sys の割り込みをCore 0から逃がす',
+    desc: 'NVIDIAのカーネルモードドライバー（nvlddmkm.sys）はデフォルトでCore 0に割り込みを集中させます。多くのゲームもCore 0に負荷が集中するため競合が発生し、DPCスパイクやフレームタイムの不安定さにつながります。GPUの割り込み処理をCore 2以降（できればL3キャッシュを共有する物理コアの末尾側）に固定することで改善が見込めます。\n\n効果の確認: LatencyMonを起動してnvlddmkm.sysの「Highest execution (ms)」が設定前後で下がっているかを確認してください。目安として1ms以下になれば良好です。',
+    risk: 'high', riskLabel: '上級者向け・要検証',
+    impact: 'high',
+    fps: '◎', mmo: '○',
+    available: e => e.gpu === 'nvidia' && (navigator.hardwareConcurrency || 4) > 4,
+    naReason: 'AMD環境またはコア数が少ない環境では対象外です',
+    commands: [{
+      label: 'PowerShell（管理者）— GPU割り込みパスの確認と設定',
+      text:
+`# Step 1: GPU デバイスのレジストリパスを特定
+$gpuPath = Get-ChildItem "HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\PCI" -Recurse -ErrorAction SilentlyContinue |
+  Where-Object { try { $_.GetValue("ClassGuid") -eq "{4d36e968-e325-11ce-bfc1-08002be10318}" } catch { $false } } |
+  Select-Object -First 1 -ExpandProperty PSPath
+Write-Host "GPU Path: $gpuPath"
+
+# Step 2: 割り込みアフィニティを Core 2 に設定（CPUコア数に応じて変更）
+# Core 2 = ビットマスク 0x04, Core 4 = 0x10, Core 2+4 = 0x14
+if ($gpuPath) {
+  $affinityPath = "$gpuPath\\Device Parameters\\Interrupt Management\\Affinity Policy"
+  If (!(Test-Path $affinityPath)) { New-Item -Path $affinityPath -Force | Out-Null }
+  # DevicePolicy 4 = IrqPolicySpecifiedProcessors（特定コアに固定）
+  Set-ItemProperty -Path $affinityPath -Name "DevicePolicy" -Value 4 -Type DWord
+  # AssignmentSetOverride: Core 2 = 0x04
+  [byte[]]$mask = @(0x04, 0x00, 0x00, 0x00)
+  Set-ItemProperty -Path $affinityPath -Name "AssignmentSetOverride" -Value $mask -Type Binary
+  Write-Host "GPU割り込みをCore 2に固定しました（再起動後に反映）"
+  Write-Host "LatencyMonで nvlddmkm.sys の Highest execution が改善しているか確認してください"
+} else {
+  Write-Host "GPUパスが見つかりませんでした"
+}`,
+    }],
+    manual: '① LatencyMonを起動して現在のnvlddmkm.syのHighest execution値を記録\n② 上記コマンドを管理者PowerShellで実行\n③ 再起動\n④ LatencyMonで再計測して改善を確認\n\nコアの選び方:\n・8コア以上: Core 2または4を推奨（ゲームが使うCore 0・1から遠いコア）\n・Intel 12世代以降（Pコア/Eコア混在）: EコアにはなくPコアの末尾側を指定\n\n復元方法: AssignmentSetOverride と DevicePolicy を削除して再起動',
+    verify: `Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\PCI' -Recurse -ErrorAction SilentlyContinue | Where-Object{try{$_.GetValue('ClassGuid') -eq '{4d36e968-e325-11ce-bfc1-08002be10318}'}catch{$false}} | Select-Object -First 1 | ForEach-Object{Get-ItemProperty "$($_.PSPath)\\Device Parameters\\Interrupt Management\\Affinity Policy" -ErrorAction SilentlyContinue}`,
+  },
+  {
+    id: 'coreparking',
+    layer: 'CPU', layerColor: '#f5a623',
+    emoji: '🔲',
+    title: 'コアパーキング（Core Parking）を無効化',
+    sub: '電源プランとは独立したCPUコア管理機能',
+    desc: '電源プランを「高パフォーマンス」にしても、OSは使用率が低いコアをスリープ（パーク）させます。ゲームの負荷が突発的に上がった際にパークから復帰するコストがフレームタイムの瞬間的な悪化を引き起こします。powercfgコマンドで最小・最大プロセッサー数を100%に固定することで無効化します。',
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '○',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# 現在の電源プランのGUIDを取得
+$guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'
+Write-Host "現在の電源プランGUID: $guid"
+
+# 最小プロセッサ状態を 100% に設定（コアパーキング無効化）
+Start-Process powercfg -ArgumentList "/setacvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 100" -Wait -NoNewWindow
+Start-Process powercfg -ArgumentList "/setdcvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 100" -Wait -NoNewWindow
+
+# 設定を反映
+Start-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow
+Write-Host "コアパーキングを無効化しました（最小プロセッサ状態 = 100%）"`,
+    }],
+    manual: '① 管理者PowerShellで上記コマンドを実行\n② または powercfg.cpl → 現在のプランの詳細 → プロセッサの電源管理\n③ 「最小のプロセッサの状態」を 100% に変更\n④ PCを再起動して確認',
+    verify: '$guid=(& powercfg /getactivescheme)-replace \'.*GUID: ([a-f0-9-]+).*\',\'$1\'; & powercfg /query $guid SUB_PROCESSOR PROCTHROTTLEMIN | Select-String \'Current AC\'',
+  },
+  {
+    id: 'process',
+    layer: 'CPU', layerColor: '#f5a623',
+    emoji: '🔲',
+    title: 'ゲームプロセスの優先度を「高」に設定',
+    sub: 'タスクマネージャー → 詳細 → 優先度の設定',
+    desc: 'ゲームのプロセスにCPU時間を優先的に割り当てます。Process Lassoを使うと起動時に自動で設定できます。「リアルタイム」は設定しないでください。',
+    risk: 'none', riskLabel: 'リスクなし',
+    impact: 'medium',
+    fps: '◎', mmo: '○',
+    available: true,
+    commands: [
+      { label: 'PowerShell（ゲーム起動後に実行）', text: `# ゲームの.exe名を変更して使用\n$proc = Get-Process -Name "game_name" -ErrorAction SilentlyContinue\nif ($proc) { $proc.PriorityClass = "High"; Write-Host "優先度を高に設定しました" }` }
+    ],
+    manual: '① Ctrl+Shift+Esc でタスクマネージャーを開く\n② 「詳細」タブ → ゲームの.exeを右クリック\n③ 「優先度の設定」→「高」を選択\n※毎回設定が必要。自動化はProcess Lassoを使用。',
+    verify: 'Get-Process | Where{$_.PriorityClass -eq \'High\'} | Select Name,PriorityClass | Format-Table -AutoSize',
+  },
+  {
+    id: 'affinity',
+    layer: 'CPU', layerColor: '#f5a623',
+    emoji: '🔲',
+    title: 'ゲームプロセスのCPUアフィニティ設定',
+    sub: () => {
+      const cores = navigator.hardwareConcurrency || 4;
+      const gameCores = Math.max(1, cores - 2);
+      const mask = (1 << gameCores) - 1;
+      return `検出コア数: ${cores} → 推奨マスク: 0x${mask.toString(16).toUpperCase()}`;
+    },
+    desc: () => {
+      const cores = navigator.hardwareConcurrency || 4;
+      const gameCores = Math.max(1, cores - 2);
+      const mask = (1 << gameCores) - 1;
+      const maskHex = '0x' + mask.toString(16).toUpperCase();
+      if (cores <= 4) return `⚠️ ${cores}コア環境のため、アフィニティ固定は逆効果になる場合があります。この設定はスキップしてプロセス優先度「高」のみ設定することを推奨します。`;
+      return `ゲームプロセスを特定のCPUコアに固定することで、OSのバックグラウンド処理との競合を減らしフレームタイムが安定します。検出されたコア数（${cores}コア）から、ゲーム用に${gameCores}コア（マスク値: ${maskHex}）を割り当てます。\n\n⚠️ Intel 第12世代（Alder Lake）以降のPコア／Eコア混在CPUをお使いの場合: 単純に「後ろのコアを空ける」設定にすると、性能の低いEコアだけでゲームが実行されるリスクがあります。Pコア番号をタスクマネージャーの「CPU」タブで確認し、Pコアのみを選択するマスク値を手動で計算することを推奨します。`;
+    },
+    risk: 'low', riskLabel: '要動作確認',
+    impact: 'medium',
+    fps: '◎', mmo: '○',
+    available: () => (navigator.hardwareConcurrency || 4) > 4,
+    naReason: `検出コア数が4以下のため、アフィニティ固定は推奨しません。プロセス優先度「高」の設定のみ行ってください。`,
+    commands: () => {
+      const cores = navigator.hardwareConcurrency || 4;
+      const gameCores = Math.max(1, cores - 2);
+      const mask = (1 << gameCores) - 1;
+      const maskHex = '0x' + mask.toString(16).toUpperCase();
+      return [{
+        label: 'PowerShell（ゲーム起動後に実行）',
+        text:
+`# ゲームの.exe名を実際の名前に変更して実行
+# 例: "game_name" → "cs2", "valorant" など
+$procName = "game_name"
+
+$proc = Get-Process -Name $procName -ErrorAction SilentlyContinue
+if ($proc) {
+  # アフィニティマスク設定（${cores}コア検出 → ゲーム用${gameCores}コア）
+  $proc.ProcessorAffinity = ${mask}
+  $proc.PriorityClass = "High"
+  Write-Host "アフィニティ: ${maskHex} / 優先度: 高 に設定しました"
+} else {
+  Write-Host "プロセスが見つかりません。ゲーム起動後に再実行してください。"
+}`
+      }];
+    },
+    manual: () => {
+      const cores = navigator.hardwareConcurrency || 4;
+      const gameCores = Math.max(1, cores - 2);
+      if (cores <= 4) return '⚠️ コア数が少ないためこの設定はスキップを推奨します。';
+      return `① ゲームを起動してからCtrl+Shift+Escでタスクマネージャーを開く\n② 「詳細」タブ → ゲームの.exeを右クリック → 「関係の設定」\n③ 最初の${gameCores}コア（CPU 0〜${gameCores - 1}）にチェックを入れてOK\n④ 同じく右クリック → 「優先度の設定」→「高」\n⚠️ 毎回設定が必要。自動化はProcess Lassoを推奨。\n\n⚠️ Intel 第12世代（Alder Lake）以降のPコア・Eコア混在環境: 上記の設定ではEコアだけが選ばれる場合があります。タスクマネージャーの「パフォーマンス」→「CPU」→「コア」でPコアの番号を確認し、Pコアのみにチェックを入れてください。`;
+    },
+  },
+  {
+    id: 'irq_affinity',
+    layer: 'CPU', layerColor: '#f5a623',
+    emoji: '🔲',
+    title: 'IRQアフィニティの最適化',
+    sub: 'デバイス割り込みを特定CPUコアに固定 — 環境依存・検証前提',
+    desc: 'GPU・NIC・USBコントローラーの割り込み処理（IRQ）をゲーム用コアとは別のCPUコアに固定することで、ゲームスレッドへの割り込みを減らしフレームタイムが安定します。効果は環境に強く依存し、逆効果になるケースもあるため必ず前後比較で検証してください。',
+    risk: 'high', riskLabel: '上級者向け・要検証',
+    impact: 'medium',
+    fps: '◎', mmo: '○',
+    available: () => (navigator.hardwareConcurrency || 4) > 4,
+    naReason: 'コア数が少ない環境では効果が期待できません',
+    commands: [{
+      label: 'PowerShell（管理者）— 現在のIRQ確認',
+      text:
+`# 現在のIRQ割り当てを確認（変更前に必ず確認）
+Get-WmiObject Win32_IRQResource | Sort-Object IRQNumber |
+  Select-Object IRQNumber, @{N='Device';E={$_.Caption}} |
+  Format-Table -AutoSize`,
+    }],
+    manual: '① MSI Utility（Aida64等）でIRQ番号を確認\n② regedit → HKLM\\SYSTEM\\CurrentControlSet\\Enum\\PCI\\[デバイスパス]\\Device Parameters\\Interrupt Management\\Affinity Policy\n③ DevicePolicy = 4、AssignmentSetOverride = 対象コアのビットマスク\n④ 再起動して効果を確認\n\n⚠️ 設定ミスでデバイスが認識されなくなる場合があります。変更前に復元ポイントを作成してください。',
+    verify: 'Get-WmiObject Win32_IRQResource | Sort IRQNumber | Select IRQNumber,@{N=\'Device\';E={$_.Caption}} | Format-Table -AutoSize',
+  },
+  {
+    id: 'win32priority',
+    layer: 'CPU', layerColor: '#f5a623',
+    emoji: '🔲',
+    title: 'Win32PrioritySeparation の最適化',
+    sub: 'フォアグラウンド（ゲーム）のCPUタイムスライスを最大化',
+    desc: 'Win32PrioritySeparationはフォアグラウンドとバックグラウンドのCPUタイムスライス比率を制御します。0x26に設定するとゲームなどのフォアグラウンドアプリが短い量子・高優先度で連続実行されます。バックグラウンドで重い処理が走っている環境で特に効果があります。',
+    risk: 'low', riskLabel: '低リスク',
+    impact: 'medium',
+    fps: '◎', mmo: '○',
+    available: true,
+    commands: [{
+      label: 'PowerShell（管理者）',
+      text:
+`# Win32PrioritySeparation を 0x26 に設定
+$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl"
+Set-ItemProperty -Path $path -Name "Win32PrioritySeparation" -Value 0x26 -Type DWord
+Write-Host "Win32PrioritySeparation を 0x26 に設定しました"
+Write-Host "現在値: $((Get-ItemProperty $path).Win32PrioritySeparation)"`,
+    }],
+    manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl\n③ Win32PrioritySeparation を DWORD 26 (16進数) に変更\n④ 再起動不要（即時反映）',
+    verify: `(Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl').Win32PrioritySeparation`,
+  },
+  {
+    id: 'registry',
+    layer: 'CPU', layerColor: '#f5a623',
+    emoji: '🔲',
+    title: 'GPUスケジューラ優先度 + SFIO Priority をレジストリで変更',
+    sub: 'HKLM → Multimedia → SystemProfile → Tasks → Games',
+    desc: 'WindowsのMMCSS（マルチメディアスケジューラ）がゲームに割り当てるGPU優先度とI/O優先度を変更します。SFIO Priority を High にすることでゲーム中のアセット読み込み（マップの裏読みなど）による一瞬のカクつきを軽減します。',
+    risk: 'low', riskLabel: '軽微なリスク',
+    impact: 'low',
+    fps: '○', mmo: '◎',
+    available: true,
+    commands: [
+      { label: 'レジストリ（管理者PowerShell）', text: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games"\nSet-ItemProperty -Path $path -Name "GPU Priority" -Value 8 -Type DWord\nSet-ItemProperty -Path $path -Name "Priority" -Value 6 -Type DWord\nSet-ItemProperty -Path $path -Name "Scheduling Category" -Value "High" -Type String\nSet-ItemProperty -Path $path -Name "SFIO Priority" -Value "High" -Type String\nWrite-Host "GPUスケジューラ優先度・SFIO Priorityを設定しました"` }
+    ],
+    manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games\n③ GPU Priority → 8、Priority → 6、Scheduling Category → High\n④ SFIO Priority → High（文字列値）',
+    verify: `Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' | Select 'GPU Priority','Priority','Scheduling Category','SFIO Priority'`,
+  },
+];
+
+// ── SETTINGS DATA ──
+// SETTINGS_CONFIG を env に基づいて解決するラッパー関数。
+// 各フィールドが fn(env) の場合は呼び出して実際の値に変換する。
+function getSettings() {
+  const e = { gpu: env.gpu, os: env.os, genre: env.genre };
+
+  // フィールド値を解決するユーティリティ
+  const resolve = (val) => typeof val === 'function' ? val(e) : val;
+
+  return SETTINGS_CONFIG.map(cfg => ({
+    ...cfg,
+    title:     resolve(cfg.title),
+    sub:       resolve(cfg.sub),
+    desc:      resolve(cfg.desc),
+    available: resolve(cfg.available),
+    commands:  resolve(cfg.commands) ?? [],
+    manual:    resolve(cfg.manual)   ?? '',
+    verify:    resolve(cfg.verify)   ?? null,
+  }));
+}
+
+
+
+function renderResults() {
+  const settings = getSettings();
+  const gpuLabel = env.gpu === 'nvidia' ? 'NVIDIA' : 'AMD';
+  const osLabel  = env.os  === 'win11'  ? 'Windows 11' : 'Windows 10';
+
+  const placeholder = document.getElementById('placeholder');
+  if (placeholder) placeholder.style.display = 'none';
+  const results = document.getElementById('results');
+  if (results) results.classList.add('show');
+
+  // サイドバーを表示
+  const sidebar = document.getElementById('step3Sidebar');
+  if (sidebar) sidebar.style.display = 'block';
+
+  // NVIDIA環境ならStep 4ボタンを表示
+  const nipBtn = document.getElementById('nipStep4Btn');
+  if (nipBtn) nipBtn.style.display = env.gpu === 'nvidia' ? 'block' : 'none';
+
+  // プリセットバー表示
+  const presetBar = document.getElementById('presetBar');
+  if (presetBar) presetBar.style.display = 'flex';
+  updatePresetCounts();
+
+  const genreLabel = env.genre === 'fps' ? 'FPS・格闘' : 'MMO・RTS';
+  document.getElementById('resultSummary').innerHTML =
+    `✅ <strong>${gpuLabel} × ${osLabel} × ${genreLabel}</strong> 向けの設定を ${settings.filter(s=>s.available).length} 件表示しています。カードをクリックして手順を確認し、チェックを入れながら進めてください。`;
+
+  const grid = document.getElementById('settingsGrid');
+  grid.innerHTML = '';
+
+  const CATEGORIES = {
+    reflex:    { label: '📐 GPU', color: '#0066ff' },
+    power:     { label: '⚙️ OS',  color: '#12b76a' },
+    msi_mode:  { label: '🔲 CPU', color: '#f5a623' },
+  };
+
+  // G-Sync/FreeSync インフォカードを挿入するID（このカードの直前に挿入）
+  const GSYNC_BEFORE_ID = 'power';
+  const isNvidiaEnv = env.gpu === 'nvidia';
+  const gsyncUrl   = 'https://note.com/noted_pothos7691/n/nfaa8c322d641';
+  const gsyncLabel = isNvidiaEnv ? 'G-Sync' : 'FreeSync';
+
+  settings.forEach(s => {
+    if (CATEGORIES[s.id]) {
+      // G-Sync インフォカードをOS開始前に挿入
+      if (s.id === GSYNC_BEFORE_ID) {
+        const info = document.createElement('div');
+        info.className = 'info-card';
+        info.innerHTML = `
+          <div class="info-card-icon">🖥️</div>
+          <div class="info-card-body">
+            <div class="info-card-title">${gsyncLabel} の正しい設定方法</div>
+            <div class="info-card-desc">有効にするだけでは不十分です。FPSリミッターとの組み合わせ方によって効果が大きく変わります。NVIDIA・AMD別の最適手順を解説しています。</div>
+            <a class="info-card-link" href="${gsyncUrl}" target="_blank" rel="noopener">yttyの記事で詳しく見る →</a>
+          </div>`;
+        grid.appendChild(info);
+      }
+      const { label, color } = CATEGORIES[s.id];
+      const hdr = document.createElement('div');
+      hdr.className = 'settings-category';
+      hdr.innerHTML = `<span class="settings-category-label" style="background:${color}18;color:${color}">${label}</span><span class="settings-category-line"></span>`;
+      grid.appendChild(hdr);
+    }
+    const card = document.createElement('div');
+    card.className = `setting-card${!s.available ? ' na' : ''}`;
+    card.id = `card-${s.id}`;
+
+    const layerBg = s.layerColor + '18';
+    const riskClass = s.risk === 'none' ? 'risk-none' : s.risk === 'low' ? 'risk-low' : 'risk-high';
+    const fpsTag    = s.fps    ? `<span class="badge-fps">FPS ${s.fps}</span>` : '';
+    const mmoTag    = s.mmo    ? `<span class="badge-mmo">MMO ${s.mmo}</span>` : '';
+    const impactMap = { high: ['badge-impact-high','効果: 高'], medium: ['badge-impact-medium','効果: 中'], low: ['badge-impact-low','効果: 低'] };
+    const [impCls, impLabel] = impactMap[s.impact] || ['badge-impact-low','効果: 低'];
+    const impactTag = `<span class="${impCls}">${impLabel}</span>`;
+
+    // FPS/MMO効果タグ
+
+    let cmdHTML = '';
+    if (s.commands && s.commands.length > 0) {
+      s.commands.forEach((cmd, i) => {
+        const btnId = `copy-${s.id}-${i}`;
+        cmdHTML += `
+          <div class="cmd-block">
+            <div class="cmd-label">${cmd.label}</div>
+            <div class="cmd-text" id="cmdtext-${s.id}-${i}">${escHtml(cmd.text)}</div>
+            <button class="copy-btn" id="${btnId}" data-target="cmdtext-${s.id}-${i}" data-action="copyCmdFromTarget">コピー</button>
+          </div>`;
+      });
+    }
+    if (s.manual) {
+      cmdHTML += `
+        <div style="margin-top:12px;">
+          <div style="font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:2px;margin-bottom:8px;">手順</div>
+          <div style="font-size:13px;color:var(--mid);line-height:1.8;white-space:pre-line;">${escHtml(s.manual)}</div>
+        </div>`;
+    }
+    if (s.verify) {
+      const verifyId = `verify-${s.id}`;
+      cmdHTML += `
+        <div class="verify-block">
+          <div class="verify-label">✔ 適用確認コマンド</div>
+          <div class="cmd-block" style="margin-top:0;">
+            <div class="cmd-label">PowerShell（管理者）</div>
+            <div class="cmd-text" id="${verifyId}">${escHtml(s.verify)}</div>
+            <button class="copy-btn" data-target="${verifyId}" data-action="copyCmdFromTarget">コピー</button>
+          </div>
+        </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="card-header" data-action="toggleCard:${s.id}">
+        <div class="card-check" id="check-${s.id}"></div>
+        <div class="card-title-wrap">
+          <div class="card-title">
+            <span>${s.emoji}</span>
+            <span>${s.title}</span>
+          </div>
+          <div class="card-badge-row">
+            <span class="badge-layer" style="background:${layerBg};color:${s.layerColor}">${s.layer}</span>
+            ${fpsTag}${mmoTag}${impactTag}
+            <span class="badge-risk ${riskClass}">${s.riskLabel}</span>
+          </div>
+          <div class="card-sub">${s.sub}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        ${!s.available ? `<div class="na-notice">⚠️ ${s.naReason || 'この環境では対象外の設定です'}</div>` : `
+          <p class="card-desc">${s.desc}</p>
+          ${cmdHTML}
+        `}
+      </div>`;
+
+    grid.appendChild(card);
+  });
+
+  updateProgress();
+  restoreCheckedCards();
+}
+
+// ── CONFLICT CHECK ──
+const CONFLICTS = [
+  {
+    ids: ['nic_lso', 'coreparking'],
+    msg: 'LSO無効化とコアパーキング無効化を同時に適用するとCPU負荷が増加します。高負荷ゲームでは逆効果になるケースがあるため、どちらか一方から試してください。'
+  },
+  {
+    ids: ['affinity', 'interrupt_affinity'],
+    msg: 'CPUアフィニティとNVIDIA割り込みアフィニティを同時に設定する場合、同じコアが競合しないよう注意してください。interrupt_affinityで指定するコアはアフィニティで使用するコアと別にしてください。'
+  },
+  {
+    ids: ['affinity', 'irq_affinity'],
+    msg: 'CPUアフィニティとIRQアフィニティを同時に設定する場合、ゲーム用コアと割り込み処理コアが重複しないよう確認してください。'
+  },
+  {
+    ids: ['hpet', 'timer'],
+    msg: 'HPETの無効化とタイマー解像度設定はどちらもシステムタイマーに影響します。両方同時に適用すると効果が干渉する場合があります。どちらか一方から試してください。'
+  },
+  {
+    ids: ['vbs', 'spectre'],
+    msg: '⚠️ VBSとSpectre/Meltdownパッチを同時に無効化するとシステムのセキュリティが著しく低下します。どちらか一方から効果を確認してから判断することを強く推奨します。'
+  },
+  {
+    ids: ['coreparking', 'win32priority'],
+    msg: 'コアパーキング無効化とWin32PrioritySeparationはどちらもCPUスケジューリングに影響します。高負荷環境では効果が重複・干渉する可能性があります。'
+  },
+  // ── v2追加カード競合定義 ──
+  {
+    ids: ['mpo', 'hags'],
+    msg: 'MPO無効化とHAGSはどちらもGPU/DWMのPresent経路に影響します。HAGSが有効だとDWMのDirectFlipが変わりMPOの無効化効果が変化する場合があります。両方適用した場合は必ずフレームタイムで効果を確認してください。'
+  },
+  {
+    ids: ['mmcss_sr', 'network_throttle'],
+    msg: 'MMCSS SystemResponsivenessカードとNetworkThrottlingIndexカードは同じレジストリキーを操作します。後から適用した方の値が有効になります。どちらか一方のみ適用してください。'
+  },
+  {
+    ids: ['mmcss_sr', 'registry'],
+    msg: 'MMCSS SystemResponsivenessカードとGPUスケジューラ優先度カードはどちらもTasks\\Gamesキーを設定します。内容は同一のため、どちらか一方の適用で十分です。'
+  },
+];
+
+function checkConflicts(changedId) {
+  const checked = new Set(
+    [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
+  );
+
+  // カード内のインライン警告を削除（旧方式の残滓クリア）
+  document.querySelectorAll('.conflict-warning').forEach(el => el.remove());
+
+  // アクティブな競合を収集
+  const active = CONFLICTS.filter(c => c.ids.every(id => checked.has(id)));
+
+  // ── 競合IDセットを構築 ──
+  const conflictIds = new Set(active.flatMap(c => c.ids));
+
+  // ── 全カードのconflictクラス・アイコンをリセット ──
+  document.querySelectorAll('.setting-card').forEach(card => {
+    card.classList.remove('conflict');
+    const icon = card.querySelector('.conflict-icon');
+    if (icon) icon.remove();
+  });
+
+  // ── 競合カードにconflictクラス・アイコンを付与 ──
+  conflictIds.forEach(id => {
+    const card = document.getElementById('card-' + id);
+    if (!card || card.classList.contains('na')) return;
+    card.classList.add('conflict');
+    // カードタイトルの末尾にアイコンを挿入（重複防止）
+    const titleEl = card.querySelector('.card-title');
+    if (titleEl && !titleEl.querySelector('.conflict-icon')) {
+      const icon = document.createElement('span');
+      icon.className = 'conflict-icon';
+      icon.textContent = '⚠️';
+      icon.title = '他の設定と競合しています';
+      titleEl.appendChild(icon);
+    }
+  });
+
+  const wrap = document.getElementById('sidebarConflictWrap');
+  const list = document.getElementById('sidebarConflictList');
+  if (!wrap || !list) return;
+
+  if (active.length === 0) {
+    wrap.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = active.map(c => `
+    <div style="font-size:11px;color:#7a4a00;line-height:1.6;padding:8px 10px;background:rgba(255,255,255,0.5);border-radius:6px;">
+      <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:3px;color:var(--yellow);">
+        ${c.ids.join(' + ')}
+      </div>
+      ${c.msg}
+    </div>`).join('');
+
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+
+function saveCheckedCards() {
+  const checked = [...document.querySelectorAll('.setting-card.checked')]
+    .map(c => c.id.replace('card-', ''));
+  localStorage.setItem('lt_checked', JSON.stringify(checked));
+}
+
+function restoreCheckedCards() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('lt_checked') || '[]');
+    if (!saved.length) return;
+    saved.forEach(id => {
+      const card = document.getElementById(`card-${id}`);
+      if (card && !card.classList.contains('na')) {
+        card.classList.add('checked');
+        const check = document.getElementById(`check-${id}`);
+        if (check) check.textContent = '✓';
+      }
+    });
+    updateProgress();
+  } catch(e) {}
+}
+
+function toggleCard(id) {
+  const card = document.getElementById(`card-${id}`);
+  const isOpen = card.classList.contains('open');
+  // 開く → open + checked / 閉じる → openだけ除去（checkedは維持）
+  // ただしチェック済みで再度クリックで閉じる場合はcheckedを解除
+  if (isOpen) {
+    card.classList.remove('open');
+    if (!card.classList.contains('na')) {
+      card.classList.remove('checked');
+    }
+  } else {
+    card.classList.add('open');
+    if (!card.classList.contains('na')) {
+      card.classList.add('checked');
+    }
+  }
+  const check = document.getElementById(`check-${id}`);
+  if (check) check.textContent = card.classList.contains('checked') ? '✓' : '';
+  updateProgress();
+  saveCheckedCards();
+  checkConflicts(id);
+}
+
+function updateProgress() {
+  const cards = document.querySelectorAll('.setting-card:not(.na)');
+  const checked = document.querySelectorAll('.setting-card.checked');
+  const pct = cards.length ? (checked.length / cards.length) * 100 : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('stickyProgressFill').style.width = pct + '%';
+  document.getElementById('stickyProgressText').textContent = `${checked.length} / ${cards.length}`;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function escXml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&apos;');
+}
+
+function clipboardCopy(btn, text, resetLabel) {
+  const label = resetLabel || 'コピー';
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ コピー済み';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = label; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    btn.textContent = '⚠ コピー失敗';
+    setTimeout(() => { btn.textContent = label; }, 2000);
+  });
+}
+
+function copyCmdFromTarget(btn) {
+  const targetId = btn.dataset.target;
+  const el = document.getElementById(targetId);
+  clipboardCopy(btn, el ? el.textContent : '');
+}
+
+function getCommandText(s) {
+  // nic_bufferはスライダー連動のためDOMから最新値を取得
+  if (s.id === 'nic_buffer') {
+    const el = document.querySelector('#card-nic_buffer .cmd-text');
+    if (el) return [{ label: 'PowerShell（管理者）', text: el.textContent }];
+  }
+  return s.commands;
+}
+
+const KR_EXPORT_CMD =
+`# キーリピート最速化
+Set-ItemProperty -Path "HKCU:\\Control Panel\\Keyboard" -Name "KeyboardDelay" -Value 0
+Set-ItemProperty -Path "HKCU:\\Control Panel\\Keyboard" -Name "KeyboardSpeed" -Value 31
+& rundll32.exe user32.dll,UpdatePerUserSystemParameters
+Write-Host "キーリピートを最速に設定しました"`;
+
+function krExportEnabled() {
+  const el = document.getElementById('krExportToggle');
+  return el && el.checked;
+}
+
+function copyAll() {
+  const settings = getSettings();
+  const checkedIds = new Set(
+    [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
+  );
+  const hasChecked = checkedIds.size > 0;
+  let out = `# PCゲーム遅延最適化コマンド\n# GPU: ${env.gpu?.toUpperCase()} / OS: ${env.os?.toUpperCase()}\n# 管理者権限のPowerShellで実行してください\n\n`;
+  settings.forEach(s => {
+    if (!s.available) return;
+    // チェックがある場合はチェック済みのみ、未チェック時は全件（後方互換）
+    if (hasChecked && !checkedIds.has(s.id)) return;
+    const cmds = getCommandText(s);
+    if (!cmds?.length) return;
+    out += `# ── ${s.title} ──\n`;
+    cmds.forEach(c => { out += c.text + '\n\n'; });
+  });
+  if (krExportEnabled()) {
+    out += `# ── キーリピート最速化 ──\n${KR_EXPORT_CMD}\n\n`;
+  }
+  navigator.clipboard.writeText(out)
+    .then(() => alert('全コマンドをコピーしました'))
+    .catch(() => alert('クリップボードへのコピーに失敗しました\nブラウザのアドレスバーからコピーを許可してください'));
+}
+
+// ── ZIP ダウンロード後の実行手順ガイドを表示 ──
+function showPs1Guide(batName, ps1Name, zipName) {
+  const existing = document.getElementById('ps1GuideToast');
+  if (existing) existing.remove();
+
+  const guide = document.createElement('div');
+  guide.id = 'ps1GuideToast';
+  guide.style.cssText = [
+    'position:fixed',
+    'bottom:28px',
+    'right:24px',
+    'left:auto',
+    'transform:none',
+    'background:var(--white)',
+    'border:2px solid var(--green)',
+    'border-radius:14px',
+    'padding:0',
+    'width:320px',
+    'z-index:9999',
+    'box-shadow:0 12px 40px rgba(0,0,0,0.35)',
+    'font-family:var(--sans)',
+    'overflow:hidden',
+  ].join(';');
+
+  guide.innerHTML = `
+    <div style="background:var(--green);padding:12px 16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">📦</span>
+      <span style="color:#fff;font-weight:700;font-size:13px;flex:1;">ダウンロード完了</span>
+      <button data-toast-close aria-label="閉じる"
+        style="background:rgba(255,255,255,0.25);border:none;color:#fff;cursor:pointer;
+               width:24px;height:24px;border-radius:50%;font-size:14px;line-height:24px;
+               display:flex;align-items:center;justify-content:center;padding:0;">✕</button>
+    </div>
+    <div style="padding:14px 16px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;word-break:break-all;">
+        🗜 <strong style="color:var(--text);">${zipName}</strong>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:0.03em;">実行手順</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;
+                       font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+                       flex-shrink:0;margin-top:1px;">1</span>
+          <span style="font-size:12px;color:var(--text);line-height:1.5;">ZIPを右クリック →<br><strong>「すべて展開」</strong></span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;
+                       font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+                       flex-shrink:0;margin-top:1px;">2</span>
+          <span style="font-size:12px;color:var(--text);line-height:1.5;"><strong style="color:var(--accent);">.bat</strong> ファイルを右クリック →<br><strong>「管理者として実行」→「はい」</strong></span>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(guide);
+  setTimeout(() => { if (guide.parentNode) guide.remove(); }, 30000);
+}
+
+function exportBat() {
+  const settings = getSettings();
+  const checkedIds = new Set(
+    [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
+  );
+
+  // ── PS完結方式 ──
+  // bat は UAC昇格 + powershell 一発起動のみ
+  // 選択メニュー / 個別確認 / ログ / スキップ通知 を全てPS内で完結
+
+  // チェック済みカードのPSコードを順番に収集
+  const cards = [];
+  settings.forEach(s => {
+    if (!s.available || !checkedIds.has(s.id)) return;
+    const cmds = getCommandText(s);
+    if (!cmds?.length) return;
+    const psLines = cmds
+      .filter(c => c.label.includes('PowerShell') || c.label.includes('レジストリ'))
+      .map(c => c.text);
+    if (!psLines.length) return;
+    cards.push({ id: s.id, title: s.title.replace(/"/g, "'"), psLines, verify: s.verify || '' });
+  });
+
+  const totalCount = cards.length;
+
+  // PS関数定義ブロックを生成
+  let psFunctions = '';
+  cards.forEach((card, idx) => {
+    const bodyLines = card.psLines.join('\n');
+    // verify の改行をPSとして安全に処理
+    const verifyBlock = card.verify
+      ? `  Write-Host "  --> 確認中..." -ForegroundColor DarkCyan\n  try {\n    ${card.verify.replace(/\n/g, '\n    ')}\n  } catch { Write-Host "  確認コマンドエラー: $_" -ForegroundColor DarkYellow }`
+      : `  # verify なし`;
+
+    psFunctions += `function Lat_Apply_${card.id} {\n`;
+    psFunctions += `  Write-Host "" \n`;
+    psFunctions += `  Write-Host "  [${idx + 1}/${totalCount}] ${card.title}" -ForegroundColor Yellow\n`;
+    psFunctions += `  try {\n`;
+    psFunctions += `    ${bodyLines.replace(/\n/g, '\n    ')}\n`;
+    psFunctions += `    Write-Host "  --> 適用完了" -ForegroundColor Green\n`;
+    psFunctions += `  } catch {\n`;
+    psFunctions += `    $msg = $_.Exception.Message\n`;
+    psFunctions += `    if ($msg -match "not found|見つかりません|supported|対応") {\n`;
+    psFunctions += `      Write-Host "  --> この環境では対応していません（スキップ）" -ForegroundColor DarkGray\n`;
+    psFunctions += `    } else {\n`;
+    psFunctions += `      Write-Host "  --> エラー: $msg" -ForegroundColor Red\n`;
+    psFunctions += `    }\n`;
+    psFunctions += `  }\n`;
+    psFunctions += `  ${verifyBlock}\n`;
+    psFunctions += `}\n\n`;
+  });
+
+  // IDリスト
+  const idList = cards.map(c => `'${c.id}'`).join(', ');
+  // 個別確認モード用: verifyありかどうかのマップ
+  const hasVerifyMap = cards.map(c => `'${c.id}'='${c.verify ? '1' : '0'}'`).join('; ');
+
+  const krBlock = krExportEnabled()
+    ? `\nWrite-Host "" \nWrite-Host "  キーリピート最速化を適用中..." -ForegroundColor Yellow\n${KR_EXPORT_CMD}\nWrite-Host "  --> 適用完了" -ForegroundColor Green`
+    : '';
+
+  const psMain =
+`#Requires -RunAsAdministrator
+# PCゲーム遅延最適化ツール v${typeof APP_VERSION !== 'undefined' ? APP_VERSION : ''}
+# GPU: ${env.gpu?.toUpperCase()} / OS: ${env.os?.toUpperCase()}
+# 実行方法: ファイルを右クリック →「PowerShellで実行」
+# または管理者PowerShellで: Set-ExecutionPolicy Bypass -Scope Process; .\latency-optimize.ps1
+
+${psFunctions}
+$applyList = @(${idList})
+$hasVerify  = @{${hasVerifyMap}}
+
+Write-Host ""
+Write-Host "  ==========================================" -ForegroundColor Cyan
+Write-Host "   PCゲーム遅延最適化ツール" -ForegroundColor White
+Write-Host "   GPU: ${env.gpu?.toUpperCase()} / OS: ${env.os?.toUpperCase()}" -ForegroundColor Gray
+Write-Host "  ==========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "  [1] 一括適用  （確認なしで全項目を適用）"
+Write-Host "  [2] 個別確認  （各項目で y/n を選択）"
+Write-Host ""
+$mode = Read-Host "  番号を入力 (1 か 2)"
+if ($mode -ne "1" -and $mode -ne "2") {
+  Write-Host "無効な入力です。1 か 2 を入力してください。" -ForegroundColor Red
+  Read-Host "Enterキーで終了"
+  exit 1
+}
+
+foreach ($id in $applyList) {
+  $fn = "Lat_Apply_$id"
+  if ($mode -eq "1") {
+    & $fn
+  } else {
+    Write-Host ""
+    $card = ($applyList | Where-Object { $_ -eq $id })
+    Write-Host "  次の設定: $id" -ForegroundColor Cyan
+    $ans = Read-Host "  適用しますか？ (y/n)"
+    if ($ans -ieq "y") {
+      & $fn
+      if ($hasVerify[$id] -eq "1") { Read-Host "  確認できたらEnterを押してください" }
+    } else {
+      Write-Host "  --> スキップしました" -ForegroundColor DarkGray
+    }
+  }
+}
+${krBlock}
+Write-Host ""
+Write-Host "  ==========================================" -ForegroundColor Cyan
+Write-Host "  すべての処理が完了しました" -ForegroundColor Green
+Write-Host "  PCを再起動してください" -ForegroundColor Yellow
+Write-Host "  ==========================================" -ForegroundColor Cyan
+Read-Host "  Enterキーで終了"
+`;
+
+  // ── ps1 + bat を ZIP にまとめてダウンロード ──
+  const ps1Name = `latency-optimize-${env.gpu}-${env.os}.ps1`;
+  const batName = `latency-optimize-${env.gpu}-${env.os}.bat`;
+  const zipName = `latency-optimize-${env.gpu}-${env.os}.zip`;
+
+  const ps1Text = psMain.replace(/\r?\n/g, '\r\n');
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  const enc = new TextEncoder();
+  const body = enc.encode(ps1Text);
+  const ps1Bytes = new Uint8Array(bom.length + body.length);
+  ps1Bytes.set(bom, 0); ps1Bytes.set(body, bom.length);
+
+  const batLines = [
+    '@echo off',
+    'chcp 65001 >nul',
+    'REM PCゲーム遅延最適化 ランチャー',
+    'REM このファイルを右クリック →「管理者として実行」',
+    '',
+    'fltmc >nul 2>&1',
+    'if %errorlevel% neq 0 (',
+    '    echo 管理者権限が必要です。昇格して再実行します...',
+    `    powershell -Command "Start-Process -FilePath '%~f0' -Verb RunAs"`,
+    '    exit /b',
+    ')',
+    '',
+    `powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0${ps1Name}"`,
+    '',
+  ].join('\r\n');
+
+  const zip = new JSZip();
+  zip.file(ps1Name, ps1Bytes);
+  zip.file(batName, batLines);
+  zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
+    const a = document.createElement('a');
+    const objUrl2 = URL.createObjectURL(blob);
+    a.href = objUrl2;
+    a.download = zipName;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(objUrl2), 10000);
+    showPs1Guide(batName, ps1Name, zipName);
+  });
+}
+function exportRollbackBat() {
+  const checkedIds = new Set(
+    [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
+  );
+
+  // ── Phase 1: バックアップPS（独立したPSスクリプトとして生成） ──
+  const backupPs =
+`# 現在のレジストリ値をバックアップ
+$desktopPath = [System.Environment]::GetFolderPath("Desktop")
+$backupDir = if ($desktopPath -and (Test-Path $desktopPath)) {
+  "$desktopPath\\latency_backup"
+} else {
+  "$env:USERPROFILE\\Documents\\latency_backup"
+}
+New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
+$keys = @(
+  "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile",
+  "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games",
+  "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl",
+  "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management",
+  "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers",
+  "HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm",
+  "HKLM:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak",
+  "HKCU:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak",
+  "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+  "HKCU:\\System\\GameConfigStore",
+  "HKCU:\\Control Panel\\Keyboard"
+)
+$backup = @{}
+foreach ($key in $keys) {
+  try {
+    $props = Get-ItemProperty -Path $key -ErrorAction SilentlyContinue
+    if ($props) { $backup[$key] = $props }
+  } catch {}
+}
+$backup | ConvertTo-Json -Depth 5 | Out-File -FilePath "$backupDir\\registry_backup.json" -Encoding UTF8
+$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name
+if ($nic) {
+  Get-NetAdapterAdvancedProperty -Name $nic 2>$null | ConvertTo-Json | Out-File "$backupDir\\nic_backup.json" -Encoding UTF8
+}
+Write-Host "  --> バックアップ完了: $backupDir" -ForegroundColor Green`;
+
+  // ── Phase 2: ロールバック定義 ──
+  const rollbackDefs = [
+    { id: 'power', title: '電源プランをバランスに戻す',
+      psCode: `$balanced = "381b4222-f694-41f0-9685-ff5bb260df2e"\nStart-Process powercfg -ArgumentList "/setactive $balanced" -Wait -NoNewWindow\nWrite-Host "  --> 電源プランをバランスに戻しました" -ForegroundColor Green` },
+    { id: 'nic_lso', title: 'NIC LSO・FlowControl・EEEを再有効化',
+      psCode: `$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name\nif (-not $nic) { Write-Host "  --> 有効なNICが見つかりません（スキップ）" -ForegroundColor DarkGray; return }\nforeach ($kw in @("*LsoV2IPv4","*LsoV2IPv6","*FlowControl","*EEE")) {\n  try { Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword $kw -RegistryValue 1 -ErrorAction Stop; Write-Host "  $kw 有効化完了" -ForegroundColor Green }\n  catch { Write-Host "  $kw はこの環境では対応していません（スキップ）" -ForegroundColor DarkGray }\n}` },
+    { id: 'nic_buffer', title: 'NICバッファをデフォルト(256)に戻す',
+      psCode: `$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name\nif (-not $nic) { Write-Host "  --> 有効なNICが見つかりません（スキップ）" -ForegroundColor DarkGray; return }\nforeach ($kw in @("*ReceiveBuffers","*TransmitBuffers")) {\n  try { Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword $kw -RegistryValue 256 -ErrorAction Stop; Write-Host "  $kw デフォルトに戻しました" -ForegroundColor Green }\n  catch { Write-Host "  $kw はこの環境では対応していません（スキップ）" -ForegroundColor DarkGray }\n}` },
+    { id: 'nagle', title: 'Nagleアルゴリズムを再有効化',
+      psCode: `$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces"\nGet-ChildItem $path | ForEach-Object {\n  Remove-ItemProperty -Path $_.PSPath -Name "TcpAckFrequency" -ErrorAction SilentlyContinue\n  Remove-ItemProperty -Path $_.PSPath -Name "TCPNoDelay" -ErrorAction SilentlyContinue\n}\nWrite-Host "  --> Nagleアルゴリズムを再有効化しました" -ForegroundColor Green` },
+    { id: 'gamedvr', title: 'Game DVRを再有効化',
+      psCode: `Set-ItemProperty -Path "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR" -Name "AppCaptureEnabled" -Value 1 -Type DWord\nSet-ItemProperty -Path "HKCU:\\System\\GameConfigStore" -Name "GameDVR_Enabled" -Value 1 -Type DWord\nWrite-Host "  --> Game DVRを再有効化しました" -ForegroundColor Green` },
+    { id: 'network_throttle', title: 'NetworkThrottlingIndexをデフォルトに戻す',
+      psCode: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"\nSet-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 10 -Type DWord\nSet-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 20 -Type DWord\nWrite-Host "  --> NetworkThrottlingIndexをデフォルトに戻しました" -ForegroundColor Green` },
+    { id: 'registry', title: 'GPUスケジューラ優先度をデフォルトに戻す',
+      psCode: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games"\nSet-ItemProperty -Path $path -Name "GPU Priority" -Value 8 -Type DWord\nSet-ItemProperty -Path $path -Name "Priority" -Value 2 -Type DWord\nSet-ItemProperty -Path $path -Name "Scheduling Category" -Value "Medium" -Type String\nWrite-Host "  --> GPUスケジューラ優先度をデフォルトに戻しました" -ForegroundColor Green` },
+    { id: 'win32priority', title: 'Win32PrioritySeparationをデフォルトに戻す',
+      psCode: `Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl" -Name "Win32PrioritySeparation" -Value 2 -Type DWord\nWrite-Host "  --> Win32PrioritySeparationをデフォルトに戻しました" -ForegroundColor Green` },
+    { id: 'vbs', title: 'VBS/HVCIを再有効化',
+      psCode: `Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Value 1 -Type DWord\nWrite-Host "  --> VBS/HVCIを再有効化しました（再起動後に反映）" -ForegroundColor Green` },
+    { id: 'spectre', title: 'Spectre/Meltdownパッチを再有効化',
+      psCode: `$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"\nRemove-ItemProperty -Path $path -Name "FeatureSettingsOverride" -ErrorAction SilentlyContinue\nRemove-ItemProperty -Path $path -Name "FeatureSettingsOverrideMask" -ErrorAction SilentlyContinue\nWrite-Host "  --> Spectre/Meltdownパッチを再有効化しました（再起動後に反映）" -ForegroundColor Green` },
+    { id: 'hpet', title: 'HPETを再有効化',
+      psCode: `Start-Process bcdedit -ArgumentList '/set useplatformclock true' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/deletevalue useplatformtick' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/deletevalue disabledynamictick' -Wait -NoNewWindow\nWrite-Host "  --> HPETを再有効化しました（再起動後に反映）" -ForegroundColor Green` },
+
+    // ── v2追加カード ──
+    { id: 'mpo', title: 'MPO（OverlayTestMode）をデフォルトに戻す',
+      psCode: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm"\nRemove-ItemProperty -Path $path -Name "OverlayTestMode" -ErrorAction SilentlyContinue\nWrite-Host "  --> OverlayTestMode を削除しました（再起動後に反映）" -ForegroundColor Green` },
+
+    // mmcss_sr: network_throttle と registry が両方チェックされていても
+    // このエントリが優先され、以下の排他フィルターで重複を除去する
+    { id: 'mmcss_sr', title: 'MMCSS SystemResponsivenessをデフォルトに戻す',
+      psCode: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"\nSet-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 20 -Type DWord\nSet-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 10 -Type DWord\n$gPath = "$path\\Tasks\\Games"\nSet-ItemProperty -Path $gPath -Name "GPU Priority" -Value 2 -Type DWord\nSet-ItemProperty -Path $gPath -Name "Priority" -Value 2 -Type DWord\nSet-ItemProperty -Path $gPath -Name "Scheduling Category" -Value "Medium" -Type String\nSet-ItemProperty -Path $gPath -Name "SFIO Priority" -Value "Normal" -Type String\nWrite-Host "  --> MMCSS設定をデフォルトに戻しました" -ForegroundColor Green` },
+
+    { id: 'hags', title: 'HAGSをデフォルト（無効）に戻す',
+      psCode: `Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers" -Name "HwSchMode" -Value 0 -Type DWord\nWrite-Host "  --> HwSchMode を 0 に設定しました（再起動後に反映）" -ForegroundColor Green` },
+
+    { id: 'shader_cache', title: 'NVIDIAシェーダーキャッシュ制限をデフォルトに戻す',
+      psCode: `foreach ($p in @("HKLM:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak","HKCU:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak")) {\n  Remove-ItemProperty -Path $p -Name "Shaders" -ErrorAction SilentlyContinue\n}\nWrite-Host "  --> シェーダーキャッシュ設定を削除しました（4GBキャップに戻ります）" -ForegroundColor Green` },
+
+    { id: 'usb_suspend', title: 'USBセレクティブサスペンドを再有効化',
+      psCode: `$guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'\nStart-Process powercfg -ArgumentList "/setacvalueindex $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setdcvalueindex $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow\nWrite-Host "  --> USBセレクティブサスペンドを再有効化しました" -ForegroundColor Green` },
+
+    { id: 'rss', title: 'RSS設定をシステムデフォルトに戻す',
+      psCode: `$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name\nif (-not $nic) { Write-Host "  --> 有効なNICが見つかりません（スキップ）" -ForegroundColor DarkGray } else { Set-NetAdapterRss -Name $nic -NumberOfReceiveQueues 1 -BaseProcessorNumber 0; Write-Host "  --> RSS設定をデフォルトに戻しました" -ForegroundColor Green }` },
+
+    { id: 'tcp_autotuning', title: 'TCP自動チューニングを再有効化',
+      psCode: `Start-Process netsh -ArgumentList 'int tcp set global autotuninglevel=normal' -Wait -NoNewWindow\nWrite-Host "  --> TCP自動チューニングをnormalに戻しました" -ForegroundColor Green` },
+
+    { id: 'timer', title: 'タイマー解像度設定を元に戻す（Win10のみ）',
+      psCode: `Start-Process bcdedit -ArgumentList '/set useplatformclock true' -Wait -NoNewWindow\nWrite-Host "  --> useplatformclock を true に設定しました（再起動後に反映）" -ForegroundColor Green` },
+
+    { id: 'coreparking', title: 'コアパーキングをデフォルトに戻す',
+      psCode: `$guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'\nStart-Process powercfg -ArgumentList "/setacvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 5" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setdcvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 5" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow\nWrite-Host "  --> コアパーキングをデフォルト（5%）に戻しました" -ForegroundColor Green` },
+
+    // 動的レジストリパス系：静的に復元不可のため手順案内メッセージを表示
+    { id: 'msi_mode', title: 'MSIモード — 手動復元が必要',
+      psCode: `Write-Host "  --> MSIモードの復元は手動操作が必要です:" -ForegroundColor Yellow\nWrite-Host "  regedit → HKLM\\SYSTEM\\CurrentControlSet\\Enum\\PCI\\[GPUパス]" -ForegroundColor Gray\nWrite-Host "  \\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties" -ForegroundColor Gray\nWrite-Host "  MSISupported を 0 に変更して再起動してください" -ForegroundColor Gray` },
+
+    { id: 'interrupt_affinity', title: 'NVIDIA割り込みアフィニティ — 手動復元が必要',
+      psCode: `Write-Host "  --> NVIDIA割り込みアフィニティの復元は手動操作が必要です:" -ForegroundColor Yellow\nWrite-Host "  regedit → HKLM\\SYSTEM\\CurrentControlSet\\Enum\\PCI\\[GPUパス]" -ForegroundColor Gray\nWrite-Host "  \\Device Parameters\\Interrupt Management\\Affinity Policy" -ForegroundColor Gray\nWrite-Host "  DevicePolicy と AssignmentSetOverride を削除して再起動してください" -ForegroundColor Gray` },
+
+    { id: 'affinity', title: 'CPUアフィニティ — 再起動で自動リセット',
+      psCode: `Write-Host "  --> CPUアフィニティはPC再起動で自動的にリセットされます" -ForegroundColor Green\nWrite-Host "  永続化ツール（Process Lasso等）を使用していた場合は該当設定を削除してください" -ForegroundColor Gray` },
+
+    { id: 'irq_affinity', title: 'IRQアフィニティ — 手動復元が必要',
+      psCode: `Write-Host "  --> IRQアフィニティの復元は手動操作が必要です:" -ForegroundColor Yellow\nWrite-Host "  regedit → 各デバイスの Affinity Policy キーを削除して再起動してください" -ForegroundColor Gray` },
+
+    { id: 'process', title: 'プロセス優先度 — 再起動で自動リセット',
+      psCode: `Write-Host "  --> プロセス優先度はPC再起動で自動的にリセットされます" -ForegroundColor Green\nWrite-Host "  Process Lasso等で永続化していた場合は該当ルールを削除してください" -ForegroundColor Gray` },
+
+  ].filter(r => {
+    if (!checkedIds.has(r.id)) return false;
+    // 二重実行排他制御:
+    // mmcss_sr がチェック済みの場合、同じキーを操作する network_throttle と registry を除外
+    // (mmcss_sr のエントリが両方のデフォルト復元を包括しているため)
+    if (r.id === 'network_throttle' && checkedIds.has('mmcss_sr')) return false;
+    if (r.id === 'registry'         && checkedIds.has('mmcss_sr')) return false;
+    return true;
+  });
+
+  // ── PS関数定義を文字列連結で生成（テンプレートリテラルの入れ子を回避） ──
+  let rbFunctions = '';
+  rollbackDefs.forEach((r, idx) => {
+    const title = r.title.replace(/"/g, "'");
+    const body  = r.psCode.split('\n').join('\n    ');
+    const num   = String(idx + 1);
+    const total = String(rollbackDefs.length);
+    rbFunctions += 'function RB_' + r.id + ' {\n';
+    rbFunctions += '  Write-Host ""\n';
+    rbFunctions += '  Write-Host "  [' + num + '/' + total + '] ' + title + '" -ForegroundColor Yellow\n';
+    rbFunctions += '  try {\n';
+    rbFunctions += '    ' + body + '\n';
+    rbFunctions += '  } catch {\n';
+    rbFunctions += '    $msg = $_.Exception.Message\n';
+    rbFunctions += '    if ($msg -match "not found|見つかりません|supported|対応") {\n';
+    rbFunctions += '      Write-Host "  --> この環境では対応していません（スキップ）" -ForegroundColor DarkGray\n';
+    rbFunctions += '    } else {\n';
+    rbFunctions += '      Write-Host "  --> エラー: $msg" -ForegroundColor Red\n';
+    rbFunctions += '    }\n';
+    rbFunctions += '  }\n';
+    rbFunctions += '}\n\n';
+  });
+
+  const rbIdList = rollbackDefs.map(r => "'" + r.id + "'").join(', ');
+
+  // ── バックアップから復元するPSコード ──
+  const restorePs =
+`$backupDir1 = [System.IO.Path]::Combine([System.Environment]::GetFolderPath("Desktop"), "latency_backup")
+$backupDir2 = [System.IO.Path]::Combine($env:USERPROFILE, "Documents", "latency_backup")
+$backupDir  = if (Test-Path $backupDir1) { $backupDir1 } elseif (Test-Path $backupDir2) { $backupDir2 } else { $null }
+if (-not $backupDir) {
+  Write-Host "  バックアップフォルダが見つかりません" -ForegroundColor Red
+  Read-Host "  Enterキーで終了"; exit 1
+}
+$regFile = "$backupDir\\registry_backup.json"
+if (-not (Test-Path $regFile)) {
+  Write-Host "  バックアップファイルが見つかりません: $regFile" -ForegroundColor Red
+  Read-Host "  Enterキーで終了"; exit 1
+}
+$backup = Get-Content $regFile -Encoding UTF8 | ConvertFrom-Json
+Write-Host "  バックアップから復元します: $backupDir" -ForegroundColor Cyan
+foreach ($key in $backup.PSObject.Properties.Name) {
+  $props = $backup.$key
+  foreach ($name in $props.PSObject.Properties.Name) {
+    if ($name -match "^PS") { continue }
+    try {
+      $val = $props.$name
+      if ($null -eq $val) { continue }
+      if (-not (Test-Path $key)) { New-Item -Path $key -Force | Out-Null }
+      Set-ItemProperty -Path $key -Name $name -Value $val -ErrorAction SilentlyContinue
+      Write-Host "  --> $name 復元" -ForegroundColor Green
+    } catch {
+      Write-Host "  --> $name 復元失敗: $_" -ForegroundColor DarkYellow
+    }
+  }
+}
+Write-Host "  --> レジストリの復元が完了しました" -ForegroundColor Green`;
+
+  // ── メインPSスクリプト生成 ──
+  const psMain =
+    '#Requires -RunAsAdministrator\n' +
+    '# PCゲーム遅延最適化 ロールバックツール\n' +
+    '# GPU: ' + (env.gpu || '').toUpperCase() + ' / OS: ' + (env.os || '').toUpperCase() + '\n' +
+    '# 実行方法: ファイルを右クリック →「PowerShellで実行」\n\n' +
+    rbFunctions + '\n' +
+    '$applyList = @(' + rbIdList + ')\n\n' +
+    'Write-Host ""\n' +
+    'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
+    'Write-Host "   ロールバックツール" -ForegroundColor White\n' +
+    'Write-Host "   GPU: ' + (env.gpu || '').toUpperCase() + ' / OS: ' + (env.os || '').toUpperCase() + '" -ForegroundColor Gray\n' +
+    'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
+    'Write-Host ""\n' +
+    'Write-Host "  Phase 1: 現在の設定をバックアップします..."\n' +
+    backupPs + '\n' +
+    'Write-Host ""\n' +
+    'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
+    'Write-Host "  操作を選択してください" -ForegroundColor White\n' +
+    'Write-Host "  [1] 設定をデフォルトに戻す" -ForegroundColor White\n' +
+    'Write-Host "  [2] バックアップファイルから復元" -ForegroundColor White\n' +
+    'Write-Host "  [3] バックアップのみ（終了）" -ForegroundColor White\n' +
+    'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
+    'Write-Host ""\n' +
+    '$choice = Read-Host "  番号を入力 (1 / 2 / 3)"\n\n' +
+    'if ($choice -eq "3") {\n' +
+    '  Write-Host "  バックアップのみ完了しました。" -ForegroundColor Green\n' +
+    '  Read-Host "  Enterキーで終了"\n' +
+    '  exit 0\n' +
+    '}\n\n' +
+    'if ($choice -eq "2") {\n' +
+    '  Write-Host ""\n' +
+    '  Write-Host "  バックアップファイルから復元します..." -ForegroundColor Cyan\n' +
+    restorePs + '\n' +
+    '  Write-Host ""\n' +
+    '  Write-Host "  復元完了。PCを再起動してください。" -ForegroundColor Yellow\n' +
+    '  Read-Host "  Enterキーで終了"\n' +
+    '  exit 0\n' +
+    '}\n\n' +
+    'if ($choice -ne "1") {\n' +
+    '  Write-Host "  無効な入力です。" -ForegroundColor Red\n' +
+    '  Read-Host "  Enterキーで終了"\n' +
+    '  exit 1\n' +
+    '}\n\n' +
+    '# Phase 2: デフォルトに戻す\n' +
+    'Write-Host ""\n' +
+    'Write-Host "  Phase 2: 設定をデフォルトに戻しています..." -ForegroundColor Cyan\n' +
+    'foreach ($id in $applyList) {\n' +
+    '  $fn = "RB_$id"\n' +
+    '  & $fn\n' +
+    '}\n\n' +
+    'Write-Host ""\n' +
+    'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
+    'Write-Host "  すべての設定をデフォルトに戻しました" -ForegroundColor Green\n' +
+    'Write-Host "  PCを再起動してください" -ForegroundColor Yellow\n' +
+    'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
+    'Read-Host "  Enterキーで終了"\n';
+
+  // ── ps1 + bat を ZIP にまとめてダウンロード ──
+  const ps1Name = `latency-ROLLBACK-${env.gpu}-${env.os}.ps1`;
+  const batName = `latency-ROLLBACK-${env.gpu}-${env.os}.bat`;
+  const zipName = `latency-ROLLBACK-${env.gpu}-${env.os}.zip`;
+
+  const ps1Text = psMain.replace(/\r?\n/g, '\r\n');
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  const enc = new TextEncoder();
+  const body = enc.encode(ps1Text);
+  const ps1Bytes = new Uint8Array(bom.length + body.length);
+  ps1Bytes.set(bom, 0); ps1Bytes.set(body, bom.length);
+
+  const batLines = [
+    '@echo off',
+    'chcp 65001 >nul',
+    'REM PCゲーム遅延最適化 ロールバック ランチャー',
+    'REM このファイルを右クリック →「管理者として実行」',
+    '',
+    'fltmc >nul 2>&1',
+    'if %errorlevel% neq 0 (',
+    '    echo 管理者権限が必要です。昇格して再実行します...',
+    `    powershell -Command "Start-Process -FilePath '%~f0' -Verb RunAs"`,
+    '    exit /b',
+    ')',
+    '',
+    `powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0${ps1Name}"`,
+    '',
+  ].join('\r\n');
+
+  const zip = new JSZip();
+  zip.file(ps1Name, ps1Bytes);
+  zip.file(batName, batLines);
+  zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
+    const a = document.createElement('a');
+    const objUrl3 = URL.createObjectURL(blob);
+    a.href = objUrl3;
+    a.download = zipName;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(objUrl3), 10000);
+    showPs1Guide(batName, ps1Name, zipName);
+  });
+}
+// ══════════════════════════════════════════════
+// ── SHARE SYSTEM ──
+// 全設定を3バイト(24bit)にパックしBase64urlで常に6文字固定
+//
+// bit layout:
+//   [23]    gpu   : 0=nvidia 1=amd
+//   [22]    os    : 0=win11  1=win10
+//   [21]    genre : 0=fps    1=mmo
+//   [20:17] rx    : 0~15 → (idx+1)*64 = 64~1024
+//   [16:13] tx    : 0~15 → (idx+1)*64 = 64~1024
+//   [12:1]  mask  : チェック済みカードのビットマスク(12設定)
+//   [0]     spare : 予備
+// ══════════════════════════════════════════════
+
+// ── SHARE CODE v2: Base64 JSON（全カード対応） ──
+function encodeSharePayload(data) {
+  const payload = {
+    g: data.g,
+    o: data.o,
+    genre: data.genre,
+    rx: data.rx,
+    tx: data.tx,
+    c: data.checked || [],
+  };
+  const json = JSON.stringify(payload);
+  const b64  = btoa(unescape(encodeURIComponent(json)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return 'LT2_' + b64;
+}
+
+function decodeSharePayload(code) {
+  try {
+    const s = code.trim();
+    // v2形式
+    if (s.startsWith('LT2_')) {
+      const b64 = s.slice(4).replace(/-/g, '+').replace(/_/g, '/');
+      const pad = (4 - b64.length % 4) % 4;
+      const json = decodeURIComponent(escape(atob(b64 + '='.repeat(pad))));
+      const d = JSON.parse(json);
+      return { g: d.g, o: d.o, genre: d.genre, rx: d.rx, tx: d.tx, checked: d.c || [] };
+    }
+    // v1後方互換（旧LT + 4文字）
+    if (s.toUpperCase().startsWith('LT') && s.length <= 10) {
+      const raw = s.slice(2);
+      const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+      const bin = atob(b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '='));
+      const n   = (bin.charCodeAt(0) << 16) | (bin.charCodeAt(1) << 8) | bin.charCodeAt(2);
+      const OLD_IDS = ['reflex','ull','hags','power','timer','nagle','gamedvr','nic_lso','nic_buffer','affinity','registry','network_throttle'];
+      const mask    = (n >> 1) & 0xFFF;
+      return {
+        g:       ['nvidia','amd'][(n >> 23) & 1],
+        o:       ['win11','win10'][(n >> 22) & 1],
+        genre:   ['fps','mmo'][(n >> 21) & 1],
+        rx:      (((n >> 17) & 0xF) + 1) * 64,
+        tx:      (((n >> 13) & 0xF) + 1) * 64,
+        checked: OLD_IDS.filter((_, i) => (mask >> i) & 1),
+      };
+    }
+    return null;
+  } catch(e) { return null; }
+}
+
+function buildShareData() {
+  const checked = [...document.querySelectorAll('.setting-card.checked')]
+    .map(c => c.id.replace('card-', ''));
+  const rx = parseInt(document.getElementById('rxSlider')?.value ?? 256);
+  const tx = parseInt(document.getElementById('txSlider')?.value ?? 256);
+  return { g: env.gpu, o: env.os, genre: env.genre, rx, tx, checked };
+}
+
+function generateShareCode() {
+  if (!env.gpu || !env.os || !env.genre) {
+    showShareMsg('先にGPU・OS・ジャンルを選択してください', 'err');
+    return;
+  }
+  const data = buildShareData();
+  const code = encodeSharePayload(data);
+
+  document.getElementById('shareCodeText').textContent = code;
+  document.getElementById('shareCodeWrap').style.display = 'block';
+
+  // URLハッシュにも反映
+  history.replaceState(null, '', location.pathname + location.search + '#' + code);
+  showShareMsg('✓ 共有コードを生成しました', 'ok');
+}
+
+function copyShareCode(btn) {
+  const code = document.getElementById('shareCodeText').textContent;
+  clipboardCopy(btn, code);
+}
+
+function copyShareUrl(btn) {
+  const code = document.getElementById('shareCodeText').textContent;
+  const url = location.origin + location.pathname + '#' + code;
+  clipboardCopy(btn, url, btn.textContent);
+  btn.textContent = '✓ URLをコピーしました';
+}
+
+function applyShareData(data) {
+  // 環境を復元
+  ['gpu','os','genre'].forEach(key => {
+    const val = key === 'gpu' ? data.g : key === 'os' ? data.o : data.genre;
+    const btn = document.querySelector(`[data-group="${key}"][data-val="${val}"]`);
+    if (btn) selectEnv(key, val, btn);
+  });
+
+  // NICバッファ値を復元
+  if (data.rx) {
+    const rxEl = document.getElementById('rxSlider');
+    if (rxEl) { rxEl.value = data.rx; }
+  }
+  if (data.tx) {
+    const txEl = document.getElementById('txSlider');
+    if (txEl) { txEl.value = data.tx; }
+  }
+  if (data.rx || data.tx) updateSlider();
+
+  // チェック済みカードを復元（renderResults後に実行）
+  if (data.checked?.length) {
+    requestAnimationFrame(() => {
+      data.checked.forEach(id => {
+        const card = document.getElementById('card-' + id);
+        if (card && !card.classList.contains('na') && !card.classList.contains('checked')) {
+          toggleCard(id);
+        }
+      });
+    });
+  }
+}
+
+function importShareCode() {
+  const input = document.getElementById('shareInput');
+  const code = input.value.trim();
+  if (!code) { showShareMsg('コードを入力してください', 'err'); return; }
+
+  const data = decodeSharePayload(code);
+  if (!data) {
+    input.classList.add('error');
+    showShareMsg('無効なコードです。コードを確認してください', 'err');
+    return;
+  }
+  input.classList.remove('error');
+  input.value = '';
+  applyShareData(data);
+  showShareMsg('✓ 設定を復元しました', 'ok');
+}
+
+function tryImportFromUrl() {
+  const hash = location.hash.slice(1);
+  if (!hash.startsWith('LT')) return;
+  const data = decodeSharePayload(hash);
+  if (!data) return;
+  applyShareData(data);
+  showShareMsg('✓ URLから設定を復元しました', 'ok');
+  document.getElementById('shareCodeText').textContent = hash;
+  document.getElementById('shareCodeWrap').style.display = 'block';
+}
+
+function clearShareMsg() {
+  document.getElementById('shareInput').classList.remove('error');
+  document.getElementById('shareMsg').textContent = '';
+  document.getElementById('shareMsg').className = 'share-msg';
+}
+
+function showShareMsg(msg, type) {
+  const el = document.getElementById('shareMsg');
+  el.textContent = msg;
+  el.className = 'share-msg ' + type;
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  // sel-btn イベント登録
+  document.querySelectorAll('.sel-btn[data-group]').forEach(btn => {
+    btn.addEventListener('click', () => selectEnv(btn.dataset.group, btn.dataset.val, btn));
+  });
+
+  // イベントデリゲーション
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    const a = el.dataset.action;
+    if (a === 'copyAll')          copyAll();
+    else if (a === 'exportBat')        exportBat();
+    else if (a === 'exportRollbackBat') exportRollbackBat();
+    else if (a === 'copyShareCode')    copyShareCode(el);
+    else if (a === 'copyShareUrl')     copyShareUrl(el);
+    else if (a === 'generateShareCode') generateShareCode();
+    else if (a === 'importShareCode')  importShareCode();
+    else if (a === 'toggleBufferCmd')  toggleBufferCmd(el);
+    else if (a === 'copyBufferCmd')    copyBufferCmd(el);
+    else if (a === 'copyCmdFromTarget') copyCmdFromTarget(el);
+    else if (a === 'selectGrade')      selectGrade(el);
+    else if (a === 'krFocus')          krFocus();
+    else if (a === 'krReset')          krReset();
+    else if (a === 'copyKrCmd')        copyKrCmd(el);
+    else if (a === 'toggleKrExport')   { /* handled via change event */ }
+    else if (a === 'goStep3')          { const s2=document.getElementById('step2Summary'); if(s2) s2.textContent='診断完了'; goStep(3); }
+    else if (a === 'goStep4')          goStep4();
+    else if (a === 'nipExport')        nipExport();
+    else if (a && a.startsWith('expandStep:')) expandStep(parseInt(a.slice(11)));
+    else if (a && a.startsWith('toggleCard:')) toggleCard(a.slice(11));
+    else if (a && a.startsWith('preset:'))     applyPreset(a.slice(7));
+    if (e.target.hasAttribute('data-toast-close')) document.getElementById('ps1GuideToast')?.remove();
+  });
+
+  // input デリゲーション
+  document.addEventListener('input', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    if (el.dataset.action === 'updateSlider') updateSlider();
+    if (el.dataset.action === 'updateFromWaveform') updateFromWaveform();
+  });
+
+  document.addEventListener('change', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    if (el.dataset.action === 'nipSelectGame') nipSelectGame();
+  });
+
+  // Enterキーでシェアインポート
+  const si = document.getElementById('shareInput');
+  if (si) {
+    si.addEventListener('keydown', e => { if (e.key === 'Enter') importShareCode(); });
+    si.addEventListener('input', clearShareMsg);
+  }
+
+  restoreEnv();
+  tryImportFromUrl();
+});
+</script>
+</body>
+</html>
