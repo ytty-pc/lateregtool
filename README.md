@@ -17,7 +17,7 @@
 - **安全な出力**: UAC自己昇格付き `.bat` で確認コマンド付き一括適用
 - **バックアップ**: 適用前バックアップ → レジストリ復元まで一括対応
 - **共有**: v3コード（11文字固定）でチェック状態・環境設定をURL共有
-- **Discord風UI**: 左サイドバー（ステップナビ・プリセット・競合警告・共有コード表示）+ トップバー（競合バッジ・.bat生成）
+- **Discord風UI**: 左サイドバー（ステップナビ・プリセット・ゲームツリー・競合警告・共有コード表示）+ トップバー（競合バッジ・.bat生成）
 
 ---
 
@@ -26,6 +26,7 @@
 ```
 Step 1  環境選択
         GPU（NVIDIA / AMD）・OS（Win11 / Win10）・ジャンル（FPS / MMO）を選択
+        3項目選択後に「次へ →」ボタンでStep2へ進む
 
 Step 2  診断
         ① Waveform.netでBufferbloat測定 → グレードを入力
@@ -35,10 +36,12 @@ Step 2  診断
 Step 3  設定一覧
         30枚のカードから適用したい設定をチェック
         プリセット6種（初心者 / 安定重視 / 競合なし / FPS特化 / 省電力ゲーミング / 全部盛り）も利用可能
+        ゲーム別推奨カードハイライト機能あり（サイドバーのゲームツリーから選択）
         → サイドバーから .bat をダウンロード
 
 Step 4  NVIDIA Inspector プロファイル生成（NVIDIA環境のみ）
-        対応ゲーム4種 + カスタム対応の .nip ファイルを出力
+        対応ゲーム9種 + カスタム対応の .nip ファイルを出力
+        ゲーム選択するとStep3の推奨カードが自動ハイライト
 ```
 
 ### .bat の実行方法
@@ -76,7 +79,7 @@ Step 4  NVIDIA Inspector プロファイル生成（NVIDIA環境のみ）
 | `nic_buffer` | NICバッファ調整 | Bufferbloat診断に基づく送受信バッファ最適化 |
 | `usb_suspend` | USBセレクティブサスペンド無効化 | 入力デバイスのウェイクアップ遅延を排除 |
 | `rss` | RSS（Receive Side Scaling）設定 | NIC割り込みを特定コアに集中させCPU効率を向上 |
-| `tcp_autotuning` | TCP自動チューニング制限 | 受信ウィンドウサイズの動的拡張を制限 |
+| `tcp_autotuning` | TCP自動チューニング無効化 | 受信ウィンドウサイズの動的変動を固定化 |
 | `hpet` | HPET無効化 | システムタイマーをTSCベースに統一 |
 | `dpc_latency` | DPC/ISR レイテンシ軽減 | NDISコールバック制限・DPCウォッチドッグ調整でレイテンシスパイクを抑制 |
 | `nvme_queue` | NVMe I/O レイテンシ軽減 | NVMeキュー深度を32に絞りI/O滞留を削減（NVMe SSD環境向け） |
@@ -99,20 +102,30 @@ Step 4  NVIDIA Inspector プロファイル生成（NVIDIA環境のみ）
 
 ## プリセット
 
-| プリセット | 内容 |
-|-----------|------|
-| 🔰 初心者向け | `risk: 'none'` かつコマンドありのカード |
-| 🛡️ 安定重視 | 固定18カード（`risk !== 'high'` + securityRisk除外 + 競合解消）|
-| 🤝 競合なし | 固定20カード（競合9ペア全回避・securityRisk除外）|
-| 🎯 FPS特化 | 固定18カード（入力遅延・描画遅延に直結する設定に特化）|
-| 🔋 省電力ゲーミング | 固定8カード（発熱・消費電力を抑えつつ安定フレームタイム）|
-| ⚡ 全部盛り | 環境適合する全設定（`available: true` のもの全て）|
+| プリセット | 枚数 | 内容 |
+|-----------|------|------|
+| 🔰 初心者向け | 環境依存 | `risk: 'none'` かつコマンドありのカード |
+| 🛡️ 安定重視 | 19枚 | 競合解消・securityRisk除外・tcp_autotuning除外 |
+| 🤝 競合なし | 20枚 | 競合10ペア全回避・securityRisk除外 |
+| 🎯 FPS特化 | 19枚 | 入力遅延・描画遅延に直結する設定に特化 |
+| 🔋 省電力ゲーミング | 8枚 | 発熱・消費電力を抑えつつ安定フレームタイム |
+| ⚡ 全部盛り | 環境依存 | 環境適合する全設定（`available: true` のもの全て）|
+
+### ゲーム別推奨ハイライト
+
+サイドバーのゲームツリーまたはStep4のゲーム選択から、ゲームごとの推奨カードをStep3でハイライト表示できます。チェックは任意です。
+
+| ジャンル | 対応ゲーム |
+|---------|-----------|
+| タクティカルFPS | VALORANT / Counter-Strike 2 / Rainbow Six Siege / Escape from Tarkov |
+| バトルロイヤル | Fortnite / Apex Legends / PUBG |
+| その他 | Overwatch 2 / Battlefield 2042 |
 
 ---
 
 ## 競合チェック
 
-同時有効化すると効果が干渉・重複する組み合わせを自動検出。競合発生時は左サイドバーに詳細を表示し、トップバーに赤バッジ（`⚠️ N件競合`）を表示します。競合なしプリセットを使うと全ペアを回避した状態で開始できます。
+同時有効化すると効果が干渉・重複する組み合わせを自動検出（全10ペア）。競合発生時は左サイドバーに詳細を表示し、トップバーに赤バッジ（`⚠️ N件競合`）を表示します。
 
 | 組み合わせ | 理由 |
 |-----------|------|
@@ -124,6 +137,7 @@ Step 4  NVIDIA Inspector プロファイル生成（NVIDIA環境のみ）
 | `coreparking` + `win32priority` | CPUスケジューリングへの干渉 |
 | `mpo` + `hags` | DWM/Presentパスへの二重干渉 |
 | `mmcss_sr` + `network_throttle` | 同一レジストリキーへの二重書き込み |
+| `network_throttle` + `registry` | NetworkThrottlingIndex重複設定 |
 | `mmcss_sr` + `registry` | Tasks\Gamesへの重複設定 |
 
 ---
@@ -148,7 +162,7 @@ bit 31–39: 環境情報（GPU/OS/ジャンル・NICバッファ等）
 
 ## NVIDIA Inspector プロファイル (.nip)
 
-対応ゲーム4種 + カスタムで `.nip` ファイルを生成します。NVIDIA Profile Inspectorで直接インポートできます。
+対応ゲーム9種 + カスタムで `.nip` ファイルを生成します。NVIDIA Profile Inspectorで直接インポートできます。
 
 | ゲーム | EXE |
 |--------|-----|
@@ -156,6 +170,11 @@ bit 31–39: 環境情報（GPU/OS/ジャンル・NICバッファ等）
 | VALORANT | `VALORANT-Win64-Shipping.exe` |
 | Apex Legends | `r5apex.exe` |
 | Overwatch 2 | `Overwatch.exe` |
+| Counter-Strike 2 | `cs2.exe` |
+| Rainbow Six Siege | `RainbowSix.exe` |
+| PUBG: Battlegrounds | `TslGame.exe` |
+| Escape from Tarkov | `EscapeFromTarkov.exe` |
+| Battlefield 2042 | `BF2042.exe` |
 | カスタム | 任意入力 |
 
 出力形式: **UTF-16LE BOM付き XML**（NVIDIA Inspector互換）
