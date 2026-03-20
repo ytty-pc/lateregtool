@@ -1542,7 +1542,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       </div>
       <div id="dcExportBtns" style="display:none;gap:6px;">
         <button class="dc-side-btn" data-action="generateShareCode" style="flex:1;">📤 共有</button>
-        <button class="dc-side-btn" data-action="exportRollbackBat" style="flex:1;background:#2a2000;color:#f0b132;border:1px solid #f0b132;">↩ ロールバック</button>
+        <button class="dc-side-btn" data-action="exportBat" style="flex:1;">📦 設定を書き出す</button>
       </div>
       <!-- 共有コード常時表示枠 -->
       <div id="dcShareCodeBox" style="display:none;margin-top:8px;">
@@ -1812,8 +1812,8 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
             <div class="sidebar-card">
               <div class="sidebar-card-title">エクスポート</div>
               <button class="sidebar-btn primary" data-action="copyAll">📋 コマンドを全コピー</button>
-              <button class="sidebar-btn secondary" data-action="exportBat">📦 .zip を生成</button>
-              <button class="sidebar-btn secondary" style="border-color:var(--yellow);color:var(--yellow);" data-action="exportRollbackBat">↩ ロールバック .zip</button>
+              <button class="sidebar-btn secondary" data-action="exportBat">📦 設定を書き出す</button>
+              <button class="sidebar-btn secondary" data-action="exportRollbackBat">💾 バックアップ作成 .zip</button>
               <div style="margin-top:8px;font-size:10px;color:var(--muted);line-height:1.6;">ZIP形式（.bat + .ps1）で出力。展開後 .bat を右クリック →「管理者として実行」。</div>
               <div id="nipStep4Btn" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
                 <button class="sidebar-btn primary" data-action="goStep4" style="background:var(--text);border-color:var(--text);">📐 NVIDIA Inspector プロファイルを生成</button>
@@ -2204,9 +2204,9 @@ function updateTopbarBtns(step) {
     wrap.appendChild(badge);
 
     const btn2 = document.createElement('button');
-    btn2.textContent = '📦 適用 .bat 生成';
-    btn2.style.cssText = 'padding:5px 12px;background:#5865f2;color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;';
-    btn2.addEventListener('click', () => { const el = document.querySelector('[data-action="exportBat"]'); if(el) el.click(); });
+    btn2.textContent = '💾 バックアップ作成';
+    btn2.style.cssText = 'padding:5px 12px;background:#2a2000;color:#f0b132;border:1px solid #f0b132;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;';
+    btn2.addEventListener('click', () => { const el = document.querySelector('[data-action="exportRollbackBat"]'); if(el) el.click(); });
     wrap.appendChild(btn2);
 
     // 現在の競合状態を即反映
@@ -4250,7 +4250,7 @@ function exportRollbackBat() {
     [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
   );
   if (checkedIds.size === 0) {
-    showErrorToast('設定を1つ以上チェックしてからロールバックBATを生成してください。');
+    showErrorToast('設定を1つ以上チェックしてからバックアップ作成を実行してください。');
     return;
   }
 
