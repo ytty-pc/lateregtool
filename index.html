@@ -7,6 +7,1272 @@
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-4KSKP2PF68"></script>
 <script>
+
+// ═══════════════════════════════════════════════════════
+// i18n 辞書
+// ═══════════════════════════════════════════════════════
+const I18N = {
+
+// ────────────────────────────────────────────────────
+// JA（原文）
+// ────────────────────────────────────────────────────
+ja: {
+  // サイドバー・共通
+  appTitle: '遅延最適化ツール',
+  appSub: 'v23.0 · PCゲーム向け',
+  navStep: 'ステップ',
+  nav1: '環境選択',
+  nav2: '診断',
+  nav3: '設定一覧',
+  nav4: 'NVIDIAプロファイル',
+  sidePreset: 'プリセット',
+  presetBeginner: '初心者向け',
+  presetSafe: '安定重視',
+  presetNoconflict: '競合なし',
+  presetFps: 'FPS特化',
+  presetEco: '省電力ゲーミング',
+  presetAll: '全部盛り',
+  presetClear: '✕ クリア',
+  sideGameLabel: 'ゲーム別',
+  gameTreeFps: '⚡ タクティカルFPS',
+  gameTreeBr: '🪂 バトルロイヤル',
+  gameTreeOther: '🎮 その他',
+  gameClearHighlight: '✕ ハイライトを解除',
+  conflictCheck: '⚠️ 競合チェック',
+  currentSel: '現在の選択',
+  btnShare: '📤 共有',
+  btnExport: '📦 設定を書き出す',
+  shareCodeLabel: '共有コード',
+  btnCopyCode: '📋',
+  linkBy: 'by ytty',
+  linkArticle: '📝 記事',
+  storeBadge: '↺ 前回の選択を復元しました',
+  // トップバー
+  topStep1Title: '環境選択',
+  topStep1Desc: 'GPU・OS・ジャンルを選択してください',
+  topStep2Title: '診断',
+  topStep2Desc: 'ネットワーク品質・キーリピートを計測',
+  topStep3Title: '設定一覧',
+  topStep3Desc: '設定カードを確認してチェックを入れてください',
+  topStep4Title: 'NVIDIAプロファイル',
+  topStep4Desc: 'NVIDIA Inspector プロファイルを生成',
+  topBtnBackup: '💾 バックアップ作成',
+  // ステッパー
+  step1Label: 'Step 1',
+  step2Label: 'Step 2',
+  step3Label: 'Step 3',
+  step4Label: 'Step 4',
+  doneBadge: '✓ 完了',
+  editBtn: '編集',
+  // Step1
+  step1GpuTitle: '🎮 GPUメーカー',
+  step1GpuDesc: 'タスクマネージャー → パフォーマンス → GPU で確認できます。GeForce RTX/GTX → NVIDIA、Radeon RX → AMD',
+  step1GpuNvidia: 'NVIDIA（GeForce）',
+  step1GpuAmd: 'AMD（Radeon）',
+  step1OsTitle: '💻 OSバージョン',
+  step1OsDesc: 'Win+R → winver で確認できます。「10.0.22000以降」はWindows 11です。',
+  step1GenreTitle: '🎯 ゲームジャンル',
+  step1GenreDesc: '主にプレイするゲームの種類を選択。カードの◎/○評価がこの選択に基づいて表示されます。',
+  step1GenreFps: 'FPS・格闘（低遅延最優先）',
+  step1GenreMmo: 'MMO・RTS（安定性重視）',
+  step1NextBtn: '次へ →',
+  step1NextDone: '3項目の選択が完了しました',
+  step1MissingGpu: 'GPUメーカー',
+  step1MissingOs: 'OSバージョン',
+  step1MissingGenre: 'ゲームジャンル',
+  step1MissingPrefix: '未選択: ',
+  // Step2
+  step2Summary: '診断',
+  step2NetTitle: '📡 ネットワーク品質を計測する',
+  step2NetDesc: '<strong>Waveform Bufferbloat Test</strong> で計測後、結果を入力してください。NICバッファ推奨値を自動算出します。',
+  step2WaveformBtn: '🔗 Waveform でテストする',
+  step2WaveformExt: '（外部サイト）',
+  step2GradeLabel: 'Bufferbloat Grade',
+  step2GradeUnmeasured: '未計測',
+  step2PingLabel: 'Ping under load（ms）',
+  step2PingPlaceholder: '例: 12',
+  step2NicTitle: '⚙️ NICバッファ値',
+  step2RxLabel: 'Receive Buffers',
+  step2TxLabel: 'Transmit Buffers',
+  step2RecLabel: '推奨: ',
+  step2ShowCmd: 'コマンドを表示',
+  step2CmdShell: 'PowerShell（管理者）',
+  step2KeyTitle: '⌨️ キーリピート遅延を計測する',
+  step2KeyDesc: 'キーを押しっぱなしにして、リピート開始遅延とリピート間隔を計測します。最適化が必要な場合、エクスポートに自動的に含めることができます。',
+  step2KeyTarget: 'ここをクリックしてキーを押しっぱなし',
+  step2KeyDone: '✓ 計測完了',
+  step2DelayLabel: 'リピート開始',
+  step2IntervalLabel: 'リピート間隔',
+  step2HzLabel: '推定Hz',
+  step2JudgeLabel: '判定',
+  step2KrExportTitle: '⚡ キーリピート最速化をエクスポートに含める',
+  step2KrExportDesc: 'KeyboardDelay=0 / KeyboardSpeed=31 をbat・コピーに追加します',
+  step2KrReset: 'リセット',
+  step2GoStep3: '設定一覧へ進む →',
+  step2SkipNote: '診断を完了しなくても設定一覧に進めます',
+  step2SkipBadge: 'スキップ可',
+  // Step3
+  step3Summary: '設定一覧',
+  step3SearchPlaceholder: '🔍 カードを検索...',
+  step3FilterEffect: '効果: すべて',
+  step3FilterEffectHigh: '効果: 高',
+  step3FilterEffectMed: '効果: 中',
+  step3FilterEffectLow: '効果: 低',
+  step3FilterLayer: 'レイヤー: すべて',
+  step3FilterCheck: 'チェック: すべて',
+  step3FilterChecked: '✓ チェック済み',
+  step3FilterUnchecked: '□ 未チェック',
+  step3FilterReset: '✕ リセット',
+  step3Placeholder: '↑ GPU・OS・ゲームジャンルを選択すると設定一覧が表示されます',
+  step3SideProgress: '進捗',
+  step3SideExport: 'エクスポート',
+  step3BtnCopyAll: '📋 コマンドを全コピー',
+  step3BtnExportBat: '📦 設定を書き出す',
+  step3BtnBackup: '💾 バックアップ作成 .zip',
+  step3BackupNote: 'ZIP形式（.bat + .ps1）で出力。展開後 .bat を右クリック →「管理者として実行」。',
+  step3NipBtn: '📐 NVIDIA Inspector プロファイルを生成',
+  step3ConflictTitle: '⚠️ 競合チェック',
+  step3ShareTitle: '設定を共有',
+  step3BtnGenShare: '📤 共有コードを生成',
+  step3BtnCopyShare: 'コピー',
+  step3BtnCopyUrl: '🔗 URLをコピー',
+  step3ImportLabel: 'コードを入力して復元',
+  step3ImportPlaceholder: '例: LT2_eyJn...',
+  step3ImportBtn: '読込',
+  step3CpuTitle: '🔲 CPUコア情報',
+  step3CpuCoresLabel: '論理コア数',
+  step3CpuMaskLabel: '推奨マスク',
+  // Step3 カードUI
+  cardCopyBtn: 'コピー',
+  cardCopied: '✓ コピー済み',
+  cardCopyFail: '⚠ コピー失敗',
+  cardVerifyLabel: '✔ 適用確認コマンド',
+  cardManualLabel: '手順',
+  cardNaPrefix: '⚠️ ',
+  cardNaDefault: 'この環境では対象外の設定です',
+  cardSecurityTitle: 'セキュリティ機能の無効化',
+  cardSecurityDesc: 'この設定はWindowsのセキュリティ保護を低下させます。個人のゲーム専用PC・競技専用機のみ推奨。企業環境・共有PC・ネットバンキング利用環境では実行しないでください。',
+  cardWin11Limited: 'この設定の効果は限定的です。「タイマー解像度」カードを優先してください。',
+  cardWin11LimitedPrefix: '⚠️ <strong>Win11環境:</strong>&nbsp;',
+  cardEffectHigh: '効果: 高',
+  cardEffectMed: '効果: 中',
+  cardEffectLow: '効果: 低',
+  // Step4
+  step4Title: '📐 NVIDIA Inspector プロファイル生成',
+  step4Desc: 'ゲームごとに最適化されたNVIDIA Inspector用プロファイル（.nipファイル）を生成します。NVIDIA Profile InspectorでインポートするとGPUドライバーレベルで設定が適用されます。',
+  step4Warning: '⚠️ ドライバー更新後は設定がリセットされる場合があります。更新後は再度.nipをインポートしてください。',
+  step4NipLink: 'GitHub Releases →',
+  step4GameLabel: 'ゲームを選択',
+  step4ExeLabel: '実行ファイル',
+  step4CustomName: 'ゲーム名 / .exe名',
+  step4CustomNamePH: '例: Counter-Strike 2',
+  step4CustomExePH: '例: cs2.exe',
+  step4SettingsLabel: '適用する設定（チェックした項目のみ.nipに含まれます）',
+  step4SelectAll: '全選択',
+  step4DeselectAll: '全解除',
+  step4FpsLimitTitle: '🎯 Frame Rate Limiter（任意）',
+  step4FpsLimitDesc: 'モニターのリフレッシュレート −3fps を推奨。例: 144Hz → 141fps。GPUが常にVSyncの直前まで余裕を持って動作しスタッターが減ります。空欄の場合は設定しません。',
+  step4FpsUnit: 'fps',
+  step4FpsPlaceholder: '例: 141',
+  step4ShaderNote: '💡 <strong>Shader Cache: Unlimited 適用後の推奨手順</strong><br>.nipインポート → 再起動 → <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">Win+R → cleanmgr</code> → 「DirectX Shader Cache」にチェック → 削除 → 再起動。これにより新しい設定でキャッシュが再構築されます。',
+  step4DownloadBtn: '📥 .nip ファイルをダウンロード',
+  // optgroup
+  optgroupBR: '── バトルロイヤル ──',
+  optgroupFPS: '── タクティカルFPS ──',
+  optgroupOther: '── その他 ──',
+  optgroupCustom: '────────────',
+  optCustom: '🔧 カスタム',
+  // ゲームハイライトバナー
+  highlightBannerSuffix: '枚</span> ハイライト中。チェックは任意です。',
+  highlightBannerBtn: '✕ 解除',
+  highlightBannerMid: ' 向け推奨カードを <span style="color:#949cf7;font-weight:700;">',
+  // resultSummary
+  resultSummaryFps: 'FPS・格闘',
+  resultSummaryMmo: 'MMO・RTS',
+  resultSummarySuffix: ' 向けの設定を ',
+  resultSummaryCount: ' 件表示しています。カードをクリックして手順を確認し、チェックを入れながら進めてください。',
+  // G-Sync インフォカード
+  gsyncCardTitle: ' の正しい設定方法',
+  gsyncCardDesc: '有効にするだけでは不十分です。FPSリミッターとの組み合わせ方によって効果が大きく変わります。NVIDIA・AMD別の最適手順を解説しています。',
+  gsyncCardLink: 'yttyの記事で詳しく見る →',
+  // プリセットバー（カード内）
+  presetBarBeginner: '🔰 初心者向け',
+  presetBarSafe: '🛡️ 安定重視',
+  presetBarNoconflict: '🤝 競合なし',
+  presetBarFps: '🎯 FPS特化',
+  presetBarEco: '🔋 省電力',
+  presetBarAll: '⚡ 全部盛り',
+  presetBarClear: '✕ クリア',
+  // updateProgress
+  progressExportBtn: '📦 設定を書き出す',
+  progressExportCount: '📦 設定を書き出す（',
+  progressExportCountSuffix: '件）',
+  progressTopbarDesc: '枚 · ',
+  progressTopbarDescSuffix: '枚チェック済み',
+  // waveformResult
+  waveformGradeA: '優秀なネットワーク品質です。NICバッファのデフォルト値（256）を推奨します。',
+  waveformGradeB: '良好なネットワーク品質です。NICバッファは256〜512を推奨します。',
+  waveformGradeC: 'やや遅延があります。Nagleアルゴリズム無効化と合わせて512を推奨します。',
+  waveformGradeD: 'Bufferbloatが検出されています。NICバッファ最大値（1024）を推奨します。Nagle無効化も必須です。',
+  waveformGradeF: '深刻なBufferbloatです。NICバッファ1024・Nagle無効化・TCP自動チューニング無効化を推奨します。',
+  waveformUnmeasured: '未計測の場合はデフォルト値（256）を推奨します。',
+  waveformPingOK: 'Ping under load が良好です（',
+  waveformPingWarn: 'Ping under load が高めです（',
+  waveformPingMs: 'ms）。',
+  waveformPingOKNote: 'Nagle無効化で更に改善できる可能性があります。',
+  waveformPingWarnNote: 'Nagle無効化・NICバッファ最適化を優先して適用してください。',
+  // krResult
+  krExcellent: '✅ キーリピートは最適化済みです',
+  krGood: '✅ キーリピートは良好です',
+  krWarn: '⚠️ キーリピートに最適化の余地があります',
+  krBad: '❌ キーリピートの最適化を推奨します',
+  krDelayNote: '遅延: ',
+  krIntervalNote: 'リピート間隔: ',
+  krMs: 'ms',
+  // updateStep1NextBtn labels
+  step1GenreLabelFps: 'FPS',
+  step1GenreLabelMmo: 'MMO',
+  step1Win11Label: 'Win 11',
+  step1Win10Label: 'Win 10',
+  // topbar conflict badge
+  topConflictBadge: '件競合',
+},
+
+// ────────────────────────────────────────────────────
+// EN
+// ────────────────────────────────────────────────────
+en: {
+  appTitle: 'Latency Optimizer',
+  appSub: 'v23.0 · For PC Gaming',
+  navStep: 'STEPS',
+  nav1: 'Environment',
+  nav2: 'Diagnostics',
+  nav3: 'Settings',
+  nav4: 'NVIDIA Profile',
+  sidePreset: 'PRESETS',
+  presetBeginner: 'Beginner',
+  presetSafe: 'Stable',
+  presetNoconflict: 'No Conflict',
+  presetFps: 'FPS Build',
+  presetEco: 'Eco Gaming',
+  presetAll: 'All In',
+  presetClear: '✕ Clear',
+  sideGameLabel: 'BY GAME',
+  gameTreeFps: '⚡ Tactical FPS',
+  gameTreeBr: '🪂 Battle Royale',
+  gameTreeOther: '🎮 Other',
+  gameClearHighlight: '✕ Clear Highlight',
+  conflictCheck: '⚠️ Conflict Check',
+  currentSel: 'Current Selection',
+  btnShare: '📤 Share',
+  btnExport: '📦 Export Settings',
+  shareCodeLabel: 'Share Code',
+  btnCopyCode: '📋',
+  linkBy: 'by ytty',
+  linkArticle: '📝 Article',
+  storeBadge: '↺ Previous selection restored',
+  topStep1Title: 'Environment',
+  topStep1Desc: 'Select GPU, OS, and genre',
+  topStep2Title: 'Diagnostics',
+  topStep2Desc: 'Measure network quality & key repeat',
+  topStep3Title: 'Settings',
+  topStep3Desc: 'Review setting cards and check items',
+  topStep4Title: 'NVIDIA Profile',
+  topStep4Desc: 'Generate NVIDIA Inspector profile',
+  topBtnBackup: '💾 Create Backup',
+  step1Label: 'Step 1',
+  step2Label: 'Step 2',
+  step3Label: 'Step 3',
+  step4Label: 'Step 4',
+  doneBadge: '✓ Done',
+  editBtn: 'Edit',
+  step1GpuTitle: '🎮 GPU Vendor',
+  step1GpuDesc: 'Task Manager → Performance → GPU. GeForce RTX/GTX → NVIDIA, Radeon RX → AMD',
+  step1GpuNvidia: 'NVIDIA (GeForce)',
+  step1GpuAmd: 'AMD (Radeon)',
+  step1OsTitle: '💻 OS Version',
+  step1OsDesc: 'Win+R → winver. Build 22000 or later = Windows 11.',
+  step1GenreTitle: '🎯 Game Genre',
+  step1GenreDesc: 'Select your primary game type. Card ratings (◎/○) will reflect this choice.',
+  step1GenreFps: 'FPS / Fighting (low latency priority)',
+  step1GenreMmo: 'MMO / RTS (stability priority)',
+  step1NextBtn: 'Next →',
+  step1NextDone: 'All 3 items selected',
+  step1MissingGpu: 'GPU Vendor',
+  step1MissingOs: 'OS Version',
+  step1MissingGenre: 'Game Genre',
+  step1MissingPrefix: 'Missing: ',
+  step2Summary: 'Diagnostics',
+  step2NetTitle: '📡 Measure Network Quality',
+  step2NetDesc: 'Run the <strong>Waveform Bufferbloat Test</strong>, then enter the result. Optimal NIC buffer values will be calculated automatically.',
+  step2WaveformBtn: '🔗 Test with Waveform',
+  step2WaveformExt: '(external site)',
+  step2GradeLabel: 'Bufferbloat Grade',
+  step2GradeUnmeasured: 'Not measured',
+  step2PingLabel: 'Ping under load (ms)',
+  step2PingPlaceholder: 'e.g. 12',
+  step2NicTitle: '⚙️ NIC Buffer Values',
+  step2RxLabel: 'Receive Buffers',
+  step2TxLabel: 'Transmit Buffers',
+  step2RecLabel: 'Recommended: ',
+  step2ShowCmd: 'Show Command',
+  step2CmdShell: 'PowerShell (Admin)',
+  step2KeyTitle: '⌨️ Measure Key Repeat Delay',
+  step2KeyDesc: 'Hold a key and measure repeat start delay and repeat interval. If optimization is needed, it can be automatically included in the export.',
+  step2KeyTarget: 'Click here and hold a key',
+  step2KeyDone: '✓ Measurement complete',
+  step2DelayLabel: 'Repeat Start',
+  step2IntervalLabel: 'Repeat Interval',
+  step2HzLabel: 'Est. Hz',
+  step2JudgeLabel: 'Result',
+  step2KrExportTitle: '⚡ Include key repeat optimization in export',
+  step2KrExportDesc: 'Adds KeyboardDelay=0 / KeyboardSpeed=31 to .bat and copy output.',
+  step2KrReset: 'Reset',
+  step2GoStep3: 'Go to Settings →',
+  step2SkipNote: 'You can skip diagnostics and go directly to settings.',
+  step2SkipBadge: 'Skippable',
+  step3Summary: 'Settings',
+  step3SearchPlaceholder: '🔍 Search cards...',
+  step3FilterEffect: 'Impact: All',
+  step3FilterEffectHigh: 'Impact: High',
+  step3FilterEffectMed: 'Impact: Medium',
+  step3FilterEffectLow: 'Impact: Low',
+  step3FilterLayer: 'Layer: All',
+  step3FilterCheck: 'Check: All',
+  step3FilterChecked: '✓ Checked',
+  step3FilterUnchecked: '□ Unchecked',
+  step3FilterReset: '✕ Reset',
+  step3Placeholder: '↑ Select GPU, OS, and genre to display setting cards',
+  step3SideProgress: 'Progress',
+  step3SideExport: 'Export',
+  step3BtnCopyAll: '📋 Copy All Commands',
+  step3BtnExportBat: '📦 Export Settings',
+  step3BtnBackup: '💾 Create Backup .zip',
+  step3BackupNote: 'Output as ZIP (.bat + .ps1). Right-click the .bat → "Run as administrator".',
+  step3NipBtn: '📐 Generate NVIDIA Inspector Profile',
+  step3ConflictTitle: '⚠️ Conflict Check',
+  step3ShareTitle: 'Share Settings',
+  step3BtnGenShare: '📤 Generate Share Code',
+  step3BtnCopyShare: 'Copy',
+  step3BtnCopyUrl: '🔗 Copy URL',
+  step3ImportLabel: 'Restore from code',
+  step3ImportPlaceholder: 'e.g. LT2_eyJn...',
+  step3ImportBtn: 'Load',
+  step3CpuTitle: '🔲 CPU Core Info',
+  step3CpuCoresLabel: 'Logical Cores',
+  step3CpuMaskLabel: 'Rec. Mask',
+  cardCopyBtn: 'Copy',
+  cardCopied: '✓ Copied',
+  cardCopyFail: '⚠ Failed',
+  cardVerifyLabel: '✔ Verification Command',
+  cardManualLabel: 'Steps',
+  cardNaPrefix: '⚠️ ',
+  cardNaDefault: 'Not applicable for this environment.',
+  cardSecurityTitle: 'Disabling Security Feature',
+  cardSecurityDesc: 'This setting reduces Windows security protections. Only recommended for personal gaming PCs / competitive-only machines. Do not apply in corporate, shared, or online banking environments.',
+  cardWin11Limited: 'Effect is limited in this environment. Prioritize the "Timer Resolution" card.',
+  cardWin11LimitedPrefix: '⚠️ <strong>Win11:</strong>&nbsp;',
+  cardEffectHigh: 'Impact: High',
+  cardEffectMed: 'Impact: Medium',
+  cardEffectLow: 'Impact: Low',
+  step4Title: '📐 NVIDIA Inspector Profile Generator',
+  step4Desc: 'Generate a game-optimized NVIDIA Inspector profile (.nip file). Importing it with NVIDIA Profile Inspector applies GPU driver-level settings.',
+  step4Warning: '⚠️ Settings may reset after driver updates. Re-import the .nip after updating.',
+  step4NipLink: 'GitHub Releases →',
+  step4GameLabel: 'Select Game',
+  step4ExeLabel: 'Executable',
+  step4CustomName: 'Game Name / .exe Name',
+  step4CustomNamePH: 'e.g. Counter-Strike 2',
+  step4CustomExePH: 'e.g. cs2.exe',
+  step4SettingsLabel: 'Settings to apply (only checked items included in .nip)',
+  step4SelectAll: 'Select All',
+  step4DeselectAll: 'Deselect All',
+  step4FpsLimitTitle: '🎯 Frame Rate Limiter (optional)',
+  step4FpsLimitDesc: 'Recommended: monitor refresh rate −3 fps. e.g. 144Hz → 141fps. Keeps GPU just below VSync for reduced stutter.',
+  step4FpsUnit: 'fps',
+  step4FpsPlaceholder: 'e.g. 141',
+  step4ShaderNote: '💡 <strong>After applying Shader Cache: Unlimited</strong><br>Import .nip → Reboot → <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">Win+R → cleanmgr</code> → Check "DirectX Shader Cache" → Delete → Reboot. This rebuilds the cache with new settings.',
+  step4DownloadBtn: '📥 Download .nip File',
+  optgroupBR: '── Battle Royale ──',
+  optgroupFPS: '── Tactical FPS ──',
+  optgroupOther: '── Other ──',
+  optgroupCustom: '────────────',
+  optCustom: '🔧 Custom',
+  highlightBannerSuffix: '</span> cards highlighted. Checking is optional.',
+  highlightBannerBtn: '✕ Clear',
+  highlightBannerMid: ' recommended cards highlighted: <span style="color:#949cf7;font-weight:700;">',
+  resultSummaryFps: 'FPS / Fighting',
+  resultSummaryMmo: 'MMO / RTS',
+  resultSummarySuffix: ' · ',
+  resultSummaryCount: ' settings found. Click a card to review steps, then check it off.',
+  gsyncCardTitle: ' — Correct Setup Guide',
+  gsyncCardDesc: 'Simply enabling it is not enough. The combination with FPS limiter makes a big difference. Optimal steps for both NVIDIA and AMD explained.',
+  gsyncCardLink: 'Read the full article by ytty →',
+  presetBarBeginner: '🔰 Beginner',
+  presetBarSafe: '🛡️ Stable',
+  presetBarNoconflict: '🤝 No Conflict',
+  presetBarFps: '🎯 FPS Build',
+  presetBarEco: '🔋 Eco',
+  presetBarAll: '⚡ All In',
+  presetBarClear: '✕ Clear',
+  progressExportBtn: '📦 Export Settings',
+  progressExportCount: '📦 Export Settings (',
+  progressExportCountSuffix: ')',
+  progressTopbarDesc: ' cards · ',
+  progressTopbarDescSuffix: ' checked',
+  waveformGradeA: 'Excellent network quality. Default NIC buffer (256) recommended.',
+  waveformGradeB: 'Good network quality. NIC buffer 256–512 recommended.',
+  waveformGradeC: 'Some latency detected. 512 recommended along with Nagle disabling.',
+  waveformGradeD: 'Bufferbloat detected. Max NIC buffer (1024) recommended. Nagle disabling is essential.',
+  waveformGradeF: 'Severe Bufferbloat. NIC buffer 1024, disable Nagle, and disable TCP auto-tuning recommended.',
+  waveformUnmeasured: 'Default value (256) recommended when not measured.',
+  waveformPingOK: 'Ping under load looks good (',
+  waveformPingWarn: 'Ping under load is elevated (',
+  waveformPingMs: 'ms).',
+  waveformPingOKNote: 'Disabling Nagle may improve it further.',
+  waveformPingWarnNote: 'Prioritize Nagle disabling and NIC buffer optimization.',
+  krExcellent: '✅ Key repeat is already optimized',
+  krGood: '✅ Key repeat looks good',
+  krWarn: '⚠️ Key repeat has room for improvement',
+  krBad: '❌ Key repeat optimization recommended',
+  krDelayNote: 'Delay: ',
+  krIntervalNote: 'Repeat interval: ',
+  krMs: 'ms',
+  step1GenreLabelFps: 'FPS',
+  step1GenreLabelMmo: 'MMO',
+  step1Win11Label: 'Win 11',
+  step1Win10Label: 'Win 10',
+  topConflictBadge: ' conflict(s)',
+},
+
+// ────────────────────────────────────────────────────
+// ZH（简体中文）
+// ────────────────────────────────────────────────────
+zh: {
+  appTitle: '延迟优化工具',
+  appSub: 'v23.0 · PC游戏专用',
+  navStep: '步骤',
+  nav1: '环境选择',
+  nav2: '诊断',
+  nav3: '设置列表',
+  nav4: 'NVIDIA配置',
+  sidePreset: '预设',
+  presetBeginner: '新手推荐',
+  presetSafe: '稳定优先',
+  presetNoconflict: '无冲突',
+  presetFps: 'FPS专项',
+  presetEco: '省电游戏',
+  presetAll: '全部应用',
+  presetClear: '✕ 清除',
+  sideGameLabel: '按游戏',
+  gameTreeFps: '⚡ 战术FPS',
+  gameTreeBr: '🪂 大逃杀',
+  gameTreeOther: '🎮 其他',
+  gameClearHighlight: '✕ 取消高亮',
+  conflictCheck: '⚠️ 冲突检查',
+  currentSel: '当前选择',
+  btnShare: '📤 分享',
+  btnExport: '📦 导出设置',
+  shareCodeLabel: '分享码',
+  btnCopyCode: '📋',
+  linkBy: 'by ytty',
+  linkArticle: '📝 文章',
+  storeBadge: '↺ 已恢复上次选择',
+  topStep1Title: '环境选择',
+  topStep1Desc: '请选择GPU、OS和游戏类型',
+  topStep2Title: '诊断',
+  topStep2Desc: '测量网络质量与按键重复延迟',
+  topStep3Title: '设置列表',
+  topStep3Desc: '查看设置卡片并勾选需要应用的项目',
+  topStep4Title: 'NVIDIA配置',
+  topStep4Desc: '生成NVIDIA Inspector配置文件',
+  topBtnBackup: '💾 创建备份',
+  step1Label: 'Step 1',
+  step2Label: 'Step 2',
+  step3Label: 'Step 3',
+  step4Label: 'Step 4',
+  doneBadge: '✓ 完成',
+  editBtn: '编辑',
+  step1GpuTitle: '🎮 GPU厂商',
+  step1GpuDesc: '任务管理器 → 性能 → GPU 即可确认。GeForce RTX/GTX → NVIDIA，Radeon RX → AMD',
+  step1GpuNvidia: 'NVIDIA（GeForce）',
+  step1GpuAmd: 'AMD（Radeon）',
+  step1OsTitle: '💻 OS版本',
+  step1OsDesc: 'Win+R → winver 即可确认。「10.0.22000以上」为Windows 11。',
+  step1GenreTitle: '🎯 游戏类型',
+  step1GenreDesc: '选择主要游玩的游戏类型。卡片的◎/○评级将基于此选择显示。',
+  step1GenreFps: 'FPS・格斗（低延迟优先）',
+  step1GenreMmo: 'MMO・RTS（稳定性优先）',
+  step1NextBtn: '下一步 →',
+  step1NextDone: '3项全部选择完毕',
+  step1MissingGpu: 'GPU厂商',
+  step1MissingOs: 'OS版本',
+  step1MissingGenre: '游戏类型',
+  step1MissingPrefix: '未选择: ',
+  step2Summary: '诊断',
+  step2NetTitle: '📡 测量网络质量',
+  step2NetDesc: '使用 <strong>Waveform Bufferbloat Test</strong> 测试后输入结果，将自动计算NIC缓冲区推荐值。',
+  step2WaveformBtn: '🔗 前往Waveform测试',
+  step2WaveformExt: '（外部网站）',
+  step2GradeLabel: 'Bufferbloat评级',
+  step2GradeUnmeasured: '未测量',
+  step2PingLabel: '负载下延迟（ms）',
+  step2PingPlaceholder: '例: 12',
+  step2NicTitle: '⚙️ NIC缓冲区值',
+  step2RxLabel: '接收缓冲区',
+  step2TxLabel: '发送缓冲区',
+  step2RecLabel: '推荐: ',
+  step2ShowCmd: '显示命令',
+  step2CmdShell: 'PowerShell（管理员）',
+  step2KeyTitle: '⌨️ 测量按键重复延迟',
+  step2KeyDesc: '长按按键，测量重复开始延迟和重复间隔。如需优化，可自动包含在导出文件中。',
+  step2KeyTarget: '点击此处后长按按键',
+  step2KeyDone: '✓ 测量完成',
+  step2DelayLabel: '重复开始',
+  step2IntervalLabel: '重复间隔',
+  step2HzLabel: '估算Hz',
+  step2JudgeLabel: '判定',
+  step2KrExportTitle: '⚡ 将按键重复优化包含在导出中',
+  step2KrExportDesc: '将 KeyboardDelay=0 / KeyboardSpeed=31 添加到.bat和复制输出中。',
+  step2KrReset: '重置',
+  step2GoStep3: '前往设置列表 →',
+  step2SkipNote: '即使不完成诊断也可以前往设置列表',
+  step2SkipBadge: '可跳过',
+  step3Summary: '设置列表',
+  step3SearchPlaceholder: '🔍 搜索卡片...',
+  step3FilterEffect: '效果: 全部',
+  step3FilterEffectHigh: '效果: 高',
+  step3FilterEffectMed: '效果: 中',
+  step3FilterEffectLow: '效果: 低',
+  step3FilterLayer: '层级: 全部',
+  step3FilterCheck: '勾选: 全部',
+  step3FilterChecked: '✓ 已勾选',
+  step3FilterUnchecked: '□ 未勾选',
+  step3FilterReset: '✕ 重置',
+  step3Placeholder: '↑ 选择GPU、OS和游戏类型后将显示设置列表',
+  step3SideProgress: '进度',
+  step3SideExport: '导出',
+  step3BtnCopyAll: '📋 复制全部命令',
+  step3BtnExportBat: '📦 导出设置',
+  step3BtnBackup: '💾 创建备份 .zip',
+  step3BackupNote: '以ZIP格式（.bat + .ps1）输出。解压后右键点击.bat →「以管理员身份运行」。',
+  step3NipBtn: '📐 生成NVIDIA Inspector配置',
+  step3ConflictTitle: '⚠️ 冲突检查',
+  step3ShareTitle: '分享设置',
+  step3BtnGenShare: '📤 生成分享码',
+  step3BtnCopyShare: '复制',
+  step3BtnCopyUrl: '🔗 复制链接',
+  step3ImportLabel: '输入代码恢复',
+  step3ImportPlaceholder: '例: LT2_eyJn...',
+  step3ImportBtn: '载入',
+  step3CpuTitle: '🔲 CPU核心信息',
+  step3CpuCoresLabel: '逻辑核心数',
+  step3CpuMaskLabel: '推荐掩码',
+  cardCopyBtn: '复制',
+  cardCopied: '✓ 已复制',
+  cardCopyFail: '⚠ 复制失败',
+  cardVerifyLabel: '✔ 验证命令',
+  cardManualLabel: '步骤',
+  cardNaPrefix: '⚠️ ',
+  cardNaDefault: '此环境不适用该设置。',
+  cardSecurityTitle: '禁用安全功能',
+  cardSecurityDesc: '此设置会降低Windows安全保护级别。仅推荐用于个人游戏PC/竞技专用机。企业环境、共用PC、使用网上银行的环境请勿执行。',
+  cardWin11Limited: '此设置效果有限，请优先使用「计时器分辨率」卡片。',
+  cardWin11LimitedPrefix: '⚠️ <strong>Win11环境:</strong>&nbsp;',
+  cardEffectHigh: '效果: 高',
+  cardEffectMed: '效果: 中',
+  cardEffectLow: '效果: 低',
+  step4Title: '📐 NVIDIA Inspector配置生成',
+  step4Desc: '生成针对各游戏优化的NVIDIA Inspector配置文件（.nip文件）。使用NVIDIA Profile Inspector导入后，可在GPU驱动层面应用设置。',
+  step4Warning: '⚠️ 更新驱动后设置可能被重置，更新后请重新导入.nip文件。',
+  step4NipLink: 'GitHub Releases →',
+  step4GameLabel: '选择游戏',
+  step4ExeLabel: '可执行文件',
+  step4CustomName: '游戏名 / .exe名',
+  step4CustomNamePH: '例: Counter-Strike 2',
+  step4CustomExePH: '例: cs2.exe',
+  step4SettingsLabel: '要应用的设置（仅勾选项目包含在.nip中）',
+  step4SelectAll: '全选',
+  step4DeselectAll: '全部取消',
+  step4FpsLimitTitle: '🎯 帧率限制器（可选）',
+  step4FpsLimitDesc: '推荐：显示器刷新率 −3fps。例: 144Hz → 141fps。使GPU始终保持在VSync前的余量，减少卡顿。',
+  step4FpsUnit: 'fps',
+  step4FpsPlaceholder: '例: 141',
+  step4ShaderNote: '💡 <strong>应用Shader Cache: Unlimited后的推荐步骤</strong><br>导入.nip → 重启 → <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">Win+R → cleanmgr</code> → 勾选「DirectX Shader Cache」→ 删除 → 重启。这将使缓存以新设置重新构建。',
+  step4DownloadBtn: '📥 下载.nip文件',
+  optgroupBR: '── 大逃杀 ──',
+  optgroupFPS: '── 战术FPS ──',
+  optgroupOther: '── 其他 ──',
+  optgroupCustom: '────────────',
+  optCustom: '🔧 自定义',
+  highlightBannerSuffix: '</span> 张卡片高亮中。勾选为自愿选择。',
+  highlightBannerBtn: '✕ 取消',
+  highlightBannerMid: ' 推荐卡片 <span style="color:#949cf7;font-weight:700;">',
+  resultSummaryFps: 'FPS・格斗',
+  resultSummaryMmo: 'MMO・RTS',
+  resultSummarySuffix: ' · ',
+  resultSummaryCount: ' 项设置。点击卡片查看步骤，勾选后逐步进行。',
+  gsyncCardTitle: ' 的正确设置方法',
+  gsyncCardDesc: '仅开启是不够的。与帧率限制器的组合方式会大幅影响效果。分别解说NVIDIA和AMD的最优步骤。',
+  gsyncCardLink: '查看ytty的详细文章 →',
+  presetBarBeginner: '🔰 新手推荐',
+  presetBarSafe: '🛡️ 稳定优先',
+  presetBarNoconflict: '🤝 无冲突',
+  presetBarFps: '🎯 FPS专项',
+  presetBarEco: '🔋 省电',
+  presetBarAll: '⚡ 全部',
+  presetBarClear: '✕ 清除',
+  progressExportBtn: '📦 导出设置',
+  progressExportCount: '📦 导出设置（',
+  progressExportCountSuffix: '项）',
+  progressTopbarDesc: ' 张 · 已勾选 ',
+  progressTopbarDescSuffix: ' 张',
+  waveformGradeA: '网络质量优秀。推荐NIC缓冲区默认值（256）。',
+  waveformGradeB: '网络质量良好。推荐NIC缓冲区256～512。',
+  waveformGradeC: '存在一定延迟。配合禁用Nagle算法，推荐512。',
+  waveformGradeD: '检测到Bufferbloat。推荐NIC缓冲区最大值（1024），必须禁用Nagle。',
+  waveformGradeF: '严重Bufferbloat。推荐NIC缓冲区1024、禁用Nagle、禁用TCP自动调整。',
+  waveformUnmeasured: '未测量时推荐默认值（256）。',
+  waveformPingOK: '负载下延迟良好（',
+  waveformPingWarn: '负载下延迟偏高（',
+  waveformPingMs: 'ms）。',
+  waveformPingOKNote: '禁用Nagle算法可进一步改善。',
+  waveformPingWarnNote: '请优先禁用Nagle算法并优化NIC缓冲区。',
+  krExcellent: '✅ 按键重复已优化',
+  krGood: '✅ 按键重复状态良好',
+  krWarn: '⚠️ 按键重复有优化空间',
+  krBad: '❌ 建议优化按键重复',
+  krDelayNote: '延迟: ',
+  krIntervalNote: '重复间隔: ',
+  krMs: 'ms',
+  step1GenreLabelFps: 'FPS',
+  step1GenreLabelMmo: 'MMO',
+  step1Win11Label: 'Win 11',
+  step1Win10Label: 'Win 10',
+  topConflictBadge: '项冲突',
+},
+};
+
+// 現在の言語
+let currentLang = 'ja';
+
+// 翻訳取得関数
+function t(key) {
+  return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['ja'] && I18N['ja'][key]) || key;
+}
+
+
+// NIP設定descの翻訳
+const NIP_DESC_I18N = {
+  shader_cache: {
+    en: 'Prevents stuttering from shader compilation. Especially effective in open-world and large maps.',
+    zh: '防止因着色器编译导致的卡顿，在开放世界和大型地图中尤其有效。',
+  },
+  texture_filtering: {
+    en: 'Reduces GPU load and minimizes texture unit latency. Useful for competitive play where low latency is prioritized over image quality.',
+    zh: '降低GPU负载，最小化贴图单元延迟。在竞技玩法中画质让位于延迟时有效。',
+  },
+  threaded_opt: {
+    en: 'Clears main thread bottlenecks on DX11 engines. Particularly effective in CS2 (Source 2/DX11) and R6S (AnvilNext/DX11).',
+    zh: '解决DX11引擎上的主线程瓶颈。在CS2（Source 2/DX11）和R6S（AnvilNext/DX11）中效果尤为明显。',
+  },
+  low_latency: {
+    en: 'Limits render queue to 1 in non-Reflex environments. "Ultra" may cause instability; "On" is recommended.',
+    zh: '在非Reflex环境下将渲染队列限制为1。Ultra可能不稳定，推荐On。',
+  },
+  power_management: {
+    en: 'Prevents voltage drops and maintains stable GPU clocks. Suppresses clock fluctuation in lightweight games and high-FPS environments.',
+    zh: '防止电压下降，稳定维持GPU频率。抑制轻量游戏和高帧率环境中的频率波动。',
+  },
+  prerendered_frames: {
+    en: 'Minimizes waiting frames from mouse input to render completion. Directly improves input latency.',
+    zh: '将从鼠标输入到渲染完成的等待帧最小化，直接改善输入延迟。',
+  },
+  rbar_feature: {
+    en: 'Improves CPU-to-VRAM access efficiency and 1% Low FPS. Highly effective in DX12 games (BF2042, PUBG, OW2, Fortnite).',
+    zh: '提升CPU访问VRAM的效率和1% Low FPS。在DX12游戏（BF2042、PUBG、OW2、Fortnite）中效果显著。',
+  },
+  cuda_p2: {
+    en: 'Locks VRAM clocks at maximum. Eliminates clock fluctuation lag in lightweight games and high-FPS environments. Also effective for post-memory-release lag in Tarkov.',
+    zh: '将显存频率锁定在最高状态。消除轻量游戏和高帧率环境中的频率波动延迟，对Tarkov内存释放后的延迟也有效。',
+  },
+  memory_allocation: {
+    en: 'Pre-allocates VRAM to prevent stuttering from mid-game memory reallocation. (8GB+ VRAM recommended)',
+    zh: '预先分配显存，防止游戏中因内存重新分配导致的卡顿。（推荐显存8GB以上）',
+  },
+  async_compute: {
+    en: 'Try this in DX12 environments where "FPS is fine but controls feel heavy". Similar symptoms reported in BF2042 (environment-dependent, requires testing).',
+    zh: '在DX12环境下「帧率没问题但操作感觉沉重」时尝试。BF2042也有相同症状报告（依赖环境，需验证）。',
+  },
+  aa_transparency: {
+    en: 'Reduces aliasing on foliage, fences, and wire meshes; improves long-range visibility. Also improves visibility through grass and fences in PUBG.',
+    zh: '减少植被、栅栏、铁丝网的锯齿，改善远距离可视度。对PUBG草丛和栅栏的视野也有改善。',
+  },
+  predefined_aniso: {
+    en: 'Disables unnecessary driver-side anisotropic filtering and resolves conflicts with FSR/DLSS.',
+    zh: '禁止驱动侧多余的各向异性过滤，解决与FSR/DLSS的冲突。',
+  },
+};
+
+// 競合警告メッセージの翻訳
+const CONFLICT_MSG_I18N = {
+  'affinity_interrupt': {
+    en: 'When setting CPU Affinity and NVIDIA Interrupt Affinity together, make sure the same cores are not competing. 💡 Recommended: the core assigned in interrupt_affinity must be different from the game cores in affinity (e.g., game=Core0-5, NVIDIA interrupt=Core6).',
+    zh: '同时设置CPU亲和性和NVIDIA中断亲和性时，注意不要让相同核心产生竞争。💡 推荐：interrupt_affinity分配的核心必须与affinity的游戏核心不同（例：游戏=Core0-5，NVIDIA中断=Core6）。',
+  },
+  'affinity_irq': {
+    en: 'When setting CPU Affinity and IRQ Affinity together, confirm game cores and interrupt processing cores do not overlap. 💡 Recommended: if fewer than 8 cores, apply only one. With 8+ cores, apply affinity first, then assign IRQ to the remaining cores.',
+    zh: '同时设置CPU亲和性和IRQ亲和性时，请确认游戏核心与中断处理核心不重叠。💡 推荐：核心数少于8时只应用其中一个；8核以上时先应用affinity，再将IRQ分配给剩余核心。',
+  },
+};
+// ═══════════════════════════════════════════════════════
+// SETTINGS_CONFIG 多言語テキスト辞書
+// getCardText(id, field, lang, env) で取得
+// ═══════════════════════════════════════════════════════
+const CARD_I18N = {
+  en: {
+    reflex: {
+      title: e => e.gpu === 'nvidia' ? 'Enable NVIDIA Reflex' : 'Enable AMD Anti-Lag',
+      sub:   e => e.gpu === 'nvidia' ? 'In-game settings → Low Latency ON' : 'AMD Software → Anti-Lag ON',
+      desc:  e => e.gpu === 'nvidia'
+        ? 'Reduces the GPU render queue, shortening latency from input to frame display. If the game supports it, this is the first setting to enable.\n\n💡 For games without Reflex support, the "Ultra Low Latency Mode (ULL)" card is the alternative. ULL does not conflict with Reflex in supported games.'
+        : 'Resolves CPU-GPU queue buildup. Works at driver level, so it applies even without in-game support. Check compatibility beforehand.',
+      riskLabel: 'No Risk',
+      manual: e => e.gpu === 'nvidia'
+        ? '① Launch game\n② Graphics settings → NVIDIA Reflex Low Latency → ON (or ON+Boost)'
+        : '① Open AMD Software: Adrenalin Edition\n② "Graphics" tab → Anti-Lag → On',
+    },
+    ull: {
+      title: e => e.gpu === 'nvidia' ? 'Ultra Low Latency Mode (for non-Reflex games)' : 'Radeon Boost',
+      sub:   e => e.gpu === 'nvidia' ? 'NVIDIA Control Panel → Pre-Rendered Frames: Ultra' : 'AMD Software → Radeon Boost',
+      desc:  e => e.gpu === 'nvidia'
+        ? 'Forces the frame queue to 1 frame at driver level, reducing CPU-GPU pipeline latency. Effective for games without Reflex support. In Reflex-supported games, this setting is ignored by the driver, so setting both is fine. If GPU usage is pinned at 99%, this may cause stuttering — use with a frame rate cap.'
+        : 'Dynamically adjusts rendering resolution to maintain target FPS. Reduces GPU load and input lag. May cause visual blurring.',
+      riskLabel: 'No Risk',
+      naReason: 'Not applicable for AMD environments.',
+      manual: e => e.gpu === 'nvidia'
+        ? '① Open NVIDIA Control Panel → Manage 3D Settings\n② "Ultra Low Latency Mode" → Ultra'
+        : '① Open AMD Software: Adrenalin Edition\n② Graphics → Radeon Boost → Enable',
+    },
+    shader_cache: {
+      title: 'Remove NVIDIA Shader Cache Size Limit',
+      sub: 'Registry → Remove 4GB cap to unlimited',
+      desc: 'NVIDIA driver shader cache is limited to 4GB by default. When the limit is reached, shader recompilation occurs, causing momentary freezes (stuttering) in-game. Setting it to unlimited (4294967295 = UINT_MAX) via the registry resolves this.',
+      riskLabel: 'No Risk',
+      naReason: 'Not applicable for AMD (managed in AMD Software).',
+      manual: '① NVIDIA Control Panel → Manage 3D Settings\n② "Shader Cache Size" → "Driver Default" or "Unlimited"\n③ Or run the PowerShell command above (more reliable)',
+    },
+    hypr_rx: {
+      title: 'Enable AMD HYPR-RX / AFMF 2',
+      sub: 'AMD Software Adrenalin 24.x+ → HYPR-RX + AFMF 2',
+      desc: 'HYPR-RX is an integrated feature that enables Anti-Lag 2, Radeon Boost, and FSR 3 Frame Generation with one click. Anti-Lag 2 operates at the game code level for higher precision, and delivers noticeable latency reduction in supported games.\n\nAFMF 2 (AMD Fluid Motion Frames 2) performs frame interpolation at driver level to visually improve FPS. Enabling AFMF 2 automatically enables Anti-Lag.\n\n⚠️ Important notes for AFMF 2:\n· Input latency remains tied to base FPS (120fps display = 60fps input equivalent)\n· Not recommended for competitive games like FPS, Valorant, Apex\n· If using Radeon Chill together, set Chill to half the refresh rate\n· VSync (FreeSync) must be off; fullscreen or borderless required',
+      riskLabel: 'Check behavior',
+      naReason: 'Not applicable for NVIDIA (use NVIDIA Reflex and DLSS Frame Generation).',
+      manual: '【HYPR-RX】\n① Open AMD Software: Adrenalin Edition (version 24.x+ required)\n② "Gaming" tab → select target game → "Graphics"\n③ Toggle HYPR-RX on\n\n【AFMF 2 (standalone)】\n① AMD Software → "Gaming" → "Graphics"\n② Enable AMD Fluid Motion Frames 2\n③ Confirm Anti-Lag is on and AMD FreeSync is off\n④ Restart game and verify\n\n⚠️ Not recommended for competitive games. Suited for single-player, MMO, RTS.',
+    },
+    mpo: {
+      title: 'Disable MPO (Multi-Plane Overlay)',
+      sub: 'DWM Overlay → Eliminate major stuttering cause',
+      desc: 'MPO in DWM (Desktop Window Manager) speeds up window compositing, but driver bugs have caused many reports of frame interval irregularities (stuttering) in games. Setting OverlayTestMode=5 makes DWM fall back from MPO usage.\n\n⚠️ Side effects: HDR and some MiniLED backlight features may be disabled. Safe to apply on desktop PCs without HDR. Requires restart.\n\n【Verification】: Measure frame times with PresentMon or CapFrameX before and after to confirm reduced spikes.',
+      riskLabel: 'Check behavior',
+      manual: '① Run the command above in administrator PowerShell\n② Reboot the PC\n③ Verify effect with a frame time tool (CapFrameX / PresentMon)\n\nTo revert:\n$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm"\nRemove-ItemProperty -Path $path -Name "OverlayTestMode" -ErrorAction SilentlyContinue\nWrite-Host "OverlayTestMode removed, restored to default"',
+    },
+    mmcss_sr: {
+      title: 'Set MMCSS SystemResponsiveness to Game Priority',
+      sub: 'Disable NetworkThrottlingIndex + SystemResponsiveness=0',
+      desc: 'Changes MMCSS (Multimedia Class Scheduler Service) SystemResponsiveness from default (20) to game-priority (0), maximizing CPU time for game threads. Also disables NetworkThrottlingIndex to remove the in-game network bandwidth limit (default 10Mbps).\n\n⚠️ Note: If running OBS or Discord simultaneously, audio/video processing may be affected. Recommended for gaming-only PCs or competitive setups without recording/streaming.\n\n💡 Relationship to other cards:\n· "GPU Scheduler Priority" card: Sets priority values (GPU Priority, SFIO Priority) under Tasks\\Games. Both cards write to the same key — no conflict, but double-setting.\n· "NetworkThrottlingIndex disable" card: Modifies the same registry key. Applying either one is sufficient. This card is more comprehensive as it sets both SystemResponsiveness and NetworkThrottlingIndex together.',
+      riskLabel: 'Check behavior',
+      manual: '① Run the command above in administrator PowerShell\n② No restart required (takes effect immediately)\n③ Launch a game and check effect by feel or frame time\n\nTo restore defaults:\n$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"\nSet-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 20 -Type DWord\nSet-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 10 -Type DWord\nWrite-Host "Restored to default values"',
+    },
+    hags: {
+      title: 'HAGS (Hardware Accelerated GPU Scheduling)',
+      sub: 'Windows Settings → Display → Graphics',
+      desc: 'Transfers GPU scheduling from the OS to the GPU itself, allowing direct frame processing without going through the CPU scheduler, reducing rendering latency. Particularly effective on RTX 30/40/50 and RX 6000/7000 series. Required for DLSS 3 Frame Generation and FSR 3 Frame Generation. Some older games or drivers may become unstable — verify behavior after applying.',
+      riskLabel: 'Check behavior',
+      manual: '① Settings → System → Display → Graphics\n② "Hardware-accelerated GPU scheduling" → On\n③ Reboot PC',
+    },
+    power: {
+      title: 'Set Power Plan to "High Performance"',
+      sub: 'Control Panel → Power Options',
+      desc: 'Frequent CPU clock fluctuations directly cause frame time variance. High Performance plan maintains maximum clock at all times.',
+      riskLabel: 'No Risk',
+      manual: '① Control Panel → Power Options\n② Select "High Performance"',
+    },
+    nagle: {
+      title: 'Disable Nagle Algorithm',
+      sub: 'Registry → Disable small packet buffering',
+      desc: 'The Nagle algorithm batches small packets for bandwidth efficiency but adds delay to game input packets. Setting TCPNoDelay and TcpAckFrequency in the registry disables it. Especially effective for online competitive games.',
+      riskLabel: 'Check behavior',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\n③ Open each interface key and add/change (DWORD):\n   · TcpAckFrequency = 1\n   · TCPNoDelay = 1\n④ Reboot',
+    },
+    vbs: {
+      title: 'Disable VBS / HVCI (Virtualization-Based Security)',
+      sub: 'Windows security feature — Security risk · Proceed with understanding',
+      desc: 'VBS (Virtualization Based Security) and HVCI (Hypervisor Protected Code Integrity) are Windows 11 security features. When enabled, virtualization layer overhead can reduce game frame rate by 5–15%.\n\n⚠️ 【Specific risks】Disabling removes these security protections:\n· HVCI protection against unauthorized kernel memory access (rootkit defense)\n· Credential Guard protecting authentication credentials (password hashes)\n· Device Guard restriction on unsigned driver execution\n\nOnly recommended for personal gaming PCs / competitive-only machines. Never apply in corporate, shared PC, or online banking environments.',
+      riskLabel: 'High Risk (Security Reduction)',
+      naReason: 'Not applicable for Windows 10.',
+      manual: '① Win+R → msinfo32 to check current VBS status\n② Run the command above in administrator PowerShell\n③ Reboot\n④ Confirm "Virtualization-based security: Off" in msinfo32',
+    },
+    spectre: {
+      title: 'Disable Spectre / Meltdown Patches',
+      sub: 'CPU speculative execution vulnerability patch — Security risk · For competitive-only PCs',
+      desc: 'Spectre/Meltdown mitigation patches restrict CPU speculative execution, causing 5–15% CPU performance loss in some games. Only in personal gaming-only PCs where remote code execution risk is low, disabling can improve FPS and 1% Low FPS.\n\n⚠️ 【Specific risks】Spectre/Meltdown is a vulnerability that allows "other processes or browser JavaScript on the same CPU to read kernel memory or other process data that should be inaccessible." Disabling means:\n· Passwords and encryption keys can leak via malicious website JS\n· Data theft between virtual machines becomes possible\n\nOnly for gaming-only PCs / offline environments / competitive-only machines. Never apply if you use a browser regularly or online banking.',
+      riskLabel: 'High Risk (Security Reduction)',
+      manual: '① Run the command above in administrator PowerShell\n② Reboot\n③ Run Get-SpeculationControlSettings in PowerShell to verify\n\nTo revert: Delete FeatureSettingsOverride and FeatureSettingsOverrideMask to restore.',
+    },
+    dpc_latency: {
+      title: 'Reduce DPC/ISR Latency',
+      sub: 'Registry → Suppress kernel deferred procedure call backlog',
+      desc: 'DPC (Deferred Procedure Call) is a mechanism where interrupt handlers defer post-processing, causing latency spikes of hundreds of μs to ms when driver processing concentrates. Limiting NDIS callback count and adjusting the DPC watchdog offset reduces backlog. Especially effective in environments where high DPC has been confirmed with LatencyMon.',
+      riskLabel: 'Check behavior',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\NDIS\\Parameters\n   → MaxNumRoutineCallbacks = 64 (DWORD)\n③ HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel\n   → DpcWatchdogProfileOffset = 0 (DWORD)\n④ Reboot\n\n* LatencyMon (free tool) is useful for verification',
+    },
+    timer: {
+      title: 'Set Timer Resolution to 1ms',
+      sub: e => e.os === 'win11' ? 'Win11 22H2+ sets this automatically in games' : 'Use TimerResolution tool',
+      desc: e => e.os === 'win11'
+        ? 'Windows 11 22H2 and later automatically applies 1ms timer resolution within games. Manual configuration is not required. If you observe frame time spikes outside of games, third-party timer tools remain effective.'
+        : 'The default Windows timer resolution is 15.6ms. Changing it to 1ms (0.5ms on some hardware) improves sleep precision and frame time stability. Use the TimerResolution tool or SetTimerResolution to set it persistently.',
+      riskLabel: 'No Risk',
+      manual: e => e.os === 'win11'
+        ? 'Automatically applied in Win11 22H2+. No manual setup needed.\nIf issues occur outside games, run: bcdedit /set useplatformtick yes'
+        : '① Download TimerResolution (free)\n② Run as administrator → Set to 0.5ms (or 1.0ms)\n③ Keep running while gaming',
+    },
+    network_throttle: {
+      title: 'Disable NetworkThrottlingIndex',
+      sub: 'Registry → Remove MMCSS network bandwidth limit',
+      desc: "Windows MMCSS (Multimedia Class Scheduler Service) may limit in-game network bandwidth to 10Mbps to prioritize multimedia processing. Setting NetworkThrottlingIndex to 0xFFFFFFFF removes this limit and improves in-game packet handling. SystemResponsiveness (default 20) is also changed to 0 to maximize CPU time allocation to game threads.\n\n💡 Relationship to 'MMCSS SystemResponsiveness' card: Both cards operate on the same registry key. Applying either one achieves the effect, but the MMCSS card also includes Tasks\\Games priority settings, making it more comprehensive. No conflict, but double-setting.",
+      riskLabel: 'Check behavior',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\n③ Change NetworkThrottlingIndex to DWORD ffffffff\n④ Change SystemResponsiveness to 0\n⑤ Reboot',
+    },
+    nic_lso: {
+      title: 'Disable LSO / Flow Control / EEE',
+      sub: 'NIC Advanced Settings — Disable all three',
+      desc: 'Disables three NIC features unnecessary for gaming:\n· LSO (Large Send Offload): Batches outgoing data. May increase latency.\n· Flow Control: Pauses transmission during network congestion. Counterproductive for games.\n· EEE (Energy Efficient Ethernet): Power-saving feature that sleeps NIC during idle. Causes wake-up latency.',
+      riskLabel: 'Check behavior',
+      manual: '① Device Manager → Network Adapters → right-click your NIC → Properties\n② "Advanced" tab, set these to "Disabled":\n   · Large Send Offload V2 (IPv4)\n   · Large Send Offload V2 (IPv6)\n   · Flow Control\n   · Energy Efficient Ethernet\n③ OK → Apply\n\n⚠️ If connection becomes unstable after, "Reset settings" can revert.',
+    },
+    nic_buffer: {
+      title: 'Optimize NIC Receive / Transmit Buffers',
+      sub: () => '',  // dynamic
+      desc: 'Optimizes NIC buffer size. Too large increases latency; too small causes packet loss. Use the sliders above to adjust.\n\n⚠️ NIC names vary by environment. Confirm the correct name with Get-NetAdapter before running the command.',
+      riskLabel: 'Check behavior',
+      manual: 'Adjust values with the Step 2 sliders, then replace $nic in the command with the NIC name confirmed via Get-NetAdapter.',
+    },
+    usb_suspend: {
+      title: 'Disable USB Selective Suspend',
+      sub: 'Power Plan → USB Settings — Especially effective for 500Hz+ polling',
+      desc: 'USB Selective Suspend is a power-saving feature that sleeps idle USB devices. For mice/keyboards with high polling rates (500Hz/1000Hz+), the wake latency from sleep can appear as input lag. Can be safely disabled on desktop PCs with no downsides.',
+      riskLabel: 'Low Risk (Desktop recommended)',
+      manual: '① Control Panel → Power Options → Change plan settings → Change advanced power settings\n② USB settings → USB selective suspend setting → "Disabled"\n③ Apply & OK',
+    },
+    rss: {
+      title: 'Optimize RSS (Receive Side Scaling)',
+      sub: 'Distribute NIC receive processing across multiple CPU cores',
+      desc: 'RSS distributes network receive processing across multiple CPU cores. Default settings may not assign cores optimally, causing conflicts between game cores and receive processing, leading to unstable frame times. Especially effective on high core count systems.',
+      riskLabel: 'Check behavior',
+      manual: '① Run the command above in administrator PowerShell\n② Play an online game and verify jitter improvement\n\n⚠️ Adjust NumberOfReceiveQueues to match CPU core count (recommend 2 for 4 cores or fewer)',
+    },
+    tcp_autotuning: {
+      title: 'Disable TCP Auto-Tuning',
+      sub: 'netsh → Stop automatic receive window size fluctuation',
+      desc: "Windows TCP auto-tuning dynamically changes receive window size. When combined with Nagle disabling (TcpAckFrequency=1), the OS varying the receive window can cause packet interval irregularities. Disabling and fixing window size improves communication stability.\n\n💡 Applying together with Nagle disable is the basic set. More effective in combination than alone.\n\n⚠️ 【Why excluded from Stable preset】: In some router/ISP environments, a fixed window size may limit bandwidth below the maximum, reducing large download speeds. This is a setting optimized for 'communication response speed' in FPS/Fighting games. For MMO/RTS with heavy data transfer, consider carefully.",
+      riskLabel: 'Check behavior',
+      manual: '① Run the command above in administrator command prompt\n② After reboot, verify "Receive Window Auto-Tuning Level: disabled" with netsh int tcp show global\n\nTo revert: netsh int tcp set global autotuninglevel=normal\n\n⚠️ Applying with Nagle disable creates a synergistic effect',
+    },
+    hpet: {
+      title: 'Disable HPET (High Precision Event Timer)',
+      sub: 'System Timer — Recommended with Timer Resolution card',
+      desc: e => e.os === 'win11'
+        ? 'In Windows 11, HPET handling has changed and its impact is limited. Focus on the "Timer Resolution" card instead (Win11 22H2+ auto-applies 1ms during games).'
+        : 'Windows uses TSC (Time Stamp Counter) as the primary timer, but when HPET is enabled, the OS may choose HPET over TSC in some situations. HPET access has higher overhead than TSC. Disabling HPET via bcdedit forces the OS to use TSC consistently.\n\nNote: Effectiveness varies by hardware/driver. Measure with LatencyMon or frame time tools before and after.',
+      riskLabel: 'Check behavior',
+      naReason: 'HPET handling has changed in Windows 11 and effect is limited. See the "Timer Resolution" card instead (Win11 22H2+ auto-applies 1ms in games).',
+      manual: e => e.os === 'win11'
+        ? 'Effect is limited in Win11. Check the Timer Resolution card.\nbcdedit /deletevalue useplatformclock (to revert if already disabled)'
+        : '① Run in administrator command prompt: bcdedit /set useplatformclock false\n② Reboot\n③ Verify with LatencyMon',
+    },
+    nvme_queue: {
+      title: 'Reduce NVMe I/O Latency',
+      sub: 'Registry → Limit NVMe I/O queue depth to improve latency',
+      desc: 'NVMe SSDs are configured to queue up to 254 I/O requests, a throughput-optimized configuration. For streaming loads and open-world chunk loading in games, limiting queue size to 32 can reduce I/O request backlog and improve average latency. Game I/O is sequential and bursty, not requiring deep queues, making 32 the practical optimum (256 or 128 has minimal effect; 16 or less sacrifices throughput). No effect on HDD or SATA SSD environments — only recommended for NVMe SSD setups.',
+      riskLabel: 'Check behavior',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\StorNVMe\\Parameters\\Device\n   (Create Device key if it doesn\'t exist)\n③ Add QueueDepth = 32 (DWORD)\n④ Reboot\n\n* No effect on non-NVMe (SATA SSD / HDD)\n* If no effect, delete the key to restore default',
+    },
+    gamedvr: {
+      title: 'Disable Xbox Game Bar / Game DVR',
+      sub: 'Registry + Windows Settings',
+      desc: "Xbox Game Bar and Game DVR constantly check whether frames are being captured in the background. This can worsen frame times, especially on older PCs or integrated graphics. Disabling doesn't completely remove recording capability — third-party tools like OBS still work.\n\n⚠️ Note for Win11: Completely disabling Game Bar in Win11 may also disable AutoHDR, DirectFlip, and similar features. Only disable if you don't need recording/streaming.",
+      riskLabel: 'No Risk',
+      manual: '① Settings → Gaming → Xbox Game Bar → Off\n② Settings → Gaming → Captures → "Record in the background..." → Off\n③ Also set the registry with the command above for certainty',
+    },
+    msi_mode: {
+      title: 'Enable MSI Mode (Message Signaled Interrupts)',
+      sub: 'Optimize GPU and NIC interrupt processing',
+      desc: 'Compared to default line-based interrupts, MSI sends interrupts directly to the CPU as messages, reducing interrupt processing latency. Applying to both GPU and NIC can yield minor improvements in input and rendering latency. If system fails to boot after applying, restore the registry via Safe mode.',
+      riskLabel: 'Advanced',
+      manual: '① Win+R → devmgmt.msc → Display adapters → right-click GPU → Properties\n② "Details" tab → copy "Device instance path"\n③ In regedit: HKLM\\SYSTEM\\CurrentControlSet\\Enum\\[copied path]\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties\n④ Change MSISupported to 1\n⑤ Reboot\n\n⚠️ If fails to boot: Windows recovery → Command Prompt → regedit, set value back to 0',
+    },
+    interrupt_affinity: {
+      title: 'Optimize NVIDIA Driver Interrupt Affinity',
+      sub: 'Move nvlddmkm.sys interrupts away from Core 0',
+      desc: "NVIDIA's kernel mode driver (nvlddmkm.sys) concentrates interrupts on Core 0 by default. Many games also concentrate load on Core 0, causing conflicts that lead to DPC spikes and unstable frame times. Fixing GPU interrupt processing to Core 2+ (preferably the end of physical cores sharing L3 cache) can improve this.\n\nVerification: Launch LatencyMon and check if nvlddmkm.sys 'Highest execution (ms)' decreases before and after. Below 1ms is good.\n\n💡 Card usage distinction: 'CPU Affinity' fixes the game process to specific cores; 'IRQ Affinity' is a general setting for all device interrupts. This card pinpoints only NVIDIA driver interrupts. NVIDIA users should try this card first.",
+      riskLabel: 'Advanced · Verify',
+      naReason: 'Not applicable for AMD environments or low core count.',
+      manual: '① Launch LatencyMon and record current nvlddmkm.sys Highest execution value\n② Run the command above in administrator PowerShell\n③ Reboot\n④ Re-measure with LatencyMon and verify improvement\n\nCore selection:\n· 8+ cores: Core 2 or 4 recommended (away from Core 0/1 used by games)\n· Intel 12th gen+ (P-core/E-core mix): Specify end of P-cores, not E-cores\n\nTo revert: Delete AssignmentSetOverride and DevicePolicy, then reboot',
+    },
+    coreparking: {
+      title: 'Disable Core Parking',
+      sub: 'CPU core management independent of power plan',
+      desc: 'Even with "High Performance" power plan, the OS sleeps (parks) cores with low utilization. When game load spikes, the cost of waking parked cores can cause momentary frame time degradation. Setting minimum/maximum processor to 100% via powercfg disables this.',
+      riskLabel: 'Check behavior',
+      manual: '① Run the command above in administrator PowerShell\n② Or powercfg.cpl → current plan details → Processor power management\n③ Set "Minimum processor state" to 100%\n④ Reboot to verify',
+    },
+    process: {
+      title: 'Set Game Process Priority to "High"',
+      sub: 'Task Manager → Details → Set Priority',
+      desc: 'Allocates CPU time preferentially to the game process. Process Lasso can automatically set this on launch. Do not set to "Realtime".',
+      riskLabel: 'No Risk',
+      manual: '① Ctrl+Shift+Esc to open Task Manager\n② "Details" tab → right-click game .exe\n③ "Set Priority" → "High"\n* Must be set each session. Use Process Lasso to automate.',
+    },
+    affinity: {
+      title: 'Set Game Process CPU Affinity',
+      sub: () => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+        return `Detected cores: ${cores} → Recommended mask: 0x${mask.toString(16).toUpperCase()}`;
+      },
+      desc: () => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+        const maskHex = '0x' + mask.toString(16).toUpperCase();
+        if (cores <= 4) return `⚠️ ${cores}-core environment — affinity pinning may be counterproductive. Skip this setting and only set process priority to "High".`;
+        return `Pinning the game process to specific CPU cores reduces contention with OS background tasks, stabilizing frame times. From the detected core count (${cores} cores), assigning ${gameCores} cores (mask: ${maskHex}) to the game.
+
+⚠️ Intel 12th gen+ (Alder Lake) P-core/E-core mixed CPUs: naively freeing "rear cores" risks running the game on weaker E-cores. Check P-core numbers in Task Manager's "CPU" tab and manually calculate a mask for P-cores only.
+
+💡 How to check core count: Win+Pause → "Processor" field. Also visible in Task Manager → Performance → CPU.`;
+      },
+      riskLabel: 'Check behavior',
+      naReason: 'Detected core count is 4 or fewer. Affinity pinning is not recommended. Only set process priority to "High".',
+      manual: () => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        if (cores <= 4) return '⚠️ Low core count — skipping this setting is recommended.';
+        return `① Launch game, then open Task Manager (Ctrl+Shift+Esc)
+② "Details" tab → right-click game .exe → "Set Affinity"
+③ Check the first ${gameCores} cores (CPU 0–${gameCores - 1}) and click OK
+④ Also right-click → "Set Priority" → "High"
+⚠️ Must be set each session. Use Process Lasso to automate.
+
+⚠️ Intel 12th gen+ P-core/E-core mixed: check P-core numbers in Task Manager → Performance → CPU, and select only P-cores.`;
+      },
+    },
+    irq_affinity: {
+      title: 'Optimize IRQ Affinity',
+      sub: 'Pin device interrupts to specific CPU cores — Environment-dependent · Requires testing',
+      desc: "Fixing interrupt processing (IRQ) for GPU, NIC, and USB controller to CPU cores separate from game cores reduces interruptions to game threads and stabilizes frame times.\n\n⚠️ Environments prone to backfire: ①Low core count (6 or fewer), ②Offloading interrupts spans NUMA nodes (AMD Ryzen multi-CCX), ③NIC RSS already distributed across multiple cores. If any apply, avoid or test carefully with before/after comparison.\n\n💡 Relationship to 'NVIDIA Interrupt Affinity' card: That card is specific to the NVIDIA driver (nvlddmkm.sys). This card is a general setting targeting all devices and requires manual adjustment.",
+      riskLabel: 'Advanced · Verify',
+      naReason: 'Not effective for low core count environments.',
+      manual: '① Check IRQ number with MSI Utility (or Aida64)\n② regedit → HKLM\\SYSTEM\\CurrentControlSet\\Enum\\PCI\\[device path]\\Device Parameters\\Interrupt Management\\Affinity Policy\n③ DevicePolicy = 4, AssignmentSetOverride = bitmask for target cores\n④ Reboot and verify effect\n\n⚠️ Misconfiguration may cause device recognition failure. Create a restore point before making changes.',
+    },
+    win32priority: {
+      title: 'Optimize Win32PrioritySeparation',
+      sub: 'Maximize CPU time slice for foreground (game)',
+      desc: 'Win32PrioritySeparation controls the CPU time slice ratio between foreground and background. Setting to 0x26 (fixed, short quantum, foreground-priority) allows foreground apps like games to run at high priority continuously.\n\n💡 【0x26 breakdown】This value instructs the Windows CPU scheduler to "prioritize foreground at a 3:1 ratio with a fixed short quantum." Shorter quanta mean the input→process→render cycle runs more frequently, reducing input latency.\n\nMost effective in environments where OBS, Discord, or browsers run simultaneously in the background. Difference is smaller when only the game is running.',
+      riskLabel: 'Low Risk',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl\n③ Change Win32PrioritySeparation to DWORD 26 (hex)\n④ No restart required (takes effect immediately)',
+    },
+    registry: {
+      title: 'Set GPU Scheduler Priority + SFIO Priority via Registry',
+      sub: 'HKLM → Multimedia → SystemProfile → Tasks → Games',
+      desc: "Changes the GPU priority and I/O priority Windows MMCSS assigns to games. Setting SFIO Priority to High reduces brief stutters during in-game asset loading (background map loading, etc.).\n\n💡 Relationship to 'MMCSS SystemResponsiveness' card: That card changes SystemResponsiveness and NetworkThrottlingIndex. This card changes Tasks\\Games priorities (GPU Priority, Priority, SFIO Priority). Different registry keys — no conflict, but if MMCSS card is already applied, GPU Priority and Priority here become double-settings.",
+      riskLabel: 'Minor Risk',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games\n③ GPU Priority → 8, Priority → 6, Scheduling Category → High\n④ SFIO Priority → High (string value)',
+    },
+  }, // end en
+
+  zh: {
+    reflex: {
+      title: e => e.gpu === 'nvidia' ? '启用NVIDIA Reflex' : '启用AMD Anti-Lag',
+      sub:   e => e.gpu === 'nvidia' ? '游戏内设置 → Low Latency ON' : 'AMD Software → Anti-Lag ON',
+      desc:  e => e.gpu === 'nvidia'
+        ? '减少GPU渲染队列，缩短从输入到帧显示的延迟。支持的游戏中应优先启用此设置。\n\n💡 不支持Reflex的游戏中，「Ultra Low Latency Mode（ULL）」卡片是替代手段。支持Reflex的游戏中同时设置ULL也不会产生冲突。'
+        : '解决CPU-GPU队列积压。在驱动层面运行，即使游戏不支持也能生效。请提前确认兼容性。',
+      riskLabel: '无风险',
+      manual: e => e.gpu === 'nvidia'
+        ? '① 启动游戏\n② 图形设置 → NVIDIA Reflex Low Latency → ON（或ON+Boost）'
+        : '① 打开AMD Software: Adrenalin Edition\n② 「图形」标签 → Anti-Lag → 开',
+    },
+    ull: {
+      title: e => e.gpu === 'nvidia' ? 'Ultra Low Latency Mode（适用于不支持Reflex的游戏）' : 'Radeon Boost',
+      sub:   e => e.gpu === 'nvidia' ? 'NVIDIA控制面板 → 预渲染帧数 Ultra' : 'AMD Software → Radeon Boost',
+      desc:  e => e.gpu === 'nvidia'
+        ? '在驱动层面强制将帧队列限制为1帧，减少CPU-GPU管线延迟。对不支持Reflex的游戏有效。在支持Reflex的游戏中此设置会被驱动忽略，同时设置也没问题。如果GPU使用率固定在99%，可能会导致卡顿，请配合帧率上限使用。'
+        : '动态调整渲染分辨率以维持目标帧率。降低GPU负载和输入延迟，可能导致画面模糊。',
+      riskLabel: '无风险',
+      naReason: 'AMD环境不适用。',
+      manual: e => e.gpu === 'nvidia'
+        ? '① 打开NVIDIA控制面板 → 3D设置管理\n② 「Ultra Low Latency Mode」→ Ultra'
+        : '① 打开AMD Software: Adrenalin Edition\n② 图形 → Radeon Boost → 启用',
+    },
+    shader_cache: {
+      title: '解除NVIDIA着色器缓存大小限制',
+      sub: '注册表 → 将默认4GB上限改为无限制',
+      desc: 'NVIDIA驱动的着色器缓存默认限制为4GB。达到上限后会触发着色器重新编译，导致游戏中出现瞬间卡顿（stutter）。通过注册表设置为无限制（4294967295 = UINT_MAX）可解决此问题。',
+      riskLabel: '无风险',
+      naReason: 'AMD环境不适用（由AMD Software内部管理）。',
+      manual: '① NVIDIA控制面板 → 3D设置管理\n② 「着色器缓存大小」→ 「驱动程序默认」或「无限制」\n③ 或执行上述PowerShell命令（更可靠）',
+    },
+    hypr_rx: {
+      title: '启用AMD HYPR-RX / AFMF 2',
+      sub: 'AMD Software Adrenalin 24.x以上 → HYPR-RX + AFMF 2',
+      desc: 'HYPR-RX是一键启用Anti-Lag 2、Radeon Boost、FSR 3帧生成的集成功能。Anti-Lag 2在游戏代码层面运行，比旧版精度更高，在支持的游戏中有显著的延迟降低效果。\n\nAFMF 2（AMD Fluid Motion Frames 2）在驱动层面进行帧插值，视觉上提升帧率。启用AFMF 2后Anti-Lag会自动启用。\n\n⚠️ AFMF 2的重要注意事项：\n·输入延迟仍等于基础帧率（显示120fps时输入相当于60fps）\n·FPS、Valorant、Apex等竞技游戏不建议开启\n·与Radeon Chill同时使用时，Chill值应设为刷新率的一半\n·需关闭VSync（FreeSync），需全屏或无边框模式',
+      riskLabel: '需确认运行状态',
+      naReason: 'NVIDIA环境不适用（请使用NVIDIA Reflex和DLSS帧生成）。',
+      manual: '【HYPR-RX】\n① 打开AMD Software: Adrenalin Edition（需要24.x以上版本）\n② 「游戏」标签 → 选择目标游戏 → 「图形」\n③ 开启HYPR-RX开关\n\n【AFMF 2（单独启用）】\n① AMD Software → 「游戏」→「图形」\n② 启用AMD Fluid Motion Frames 2\n③ 确认Anti-Lag已开启，AMD FreeSync已关闭\n④ 重启游戏确认\n\n⚠️ 竞技游戏不推荐。适合单机、MMO、RTS。',
+    },
+    mpo: {
+      title: '禁用MPO（多平面叠加）',
+      sub: 'DWM Overlay → 消除卡顿主要原因',
+      desc: 'DWM（桌面窗口管理器）的MPO可加速窗口合成，但驱动bug导致许多报告显示在游戏中造成帧间隔不规则（卡顿）。将OverlayTestMode=5可使DWM回退到MPO模式。\n\n⚠️ 副作用：可能禁用HDR和部分MiniLED背光功能。不使用HDR的台式机可安全应用。需要重启。\n\n【确认步骤】：应用前后用PresentMon或CapFrameX测量帧时间，确认峰值减少。',
+      riskLabel: '需确认运行状态',
+      manual: '① 以管理员身份运行PowerShell执行上述命令\n② 重启PC\n③ 用帧时间工具（CapFrameX / PresentMon）确认效果\n\n恢复方法：\n$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm"\nRemove-ItemProperty -Path $path -Name "OverlayTestMode" -ErrorAction SilentlyContinue',
+    },
+    mmcss_sr: {
+      title: '将MMCSS SystemResponsiveness设为游戏最优先',
+      sub: '禁用NetworkThrottlingIndex + SystemResponsiveness=0',
+      desc: '将MMCSS（多媒体类调度服务）的SystemResponsiveness从默认值（20）改为游戏最优先（0），最大化游戏线程获得的CPU时间。同时禁用NetworkThrottlingIndex，解除游戏中的网络带宽限制（默认10Mbps）。\n\n⚠️ 注意：后台同时运行OBS或Discord时，音视频处理可能受影响。建议在纯游戏PC或不进行录制/直播的竞技环境中使用。\n\n💡 与其他卡片的关系：\n·「GPU调度器优先级」卡片：设置Tasks\\Games下的优先级值，两张卡片写入相同键，不冲突但会重复设置。\n·「NetworkThrottlingIndex禁用」卡片：操作相同注册表键，应用其中一个即可。此卡片同时设置两个值，更为全面。',
+      riskLabel: '需确认运行状态',
+      manual: '① 以管理员身份运行PowerShell执行上述命令\n② 无需重启（即时生效）\n③ 启动游戏通过体感或帧时间确认效果\n\n恢复默认值：\n$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"\nSet-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 20 -Type DWord\nSet-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 10 -Type DWord',
+    },
+    hags: {
+      title: 'HAGS（硬件加速GPU调度）',
+      sub: 'Windows设置 → 显示 → 图形',
+      desc: '将GPU调度从OS转移到GPU本身，无需经过CPU调度器即可直接处理帧，减少渲染延迟。RTX 30/40/50和RX 6000/7000系列效果尤为显著，使用DLSS 3帧生成或FSR 3帧生成时为必须项。部分老游戏或旧驱动可能不稳定，应用后请确认运行状态。',
+      riskLabel: '需确认运行状态',
+      manual: '① 设置 → 系统 → 显示 → 图形\n② 「硬件加速GPU调度」→ 开\n③ 重启PC',
+    },
+    power: {
+      title: '将电源计划改为「高性能」',
+      sub: '控制面板 → 电源选项',
+      desc: 'CPU频率频繁波动会直接导致帧时间不稳定。高性能计划可保持始终最高频率。',
+      riskLabel: '无风险',
+      manual: '① 控制面板 → 电源选项\n② 选择「高性能」',
+    },
+    nagle: {
+      title: '禁用Nagle算法',
+      sub: '注册表 → 禁用小数据包缓冲',
+      desc: 'Nagle算法通过合并多个小数据包发送来提高带宽效率，但会给游戏输入数据包增加延迟。通过注册表设置TCPNoDelay和TcpAckFrequency来禁用。对在线对战游戏特别有效。',
+      riskLabel: '需确认运行状态',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\n③ 打开各接口键，添加/修改（DWORD值）：\n   ·TcpAckFrequency = 1\n   ·TCPNoDelay = 1\n④ 重启',
+    },
+    vbs: {
+      title: '禁用VBS / HVCI（基于虚拟化的安全）',
+      sub: 'Windows安全功能 — 存在安全风险·请充分理解后执行',
+      desc: 'VBS（基于虚拟化的安全）和HVCI（虚拟机监控程序保护的代码完整性）是Windows 11的安全功能。启用时，虚拟化层的开销可能导致游戏帧率下降5~15%。\n\n⚠️【具体风险】禁用后将失去以下安全保护：\n·防止非法访问内核内存的HVCI保护（防rootkit）\n·保护认证信息（密码哈希）的Credential Guard\n·Device Guard对未签名驱动执行的限制\n\n仅推荐个人游戏PC/竞技专用机。企业环境、共用PC、使用网上银行的环境中绝对不可执行。',
+      riskLabel: '高风险（降低安全性）',
+      naReason: 'Windows 10不适用。',
+      manual: '① Win+R → msinfo32 确认当前VBS状态\n② 以管理员身份运行PowerShell执行上述命令\n③ 重启\n④ 在msinfo32中确认「基于虚拟化的安全性: 已禁用」',
+    },
+    spectre: {
+      title: '禁用Spectre / Meltdown补丁',
+      sub: 'CPU推测执行漏洞补丁 — 存在安全风险·仅限竞技专用PC',
+      desc: 'Spectre/Meltdown缓解补丁限制CPU推测执行，某些游戏中会导致5~15%的CPU性能下降。仅在个人纯游戏PC且来自外部网络的代码执行风险较低的环境中，禁用可提升FPS和1% Low FPS。\n\n⚠️【具体风险】Spectre/Meltdown是「同一CPU上的其他进程或浏览器JavaScript可读取本不应访问的内核内存或其他进程数据」的漏洞。禁用后：\n·恶意网站的JS可能泄露密码和加密密钥\n·虚拟机间的数据窃取成为可能\n\n仅适用于游戏专用PC/离线环境/竞技专用机。经常使用浏览器或网上银行的环境中绝对不可执行。',
+      riskLabel: '高风险（降低安全性）',
+      manual: '① 以管理员身份运行PowerShell执行上述命令\n② 重启\n③ 在PowerShell中运行 Get-SpeculationControlSettings 确认\n\n恢复方法：删除FeatureSettingsOverride和FeatureSettingsOverrideMask即可恢复。',
+    },
+    dpc_latency: {
+      title: '降低DPC/ISR延迟',
+      sub: '注册表 → 抑制内核延迟过程调用积压',
+      desc: 'DPC（延迟过程调用）是中断处理程序推迟后续处理的机制，驱动处理集中时会产生数百μs到数ms的延迟峰值。限制NDIS回调数量并调整DPC监视狗偏移量可减少积压。在LatencyMon确认存在高DPC的环境中特别有效。',
+      riskLabel: '需确认运行状态',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\NDIS\\Parameters\n   → MaxNumRoutineCallbacks = 64（DWORD）\n③ HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel\n   → DpcWatchdogProfileOffset = 0（DWORD）\n④ 重启\n\n※ 效果确认推荐使用LatencyMon（免费工具）',
+    },
+    timer: {
+      title: '将计时器分辨率设为1ms',
+      sub: e => e.os === 'win11' ? 'Win11 22H2以上游戏中自动设置' : '使用TimerResolution工具',
+      desc: e => e.os === 'win11'
+        ? 'Windows 11 22H2及以后版本在游戏中自动应用1ms计时器分辨率，无需手动设置。如在游戏外也发现帧时间峰值，第三方计时器工具仍然有效。'
+        : 'Windows默认计时器分辨率为15.6ms。将其改为1ms（部分硬件可达0.5ms）可提高睡眠精度和帧时间稳定性。使用TimerResolution工具或SetTimerResolution持续设置。',
+      riskLabel: '无风险',
+      manual: e => e.os === 'win11'
+        ? 'Win11 22H2以上自动应用，无需手动设置。\n如有问题可运行：bcdedit /set useplatformtick yes'
+        : '① 下载TimerResolution（免费）\n② 以管理员身份运行 → 设置为0.5ms（或1.0ms）\n③ 游戏期间保持运行',
+    },
+    network_throttle: {
+      title: '禁用NetworkThrottlingIndex',
+      sub: '注册表 → 解除MMCSS网络带宽限制',
+      desc: 'Windows MMCSS为优先处理多媒体，可能将游戏中的网络带宽限制在10Mbps。将NetworkThrottlingIndex设为0xFFFFFFFF可解除此限制，改善游戏中的数据包处理。同时将SystemResponsiveness（默认20）改为0，最大化游戏线程的CPU时间分配。\n\n💡 与「MMCSS SystemResponsiveness」卡片的关系：两张卡片操作相同注册表键，应用任意一个即可获得效果。但MMCSS卡片还包含Tasks\\Games优先级设置，更为全面。不冲突但会重复设置。',
+      riskLabel: '需确认运行状态',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\n③ 将NetworkThrottlingIndex改为DWORD ffffffff\n④ 将SystemResponsiveness改为0\n⑤ 重启',
+    },
+    nic_lso: {
+      title: '禁用LSO・Flow Control・EEE',
+      sub: 'NIC高级设置 — 批量禁用',
+      desc: '批量禁用游戏用途不需要的三个NIC功能：\n·LSO（Large Send Offload）：合并发送数据的功能，可能增加延迟。\n·Flow Control：网络拥塞时暂停发送，对游戏适得其反。\n·EEE（Energy Efficient Ethernet）：空闲时让NIC进入睡眠的省电功能，造成唤醒延迟。',
+      riskLabel: '需确认运行状态',
+      manual: '① 设备管理器 → 网络适配器 → 右键目标NIC → 属性\n② 「高级」标签中将以下改为「已禁用」：\n   ·Large Send Offload V2 (IPv4)\n   ·Large Send Offload V2 (IPv6)\n   ·Flow Control\n   ·Energy Efficient Ethernet\n③ 确定 → 应用\n\n⚠️ 如通信变得不稳定，可通过「重置设置」恢复。',
+    },
+    nic_buffer: {
+      title: '优化NIC接收/发送缓冲区',
+      sub: () => '',
+      desc: '优化NIC缓冲区大小。过大会增加延迟，过小会导致丢包。请使用上方滑块调整值。\n\n⚠️ NIC名称因环境而异，执行命令前请用Get-NetAdapter确认正确名称。',
+      riskLabel: '需确认运行状态',
+      manual: '在Step 2滑块调整值后，将命令中的$nic替换为通过Get-NetAdapter确认的NIC名称后执行。',
+    },
+    usb_suspend: {
+      title: '禁用USB选择性挂起',
+      sub: '电源计划 → USB设置 — 500Hz以上轮询环境特别有效',
+      desc: 'USB选择性挂起是将空闲USB设备置于睡眠状态的省电功能。使用高轮询率（500Hz/1000Hz以上）的鼠标/键盘时，从睡眠恢复的延迟可能表现为输入延迟。台式机可无代价禁用。',
+      riskLabel: '低风险（推荐台式机）',
+      manual: '① 控制面板 → 电源选项 → 更改计划设置 → 更改高级电源设置\n② USB设置 → USB选择性挂起设置 → 「已禁用」\n③ 应用・确定',
+    },
+    rss: {
+      title: '优化RSS（接收方缩放）',
+      sub: '将NIC接收处理分散到多个CPU核心',
+      desc: 'RSS将网络接收处理分散到多个CPU核心。默认设置的核心分配可能不够优化，导致游戏核心与接收处理冲突，使帧时间不稳定。核心数较多的环境效果尤为明显。',
+      riskLabel: '需确认运行状态',
+      manual: '① 以管理员身份运行PowerShell执行上述命令\n② 游玩在线游戏确认抖动改善情况\n\n⚠️ 请根据CPU核心数调整NumberOfReceiveQueues（4核以下推荐2）',
+    },
+    tcp_autotuning: {
+      title: '禁用TCP自动调整',
+      sub: 'netsh → 停止接收窗口大小的自动变动',
+      desc: 'Windows TCP自动调整会动态改变接收窗口大小。与Nagle禁用（TcpAckFrequency=1）组合使用时，OS自行改变接收窗口会导致数据包间隔不规则。禁用并固定窗口大小可提高通信稳定性。\n\n💡 与Nagle禁用组合应用是基本套装，单独使用不如组合效果好。\n\n⚠️【从稳定预设中排除的原因】部分路由器/ISP环境中，固定窗口大小可能使带宽低于上限，降低大文件下载速度。这是针对FPS等「通信响应速度」最优先用途的设置，MMO/RTS等大量数据传输较多的情况请谨慎判断。',
+      riskLabel: '需确认运行状态',
+      manual: '① 以管理员身份运行命令提示符执行上述命令\n② 重启后用netsh int tcp show global确认「Receive Window Auto-Tuning Level: disabled」\n\n恢复方法：netsh int tcp set global autotuninglevel=normal\n\n⚠️ 与Nagle禁用组合应用有协同效果',
+    },
+    hpet: {
+      title: '禁用HPET（高精度事件计时器）',
+      sub: '系统计时器 — 建议与计时器分辨率卡片配合使用',
+      desc: e => e.os === 'win11'
+        ? 'Windows 11中HPET的处理已变更，效果有限。请改用「计时器分辨率」卡片（Win11 22H2以上在游戏中自动设为1ms）。'
+        : 'Windows以TSC（时间戳计数器）为主计时器，但启用HPET时OS在某些情况下可能选择HPET而非TSC。HPET访问比TSC开销更高。通过bcdedit禁用HPET可强制OS始终使用TSC。\n\n注：效果因硬件/驱动而异，请用LatencyMon或帧时间工具在应用前后进行测量。',
+      riskLabel: '需确认运行状态',
+      naReason: 'Windows 11中HPET处理已变更，效果有限。请改用「计时器分辨率」卡片（Win11 22H2以上游戏中自动设为1ms）。',
+      manual: e => e.os === 'win11'
+        ? 'Win11效果有限，请参考计时器分辨率卡片。\nbcdedit /deletevalue useplatformclock（如已禁用，此命令可恢复）'
+        : '① 以管理员身份运行命令提示符：bcdedit /set useplatformclock false\n② 重启\n③ 用LatencyMon确认',
+    },
+    nvme_queue: {
+      title: '降低NVMe I/O延迟',
+      sub: '注册表 → 限制NVMe I/O队列深度以改善延迟',
+      desc: 'NVMe SSD配置为可排队最多254个I/O请求，这是吞吐量优先的配置。对于游戏中的流式加载和开放世界区块读取，将队列大小限制为32可减少I/O请求积压，改善平均延迟。游戏I/O是顺序且集中型的，不需要深队列，32是实用最优值（256或128效果甚微，16以下会牺牲吞吐量）。HDD或SATA SSD环境无效，仅推荐NVMe SSD搭载环境。',
+      riskLabel: '需确认运行状态',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\StorNVMe\\Parameters\\Device\n   （Device键不存在时请创建）\n③ 添加QueueDepth = 32（DWORD值）\n④ 重启\n\n※ 非NVMe（SATA SSD / HDD）无效\n※ 如无效果，删除键值即可恢复默认',
+    },
+    gamedvr: {
+      title: '禁用Xbox Game Bar / Game DVR',
+      sub: '注册表 + Windows设置',
+      desc: 'Xbox Game Bar和Game DVR在后台持续检查是否正在捕获帧。在老旧PC或集成显卡环境中尤其会导致帧时间恶化。关闭后不会完全失去录制功能，OBS等第三方工具仍可继续使用。\n\n⚠️ Win11注意：Win11中完全禁用Game Bar可能同时禁用AutoHDR、DirectFlip等功能。仅在不需要录制/直播时推荐禁用。',
+      riskLabel: '无风险',
+      manual: '① 设置 → 游戏 → Xbox Game Bar → 关\n② 设置 → 游戏 → 截图 → 「游戏录制中...」→ 关\n③ 同时执行上述命令设置注册表更为可靠',
+    },
+    msi_mode: {
+      title: '启用MSI模式（消息信号中断）',
+      sub: '优化GPU和NIC中断处理',
+      desc: '与默认的基于线路的中断相比，MSI以消息形式直接向CPU发送中断，减少中断处理延迟。同时应用于GPU和NIC可期待输入延迟和渲染延迟的微小改善。应用后如无法启动，请通过安全模式还原注册表。',
+      riskLabel: '高级用户',
+      manual: '① Win+R → devmgmt.msc → 显示适配器 → 右键GPU → 属性\n② 「详细信息」标签 → 复制「设备实例路径」\n③ 在regedit中：HKLM\\SYSTEM\\CurrentControlSet\\Enum\\[复制的路径]\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties\n④ 将MSISupported改为1\n⑤ 重启\n\n⚠️ 如无法启动：Windows恢复环境 → 命令提示符 → regedit，将值改回0',
+    },
+    interrupt_affinity: {
+      title: '优化NVIDIA驱动中断亲和性',
+      sub: '将nvlddmkm.sys中断从Core 0迁移',
+      desc: 'NVIDIA内核模式驱动（nvlddmkm.sys）默认将中断集中在Core 0。许多游戏也集中在Core 0，导致冲突产生DPC峰值和帧时间不稳定。将GPU中断处理固定到Core 2以后（最好是共享L3缓存的物理核心末端）可改善此问题。\n\n效果确认：启动LatencyMon，检查nvlddmkm.sys的「Highest execution (ms)」在设置前后是否降低。低于1ms为良好。\n\n💡 与其他卡片的区别：「CPU亲和性」将游戏进程固定到特定核心；「IRQ亲和性」是针对所有设备中断的通用设置。此卡片仅针对NVIDIA驱动中断进行精准固定。NVIDIA用户建议先尝试此卡片。',
+      riskLabel: '高级用户·需验证',
+      naReason: 'AMD环境或核心数较少的环境不适用。',
+      manual: '① 启动LatencyMon记录当前nvlddmkm.sys Highest execution值\n② 以管理员身份运行PowerShell执行上述命令\n③ 重启\n④ 用LatencyMon重新测量确认改善\n\n核心选择：\n·8核以上：推荐Core 2或4（远离游戏使用的Core 0/1）\n·Intel 12代以上（P核/E核混合）：指定P核末端，不要选E核\n\n恢复方法：删除AssignmentSetOverride和DevicePolicy后重启',
+    },
+    coreparking: {
+      title: '禁用Core Parking（核心停用）',
+      sub: '独立于电源计划的CPU核心管理功能',
+      desc: '即使将电源计划设为「高性能」，OS也会让使用率低的核心进入睡眠（停用）。游戏负载突发增加时，从停用状态唤醒核心的代价会导致帧时间瞬间恶化。通过powercfg命令将最小/最大处理器数固定为100%可禁用此功能。',
+      riskLabel: '需确认运行状态',
+      manual: '① 以管理员身份运行PowerShell执行上述命令\n② 或通过powercfg.cpl → 当前计划详情 → 处理器电源管理\n③ 将「最小处理器状态」改为100%\n④ 重启PC确认',
+    },
+    process: {
+      title: '将游戏进程优先级设为「高」',
+      sub: '任务管理器 → 详细信息 → 设置优先级',
+      desc: '优先为游戏进程分配CPU时间。使用Process Lasso可在启动时自动设置。请勿设置为「实时」。',
+      riskLabel: '无风险',
+      manual: '① Ctrl+Shift+Esc 打开任务管理器\n② 「详细信息」标签 → 右键游戏.exe\n③ 「设置优先级」→「高」\n※ 每次都需要设置，自动化请使用Process Lasso。',
+    },
+    affinity: {
+      title: '设置游戏进程CPU亲和性',
+      sub: () => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+        return `检测到核心数: ${cores} → 推荐掩码: 0x${mask.toString(16).toUpperCase()}`;
+      },
+      desc: () => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+        const maskHex = '0x' + mask.toString(16).toUpperCase();
+        if (cores <= 4) return `⚠️ ${cores}核心环境，固定亲和性可能适得其反。建议跳过此设置，仅设置进程优先级为「高」。`;
+        return `将游戏进程固定到特定CPU核心，减少与OS后台处理的竞争，稳定帧时间。根据检测到的核心数（${cores}核），为游戏分配${gameCores}个核心（掩码值：${maskHex}）。
+
+⚠️ Intel第12代（Alder Lake）以上的P核/E核混合CPU：简单地「空出后面的核心」可能导致游戏只在性能较弱的E核上运行。请在任务管理器的「CPU」标签确认P核编号，手动计算仅选择P核的掩码值。
+
+💡 确认核心数的方法：Win+Pause → 「处理器」栏。任务管理器→性能→CPU标签也可确认。`;
+      },
+      riskLabel: '需确认运行状态',
+      naReason: '检测到核心数为4个以下，不建议固定亲和性。请仅设置进程优先级为「高」。',
+      manual: () => {
+        const cores = navigator.hardwareConcurrency || 4;
+        const gameCores = Math.max(1, cores - 2);
+        if (cores <= 4) return '⚠️ 核心数少，建议跳过此设置。';
+        return `① 启动游戏后按Ctrl+Shift+Esc打开任务管理器
+② 「详细信息」标签 → 右键游戏.exe → 「设置相关性」
+③ 勾选前${gameCores}个核心（CPU 0~${gameCores - 1}）后点击确定
+④ 同样右键 → 「设置优先级」→「高」
+⚠️ 每次都需要设置，自动化推荐使用Process Lasso。
+
+⚠️ Intel第12代以上P核/E核混合环境：请在任务管理器→性能→CPU确认P核编号，仅勾选P核。`;
+      },
+    },
+    irq_affinity: {
+      title: '优化IRQ亲和性',
+      sub: '将设备中断固定到特定CPU核心 — 依赖环境·需验证',
+      desc: '将GPU、NIC、USB控制器的中断处理（IRQ）固定到与游戏核心不同的CPU核心，减少对游戏线程的中断，稳定帧时间。\n\n⚠️ 容易产生反效果的环境：①核心数少（6核以下）、②转移中断的核心跨NUMA节点（AMD Ryzen多CCX配置）、③NIC的RSS已分散到多个核心。符合这些条件时请避免应用，或仔细进行前后对比验证。\n\n💡 与「NVIDIA中断亲和性」卡片的关系：那张卡片专门针对NVIDIA驱动（nvlddmkm.sys）。此卡片是针对所有设备的通用设置，需要手动调整。',
+      riskLabel: '高级用户·需验证',
+      naReason: '核心数少的环境效果不佳。',
+      manual: '① 用MSI Utility（Aida64等）确认IRQ编号\n② regedit → HKLM\\SYSTEM\\CurrentControlSet\\Enum\\PCI\\[设备路径]\\Device Parameters\\Interrupt Management\\Affinity Policy\n③ DevicePolicy = 4，AssignmentSetOverride = 目标核心的位掩码\n④ 重启确认效果\n\n⚠️ 设置错误可能导致设备无法识别，修改前请创建还原点。',
+    },
+    win32priority: {
+      title: '优化Win32PrioritySeparation',
+      sub: '最大化前台（游戏）的CPU时间片',
+      desc: 'Win32PrioritySeparation控制前台和后台CPU时间片的比率。设置为0x26（固定、短量子、前台优先）后，游戏等前台应用可以高优先级连续执行。\n\n💡【0x26的含义】此值指示Windows CPU调度器「以3:1的比率优先前台，并使用固定的短量子」。量子短意味着输入→处理→渲染的循环频率更高，有助于改善输入延迟。\n\n在后台同时运行OBS、Discord、浏览器等的环境中效果尤为明显。仅运行游戏时差异较小。',
+      riskLabel: '低风险',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl\n③ 将Win32PrioritySeparation改为DWORD 26（十六进制）\n④ 无需重启（即时生效）',
+    },
+    registry: {
+      title: '通过注册表修改GPU调度器优先级 + SFIO Priority',
+      sub: 'HKLM → Multimedia → SystemProfile → Tasks → Games',
+      desc: '修改Windows MMCSS（多媒体调度器）为游戏分配的GPU优先级和I/O优先级。将SFIO Priority设为High可减少游戏中资产加载（地图后台读取等）引起的瞬间卡顿。\n\n💡 与「MMCSS SystemResponsiveness」卡片的关系：那张卡片修改SystemResponsiveness和NetworkThrottlingIndex。此卡片修改Tasks\\Games的优先级（GPU Priority、Priority、SFIO Priority）。注册表键不同，不冲突，但如已应用MMCSS卡片，此卡片的GPU Priority和Priority会重复设置。',
+      riskLabel: '轻微风险',
+      manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games\n③ GPU Priority → 8，Priority → 6，Scheduling Category → High\n④ SFIO Priority → High（字符串值）',
+    },
+  }, // end zh
+};
+
+// カードテキストをlangとenvに基づいて取得するユーティリティ
+function resolveCardField(cardI18n, field, env) {
+  const val = cardI18n[field];
+  if (val === undefined) return null;
+  if (typeof val === 'function') return val(env);
+  return val;
+}
+
+function getCardI18nText(id, field, lang, env) {
+  const langData = CARD_I18N[lang];
+  if (!langData || !langData[id]) return null;
+  return resolveCardField(langData[id], field, env);
+}
+
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -1734,50 +3000,50 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 
     <!-- サーバータイトル -->
     <div style="padding:16px 12px 12px;border-bottom:1px solid #1e1f22;flex-shrink:0;">
-      <div style="font-size:15px;font-weight:700;color:#f2f3f5;letter-spacing:.01em;">遅延最適化ツール</div>
-      <div style="font-size:11px;color:#949ba4;margin-top:2px;font-family:var(--mono);">v22.0 · PCゲーム向け</div>
+      <div data-i18n="appTitle" style="font-size:15px;font-weight:700;color:#f2f3f5;letter-spacing:.01em;">遅延最適化ツール</div>
+      <div data-i18n="appSub" style="font-size:11px;color:#949ba4;margin-top:2px;font-family:var(--mono);">v23.0 · PCゲーム向け</div>
     </div>
 
     <!-- ステップナビ -->
     <div style="padding:12px 8px 4px;">
-      <div style="font-size:11px;font-weight:700;color:#949ba4;letter-spacing:.06em;text-transform:uppercase;padding:0 4px 6px;">ステップ</div>
+      <div data-i18n="navStep" style="font-size:11px;font-weight:700;color:#949ba4;letter-spacing:.06em;text-transform:uppercase;padding:0 4px 6px;">ステップ</div>
 
       <div class="dc-nav-item active" id="dcNav-1" data-action="dcNavStep:1">
         <div class="dc-nav-dot" id="dcNavDot-1">1</div>
-        <span>環境選択</span>
+        <span data-i18n="nav1">環境選択</span>
       </div>
       <div class="dc-nav-item" id="dcNav-2" data-action="dcNavStep:2">
         <div class="dc-nav-dot" id="dcNavDot-2">2</div>
-        <span>診断</span>
+        <span data-i18n="nav2">診断</span>
         <div id="dcNavBadge-2" style="display:none;margin-left:auto;background:#da373c;color:#fff;border-radius:8px;font-size:10px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;">2</div>
       </div>
       <div class="dc-nav-item" id="dcNav-3" data-action="dcNavStep:3">
         <div class="dc-nav-dot" id="dcNavDot-3">3</div>
-        <span>設定一覧</span>
+        <span data-i18n="nav3">設定一覧</span>
         <div id="dcCheckedCount" style="display:none;margin-left:auto;background:#5865f2;color:#fff;border-radius:8px;font-size:10px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;">0</div>
       </div>
       <div class="dc-nav-item" id="dcNav-4" data-action="dcNavStep:4" style="display:none;">
         <div class="dc-nav-dot" id="dcNavDot-4">4</div>
-        <span>NVIDIAプロファイル</span>
+        <span data-i18n="nav4">NVIDIAプロファイル</span>
       </div>
     </div>
 
     <!-- プリセット（Step3時のみ表示） -->
     <div id="dcPresetSection" style="display:none;padding:12px 8px 4px;">
-      <div style="font-size:11px;font-weight:700;color:#949ba4;letter-spacing:.06em;text-transform:uppercase;padding:0 4px 6px;">プリセット</div>
-      <div class="dc-nav-item" data-action="preset:beginner" title="リスクなしのカードのみ / 初めての方に最適">🔰 <span style="margin-left:4px;">初心者向け</span><span id="dcPresetCount-beginner" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
-      <div class="dc-nav-item" data-action="preset:safe" title="競合なし・安定重視 / セキュリティ系除外">🛡️ <span style="margin-left:4px;">安定重視</span><span id="dcPresetCount-safe" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
-      <div class="dc-nav-item" data-action="preset:noconflict" title="競合ゼロ保証 / 20枚の安全な組み合わせ">🤝 <span style="margin-left:4px;">競合なし</span><span id="dcPresetCount-noconflict" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
-      <div class="dc-nav-item" data-action="preset:fps" title="入力遅延・描画遅延に特化 / FPS・格闘ゲーム向け">🎯 <span style="margin-left:4px;">FPS特化</span><span id="dcPresetCount-fps" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
-      <div class="dc-nav-item" data-action="preset:eco" title="省電力でも安定FPS / ノートPC・発熱対策に">🔋 <span style="margin-left:4px;">省電力ゲーミング</span><span id="dcPresetCount-eco" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
-      <div class="dc-nav-item" data-action="preset:all" title="全カードを選択 / 上級者・検証用">⚡ <span style="margin-left:4px;">全部盛り</span><span id="dcPresetCount-all" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
-      <div class="dc-nav-item" data-action="preset:clear" style="color:#949ba4;font-size:12px;">✕ クリア</div>
+      <div data-i18n="sidePreset" style="font-size:11px;font-weight:700;color:#949ba4;letter-spacing:.06em;text-transform:uppercase;padding:0 4px 6px;">プリセット</div>
+      <div class="dc-nav-item" data-action="preset:beginner" title="リスクなしのカードのみ / 初めての方に最適">🔰 <span data-i18n="presetBeginner" style="margin-left:4px;">初心者向け</span><span id="dcPresetCount-beginner" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
+      <div class="dc-nav-item" data-action="preset:safe" title="競合なし・安定重視 / セキュリティ系除外">🛡️ <span data-i18n="presetSafe" style="margin-left:4px;">安定重視</span><span id="dcPresetCount-safe" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
+      <div class="dc-nav-item" data-action="preset:noconflict" title="競合ゼロ保証 / 20枚の安全な組み合わせ">🤝 <span data-i18n="presetNoconflict" style="margin-left:4px;">競合なし</span><span id="dcPresetCount-noconflict" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
+      <div class="dc-nav-item" data-action="preset:fps" title="入力遅延・描画遅延に特化 / FPS・格闘ゲーム向け">🎯 <span data-i18n="presetFps" style="margin-left:4px;">FPS特化</span><span id="dcPresetCount-fps" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
+      <div class="dc-nav-item" data-action="preset:eco" title="省電力でも安定FPS / ノートPC・発熱対策に">🔋 <span data-i18n="presetEco" style="margin-left:4px;">省電力ゲーミング</span><span id="dcPresetCount-eco" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
+      <div class="dc-nav-item" data-action="preset:all" title="全カードを選択 / 上級者・検証用">⚡ <span data-i18n="presetAll" style="margin-left:4px;">全部盛り</span><span id="dcPresetCount-all" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
+      <div class="dc-nav-item" data-action="preset:clear" style="color:#949ba4;font-size:12px;"><span data-i18n="presetClear">✕ クリア</span></div>
 
       <!-- ゲーム別ツリー -->
-      <div style="font-size:11px;font-weight:700;color:#949ba4;letter-spacing:.06em;text-transform:uppercase;padding:8px 4px 4px;margin-top:4px;border-top:1px solid #1e1f22;">ゲーム別</div>
+      <div data-i18n="sideGameLabel" style="font-size:11px;font-weight:700;color:#949ba4;letter-spacing:.06em;text-transform:uppercase;padding:8px 4px 4px;margin-top:4px;border-top:1px solid #1e1f22;">ゲーム別</div>
       <div class="dc-game-tree-header" id="dcGameTreeFPS" data-action="toggleGameTree:fps">
         <span class="tree-arrow">▶</span>
-        <span>⚡ タクティカルFPS</span>
+        <span data-i18n="gameTreeFps">⚡ タクティカルFPS</span>
       </div>
       <div class="dc-game-tree-children" id="dcGameTreeFPS-children">
         <div class="dc-game-tree-item" data-action="gamePreset:valorant">🎯 VALORANT</div>
@@ -1787,7 +3053,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       </div>
       <div class="dc-game-tree-header" id="dcGameTreeBR" data-action="toggleGameTree:br">
         <span class="tree-arrow">▶</span>
-        <span>🪂 バトルロイヤル</span>
+        <span data-i18n="gameTreeBr">🪂 バトルロイヤル</span>
       </div>
       <div class="dc-game-tree-children" id="dcGameTreeBR-children">
         <div class="dc-game-tree-item" data-action="gamePreset:fortnite">🪂 Fortnite</div>
@@ -1796,35 +3062,35 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       </div>
       <div class="dc-game-tree-header" id="dcGameTreeOther" data-action="toggleGameTree:other">
         <span class="tree-arrow">▶</span>
-        <span>🎮 その他</span>
+        <span data-i18n="gameTreeOther">🎮 その他</span>
       </div>
       <div class="dc-game-tree-children" id="dcGameTreeOther-children">
         <div class="dc-game-tree-item" data-action="gamePreset:ow2">🔫 Overwatch 2</div>
         <div class="dc-game-tree-item" data-action="gamePreset:bf2042">🎖️ Battlefield 2042</div>
       </div>
-      <div class="dc-game-tree-item" data-action="gamePreset:clear" style="color:#949ba4;font-size:11px;margin-top:2px;">✕ ハイライトを解除</div>
+      <div class="dc-game-tree-item" data-action="gamePreset:clear" data-i18n="gameClearHighlight" style="color:#949ba4;font-size:11px;margin-top:2px;">✕ ハイライトを解除</div>
     </div>
 
     <!-- 競合警告（Step3時） -->
     <div id="dcConflictSection" style="display:none;margin:8px;background:#2a2000;border:1px solid #f0b132;border-radius:6px;padding:10px 12px;">
-      <div style="font-size:11px;font-weight:700;color:#f0b132;margin-bottom:6px;">⚠️ 競合チェック</div>
+      <div data-i18n="conflictCheck" style="font-size:11px;font-weight:700;color:#f0b132;margin-bottom:6px;">⚠️ 競合チェック</div>
       <div id="dcConflictList" style="font-size:11px;color:#dbdee1;line-height:1.6;"></div>
     </div>
 
     <!-- 下部：環境チップ + ボタン -->
     <div style="margin-top:auto;padding:8px;border-top:1px solid #1e1f22;flex-shrink:0;">
-      <div id="storeBadge" style="display:none;margin-bottom:6px;font-size:11px;font-family:var(--mono);color:var(--green);background:var(--green-light);border:1px solid var(--green);border-radius:5px;padding:4px 10px;">↺ 前回の選択を復元しました</div>
+      <div id="storeBadge" data-i18n="storeBadge" style="display:none;margin-bottom:6px;font-size:11px;font-family:var(--mono);color:var(--green);background:var(--green-light);border:1px solid var(--green);border-radius:5px;padding:4px 10px;">↺ 前回の選択を復元しました</div>
       <div id="dcEnvChips" style="display:none;margin-bottom:10px;">
-        <div style="font-size:10px;color:#949ba4;margin-bottom:5px;font-family:var(--mono);">現在の選択</div>
+        <div data-i18n="currentSel" style="font-size:10px;color:#949ba4;margin-bottom:5px;font-family:var(--mono);">現在の選択</div>
         <div id="dcEnvText" style="font-size:13px;font-weight:700;color:#dbdee1;background:#404249;border-radius:6px;padding:7px 10px;"></div>
       </div>
       <div id="dcExportBtns" style="display:none;flex-direction:row;gap:6px;">
-        <button class="dc-side-btn" data-action="generateShareCode" style="flex:1;">📤 共有</button>
-        <button class="dc-side-btn" data-action="exportBat" style="flex:1;">📦 設定を書き出す</button>
+        <button class="dc-side-btn" data-action="generateShareCode" data-i18n="btnShare" style="flex:1;">📤 共有</button>
+        <button class="dc-side-btn" data-action="exportBat" data-i18n-dc-export style="flex:1;">📦 設定を書き出す</button>
       </div>
       <!-- 共有コード常時表示枠 -->
       <div id="dcShareCodeBox" style="display:none;margin-top:8px;">
-        <div style="font-size:10px;color:#949ba4;margin-bottom:4px;font-family:var(--mono);">共有コード</div>
+        <div data-i18n="shareCodeLabel" style="font-size:10px;color:#949ba4;margin-bottom:4px;font-family:var(--mono);">共有コード</div>
         <div style="display:flex;align-items:center;gap:4px;">
           <div id="dcShareCodeText" style="flex:1;font-family:var(--mono);font-size:11px;color:#949cf7;background:#1e1f22;border:1px solid #404249;border-radius:5px;padding:5px 8px;word-break:break-all;min-height:28px;line-height:1.4;">——</div>
           <button id="dcShareCodeCopyBtn" data-action="copyDcShareCode" style="flex-shrink:0;background:#2b2d31;border:1px solid #404249;border-radius:5px;color:#949ba4;font-size:11px;padding:5px 7px;cursor:pointer;font-family:var(--mono);white-space:nowrap;" title="コードをコピー">📋</button>
@@ -1844,10 +3110,15 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
     <!-- トップバー -->
     <div id="dcTopbar" style="height:48px;background:#313338;border-bottom:1px solid #1e1f22;display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;">
       <div style="width:20px;height:20px;background:#5865f2;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700;flex-shrink:0;">#</div>
-      <div id="dcTopbarTitle" style="font-size:15px;font-weight:700;color:#f2f3f5;">環境選択</div>
+      <div id="dcTopbarTitle" data-i18n="topStep1Title" style="font-size:15px;font-weight:700;color:#f2f3f5;">環境選択</div>
       <div style="width:1px;height:20px;background:#3f4147;margin:0 4px;"></div>
-      <div id="dcTopbarDesc" style="font-size:13px;color:#949ba4;">GPU・OS・ジャンルを選択してください</div>
-      <div id="dcTopbarBtns" style="margin-left:auto;display:flex;gap:8px;"></div>
+      <div id="dcTopbarDesc" data-i18n="topStep1Desc" style="font-size:13px;color:#949ba4;">GPU・OS・ジャンルを選択してください</div>
+      <div id="langSwitcher" style="display:flex;gap:4px;margin-left:auto;margin-right:8px;">
+      <button class="lang-btn active" data-lang="ja" onclick="switchLang('ja')" style="padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #5865f2;background:#5865f2;color:#fff;font-family:var(--mono);">JP</button>
+      <button class="lang-btn" data-lang="en" onclick="switchLang('en')" style="padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #404249;background:transparent;color:#949ba4;font-family:var(--mono);">EN</button>
+      <button class="lang-btn" data-lang="zh" onclick="switchLang('zh')" style="padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #404249;background:transparent;color:#949ba4;font-family:var(--mono);">中文</button>
+    </div>
+    <div id="dcTopbarBtns" style="display:flex;gap:8px;"></div>
     </div>
 
     <!-- スクロールエリア -->
@@ -1876,39 +3147,39 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
     <div class="step-summary" data-action="expandStep:1">
       <span class="step-summary-label">Step 1</span>
       <span class="step-summary-value" id="step1Summary">—</span>
-      <span class="step-done-badge">✓ 完了</span>
-      <span class="step-summary-edit">編集</span>
+      <span class="step-done-badge" data-i18n="doneBadge">✓ 完了</span>
+      <span class="step-summary-edit" data-i18n="editBtn">編集</span>
     </div>
     <div class="step-content">
       <div class="env-card">
-        <h2>🎮 GPUメーカー</h2>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">タスクマネージャー → パフォーマンス → GPU で確認できます。GeForce RTX/GTX → NVIDIA、Radeon RX → AMD</p>
+        <h2 data-i18n="step1GpuTitle">🎮 GPUメーカー</h2>
+        <p data-i18n="step1GpuDesc" style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">タスクマネージャー → パフォーマンス → GPU で確認できます。GeForce RTX/GTX → NVIDIA、Radeon RX → AMD</p>
         <div class="btn-group">
-          <button class="sel-btn" data-group="gpu" data-val="nvidia" aria-pressed="false">NVIDIA（GeForce）</button>
-          <button class="sel-btn" data-group="gpu" data-val="amd"    aria-pressed="false">AMD（Radeon）</button>
+          <button class="sel-btn" data-group="gpu" data-val="nvidia" data-i18n="step1GpuNvidia" aria-pressed="false">NVIDIA（GeForce）</button>
+          <button class="sel-btn" data-group="gpu" data-val="amd" data-i18n="step1GpuAmd"    aria-pressed="false">AMD（Radeon）</button>
         </div>
       </div>
       <div class="env-card">
-        <h2>💻 OSバージョン</h2>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">Win+R → winver で確認できます。「10.0.22000以降」はWindows 11です。</p>
+        <h2 data-i18n="step1OsTitle">💻 OSバージョン</h2>
+        <p data-i18n="step1OsDesc" style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">Win+R → winver で確認できます。「10.0.22000以降」はWindows 11です。</p>
         <div class="btn-group">
           <button class="sel-btn" data-group="os" data-val="win11" aria-pressed="false">Windows 11</button>
           <button class="sel-btn" data-group="os" data-val="win10" aria-pressed="false">Windows 10</button>
         </div>
       </div>
       <div class="env-card">
-        <h2>🎯 ゲームジャンル</h2>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">主にプレイするゲームの種類を選択。カードの◎/○評価がこの選択に基づいて表示されます。</p>
+        <h2 data-i18n="step1GenreTitle">🎯 ゲームジャンル</h2>
+        <p data-i18n="step1GenreDesc" style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">主にプレイするゲームの種類を選択。カードの◎/○評価がこの選択に基づいて表示されます。</p>
         <div class="btn-group">
-          <button class="sel-btn" data-group="genre" data-val="fps" aria-pressed="false">FPS・格闘（低遅延最優先）</button>
-          <button class="sel-btn" data-group="genre" data-val="mmo" aria-pressed="false">MMO・RTS（安定性重視）</button>
+          <button class="sel-btn" data-group="genre" data-val="fps" data-i18n="step1GenreFps" aria-pressed="false">FPS・格闘（低遅延最優先）</button>
+          <button class="sel-btn" data-group="genre" data-val="mmo" data-i18n="step1GenreMmo" aria-pressed="false">MMO・RTS（安定性重視）</button>
         </div>
       </div>
       <!-- Step1「次へ」ボタン -->
       <div id="step1NextWrap" style="margin-top:8px;display:flex;align-items:center;gap:12px;">
         <button id="step1NextBtn" data-action="step1Next"
           style="padding:12px 32px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;opacity:0.4;pointer-events:none;">
-          次へ →
+          <span data-i18n="step1NextBtn">次へ →</span>
         </button>
         <span id="step1NextHint" style="font-size:12px;color:var(--muted);"></span>
       </div>
@@ -1919,26 +3190,26 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
   <div class="step-panel" id="stepPanel-2">
     <div class="step-summary" data-action="expandStep:2">
       <span class="step-summary-label">Step 2</span>
-      <span class="step-summary-value" id="step2Summary">診断</span>
-      <span class="step-done-badge">✓ 完了</span>
-      <span class="step-summary-edit">編集</span>
+      <span class="step-summary-value" id="step2Summary" data-i18n="step2Summary">診断</span>
+      <span class="step-done-badge" data-i18n="doneBadge">✓ 完了</span>
+      <span class="step-summary-edit" data-i18n="editBtn">編集</span>
     </div>
     <div class="step-content">
 
       <!-- ① Waveform -->
       <div class="env-card" style="margin-bottom:20px;">
-        <h2>📡 ネットワーク品質を計測する</h2>
-        <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;"><strong>Waveform Bufferbloat Test</strong> で計測後、結果を入力してください。NICバッファ推奨値を自動算出します。</p>
+        <h2 data-i18n="step2NetTitle">📡 ネットワーク品質を計測する</h2>
+        <p id="step2NetDesc" style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;"><strong>Waveform Bufferbloat Test</strong> で計測後、結果を入力してください。NICバッファ推奨値を自動算出します。</p>
 
         <a href="https://www.waveform.com/tools/bufferbloat" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;margin-bottom:20px;">
-          🔗 Waveform でテストする <span style="font-size:10px;opacity:0.8;">（外部サイト）</span>
+          🔗 <span data-i18n="step2WaveformBtn">Waveform でテストする</span> <span data-i18n="step2WaveformExt" style="font-size:10px;opacity:0.8;">（外部サイト）</span>
         </a>
 
         <div style="display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start;margin-bottom:16px;">
           <div>
-            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">Bufferbloat Grade</div>
+            <div data-i18n="step2GradeLabel" style="font-size:12px;font-weight:700;margin-bottom:8px;">Bufferbloat Grade</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;" id="gradeButtons">
-              <button class="grade-btn active" data-grade="?" data-action="selectGrade">未計測</button>
+              <button class="grade-btn active" data-grade="?" data-action="selectGrade" data-i18n="step2GradeUnmeasured">未計測</button>
               <button class="grade-btn grade-a" data-grade="A" data-action="selectGrade">A</button>
               <button class="grade-btn grade-b" data-grade="B" data-action="selectGrade">B</button>
               <button class="grade-btn grade-c" data-grade="C" data-action="selectGrade">C</button>
@@ -1947,7 +3218,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
             </div>
           </div>
           <div>
-            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">Ping under load（ms）</div>
+            <div data-i18n="step2PingLabel" style="font-size:12px;font-weight:700;margin-bottom:8px;">Ping under load（ms）</div>
             <input type="number" id="pingInput" min="1" max="999" placeholder="例: 12" aria-label="Ping under load（ms）"
               style="width:160px;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:14px;background:var(--bg);color:var(--text);"
               data-action="updateFromWaveform">
@@ -1957,27 +3228,27 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 
         <!-- NICバッファ -->
         <div style="border-top:1px solid var(--border);padding-top:16px;">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px;">⚙️ NICバッファ値</div>
+          <div data-i18n="step2NicTitle" style="font-size:13px;font-weight:700;margin-bottom:12px;">⚙️ NICバッファ値</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
             <div>
-              <div style="font-size:12px;font-weight:600;margin-bottom:6px;">Receive Buffers</div>
+              <div data-i18n="step2RxLabel" style="font-size:12px;font-weight:600;margin-bottom:6px;">Receive Buffers</div>
               <div class="slider-wrap">
                 <div class="slider-markers" id="rxMarkers"></div>
                 <input type="range" id="rxSlider" min="64" max="1024" step="64" value="256" data-action="updateSlider" aria-label="受信バッファサイズ（64〜1024）" aria-describedby="rxVal">
-                <div class="slider-val"><span id="rxVal">256</span><span>（推奨: <span id="rxRec">256</span>）</span></div>
+                <div class="slider-val"><span id="rxVal">256</span><span>（<span data-i18n="step2RecLabel">推奨: </span><span id="rxRec">256</span>）</span></div>
               </div>
             </div>
             <div>
-              <div style="font-size:12px;font-weight:600;margin-bottom:6px;">Transmit Buffers</div>
+              <div data-i18n="step2TxLabel" style="font-size:12px;font-weight:600;margin-bottom:6px;">Transmit Buffers</div>
               <div class="slider-wrap">
                 <div class="slider-markers" id="txMarkers"></div>
                 <input type="range" id="txSlider" min="64" max="1024" step="64" value="256" data-action="updateSlider" aria-label="送信バッファサイズ（64〜1024）" aria-describedby="txVal">
-                <div class="slider-val"><span id="txVal">256</span><span>（推奨: <span id="txRec">256</span>）</span></div>
+                <div class="slider-val"><span id="txVal">256</span><span>（<span data-i18n="step2RecLabel">推奨: </span><span id="txRec">256</span>）</span></div>
               </div>
             </div>
           </div>
           <div style="margin-top:12px;">
-            <button class="export-btn secondary" style="font-size:12px;padding:6px 14px;" data-action="toggleBufferCmd">コマンドを表示</button>
+            <button class="export-btn secondary" style="font-size:12px;padding:6px 14px;" data-action="toggleBufferCmd" data-i18n="step2ShowCmd">コマンドを表示</button>
           </div>
           <div id="bufferCmdWrap" style="margin-top:10px;display:none;">
             <div class="cmd-block">
@@ -1991,32 +3262,32 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 
       <!-- ② キーリピート -->
       <div class="env-card" style="margin-bottom:28px;">
-        <h2>⌨️ キーリピート遅延を計測する</h2>
-        <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;">キーを押しっぱなしにして、リピート開始遅延とリピート間隔を計測します。最適化が必要な場合、エクスポートに自動的に含めることができます。</p>
+        <h2 data-i18n="step2KeyTitle">⌨️ キーリピート遅延を計測する</h2>
+        <p data-i18n="step2KeyDesc" style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.7;">キーを押しっぱなしにして、リピート開始遅延とリピート間隔を計測します。最適化が必要な場合、エクスポートに自動的に含めることができます。</p>
 
         <div class="keyrepeat-target" id="krTarget" data-action="krFocus" role="button" tabindex="0" aria-label="キーリピート計測エリア。クリック後キーを押し続けてください">
-          ここをクリックしてキーを押しっぱなし
+          <span data-i18n="step2KeyTarget">ここをクリックしてキーを押しっぱなし</span>
         </div>
         <div class="kr-bar-wrap"><div class="kr-bar" id="krBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="キーリピート計測進捗"></div></div>
 
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
           <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
-            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">リピート開始</div>
+            <div data-i18n="step2DelayLabel" style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">リピート開始</div>
             <div id="krDelay" style="font-family:var(--mono);font-size:22px;font-weight:700;">—</div>
             <div style="font-size:10px;color:var(--muted);margin-top:2px;">ms</div>
           </div>
           <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
-            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">リピート間隔</div>
+            <div data-i18n="step2IntervalLabel" style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">リピート間隔</div>
             <div id="krInterval" style="font-family:var(--mono);font-size:22px;font-weight:700;">—</div>
             <div style="font-size:10px;color:var(--muted);margin-top:2px;">ms</div>
           </div>
           <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;">
-            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">推定Hz</div>
+            <div data-i18n="step2HzLabel" style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">推定Hz</div>
             <div id="krHz" style="font-family:var(--mono);font-size:22px;font-weight:700;">—</div>
             <div style="font-size:10px;color:var(--muted);margin-top:2px;">Hz</div>
           </div>
           <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;" id="krJudgeBox">
-            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">判定</div>
+            <div data-i18n="step2JudgeLabel" style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">判定</div>
             <div id="krJudge" style="font-size:18px;font-weight:700;">—</div>
           </div>
         </div>
@@ -2026,8 +3297,8 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
         <!-- トグル: エクスポートに含める -->
         <div id="krExportToggleWrap" style="display:none;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px;">
           <div>
-            <div style="font-size:13px;font-weight:700;margin-bottom:2px;">⚡ キーリピート最速化をエクスポートに含める</div>
-            <div style="font-size:11px;color:var(--muted);">KeyboardDelay=0 / KeyboardSpeed=31 をbat・コピーに追加します</div>
+            <div data-i18n="step2KrExportTitle" style="font-size:13px;font-weight:700;margin-bottom:2px;">⚡ キーリピート最速化をエクスポートに含める</div>
+            <div data-i18n="step2KrExportDesc" style="font-size:11px;color:var(--muted);">KeyboardDelay=0 / KeyboardSpeed=31 をbat・コピーに追加します</div>
           </div>
           <label class="kr-toggle" style="flex-shrink:0;margin-left:16px;">
             <input type="checkbox" id="krExportToggle" data-action="toggleKrExport" aria-label="キーリピート最速化をエクスポートに含める">
@@ -2035,17 +3306,17 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
           </label>
         </div>
 
-        <button class="export-btn secondary" style="font-size:12px;padding:6px 14px;" data-action="krReset">リセット</button>
+        <button class="export-btn secondary" style="font-size:12px;padding:6px 14px;" data-action="krReset" data-i18n="step2KrReset">リセット</button>
       </div>
 
       <!-- 設定一覧へ進むボタン -->
       <div style="text-align:center;padding:8px 0 24px;">
         <button class="s-btn primary" data-action="goStep3" style="font-size:15px;padding:14px 48px;border-radius:10px;letter-spacing:0.5px;">
-          設定一覧へ進む →
+          <span data-i18n="step2GoStep3">設定一覧へ進む →</span>
         </button>
         <div style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <span style="font-size:11px;color:var(--muted);">診断を完了しなくても設定一覧に進めます</span>
-          <span style="font-size:10px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:1px 7px;font-weight:700;">スキップ可</span>
+          <span data-i18n="step2SkipNote" style="font-size:11px;color:var(--muted);">診断を完了しなくても設定一覧に進めます</span>
+          <span data-i18n="step2SkipBadge" style="font-size:10px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:1px 7px;font-weight:700;">スキップ可</span>
         </div>
       </div>
 
@@ -2056,50 +3327,50 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
   <div class="step-panel" id="stepPanel-3">
     <div class="step-summary" data-action="expandStep:3">
       <span class="step-summary-label">Step 3</span>
-      <span class="step-summary-value">設定一覧</span>
-      <span class="step-done-badge">✓ 完了</span>
-      <span class="step-summary-edit">編集</span>
+      <span class="step-summary-value" data-i18n="step3Summary">設定一覧</span>
+      <span class="step-done-badge" data-i18n="doneBadge">✓ 完了</span>
+      <span class="step-summary-edit" data-i18n="editBtn">編集</span>
     </div>
     <div class="step-content">
       <div id="results" class="results">
 
         <!-- 検索・フィルター -->
         <div id="cardFilterBar" style="display:none;margin-bottom:12px;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="text" id="cardSearchInput" placeholder="🔍 カードを検索..." data-action="filterCards"
+          <input type="text" id="cardSearchInput" data-i18n-placeholder="step3SearchPlaceholder" placeholder="🔍 カードを検索..." data-action="filterCards"
             style="flex:1;min-width:160px;padding:7px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);font-family:var(--sans);">
           <select id="cardImpactFilter" data-action="filterCards"
             style="padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;background:var(--bg);color:var(--text);cursor:pointer;">
-            <option value="">効果: すべて</option>
-            <option value="high">効果: 高</option>
-            <option value="medium">効果: 中</option>
-            <option value="low">効果: 低</option>
+            <option value="" data-i18n="step3FilterEffect">効果: すべて</option>
+            <option value="high" data-i18n="step3FilterEffectHigh">効果: 高</option>
+            <option value="medium" data-i18n="step3FilterEffectMed">効果: 中</option>
+            <option value="low" data-i18n="step3FilterEffectLow">効果: 低</option>
           </select>
           <select id="cardLayerFilter" data-action="filterCards"
             style="padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;background:var(--bg);color:var(--text);cursor:pointer;">
-            <option value="">レイヤー: すべて</option>
+            <option value="" data-i18n="step3FilterLayer">レイヤー: すべて</option>
             <option value="GPU">GPU</option>
             <option value="OS">OS</option>
             <option value="CPU">CPU</option>
           </select>
           <select id="cardCheckedFilter" data-action="filterCards"
             style="padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;background:var(--bg);color:var(--text);cursor:pointer;">
-            <option value="">チェック: すべて</option>
-            <option value="checked">✓ チェック済み</option>
-            <option value="unchecked">□ 未チェック</option>
+            <option value="" data-i18n="step3FilterCheck">チェック: すべて</option>
+            <option value="checked" data-i18n="step3FilterChecked">✓ チェック済み</option>
+            <option value="unchecked" data-i18n="step3FilterUnchecked">□ 未チェック</option>
           </select>
-          <button data-action="clearCardFilter" style="padding:7px 10px;background:var(--white);color:var(--muted);border:1.5px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:var(--sans);">✕ リセット</button>
+          <button data-action="clearCardFilter" data-i18n="step3FilterReset" style="padding:7px 10px;background:var(--white);color:var(--muted);border:1.5px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;font-family:var(--sans);">✕ リセット</button>
           <span id="cardFilterCount" style="font-size:11px;color:var(--muted);font-family:var(--mono);"></span>
         </div>
 
         <!-- プリセットバー -->
         <div class="preset-bar" id="presetBar" style="display:none;">
-          <button class="preset-btn" data-action="preset:beginner">🔰 初心者向け<span class="preset-count" id="presetCount-beginner">—</span></button>
-          <button class="preset-btn" data-action="preset:safe">🛡️ 安定重視<span class="preset-count" id="presetCount-safe">—</span></button>
-          <button class="preset-btn" data-action="preset:noconflict">🤝 競合なし<span class="preset-count" id="presetCount-noconflict">—</span></button>
-          <button class="preset-btn" data-action="preset:fps">🎯 FPS特化<span class="preset-count" id="presetCount-fps">—</span></button>
-          <button class="preset-btn" data-action="preset:eco">🔋 省電力<span class="preset-count" id="presetCount-eco">—</span></button>
-          <button class="preset-btn" data-action="preset:all">⚡ 全部盛り<span class="preset-count" id="presetCount-all">—</span></button>
-          <button class="preset-clear" data-action="preset:clear">✕ クリア</button>
+          <button class="preset-btn" data-action="preset:beginner"><span data-i18n="presetBarBeginner">🔰 初心者向け</span><span class="preset-count" id="presetCount-beginner">—</span></button>
+          <button class="preset-btn" data-action="preset:safe"><span data-i18n="presetBarSafe">🛡️ 安定重視</span><span class="preset-count" id="presetCount-safe">—</span></button>
+          <button class="preset-btn" data-action="preset:noconflict"><span data-i18n="presetBarNoconflict">🤝 競合なし</span><span class="preset-count" id="presetCount-noconflict">—</span></button>
+          <button class="preset-btn" data-action="preset:fps"><span data-i18n="presetBarFps">🎯 FPS特化</span><span class="preset-count" id="presetCount-fps">—</span></button>
+          <button class="preset-btn" data-action="preset:eco"><span data-i18n="presetBarEco">🔋 省電力</span><span class="preset-count" id="presetCount-eco">—</span></button>
+          <button class="preset-btn" data-action="preset:all"><span data-i18n="presetBarAll">⚡ 全部盛り</span><span class="preset-count" id="presetCount-all">—</span></button>
+          <button class="preset-clear" data-action="preset:clear" data-i18n="presetBarClear">✕ クリア</button>
         </div>
 
         <!-- 3:1 レイアウト -->
@@ -2110,7 +3381,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
             <div class="result-summary" id="resultSummary"></div>
             <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
             <div class="settings-grid" id="settingsGrid"></div>
-            <div id="placeholder" style="text-align:center;padding:48px 0;color:var(--muted);font-size:13px;">
+            <div id="placeholder" data-i18n="step3Placeholder" style="text-align:center;padding:48px 0;color:var(--muted);font-size:13px;">
               ↑ GPU・OS・ゲームジャンルを選択すると設定一覧が表示されます
             </div>
           </div>
@@ -2120,7 +3391,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 
             <!-- 進捗 -->
             <div class="sidebar-card">
-              <div class="sidebar-card-title">進捗</div>
+              <div class="sidebar-card-title" data-i18n="step3SideProgress">進捗</div>
               <div class="sidebar-progress-ring">
                 <div class="sidebar-progress-nums" id="stickyProgressText">0 <span>/ 0</span></div>
               </div>
@@ -2131,53 +3402,53 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 
             <!-- エクスポート -->
             <div class="sidebar-card">
-              <div class="sidebar-card-title">エクスポート</div>
-              <button class="sidebar-btn primary" data-action="copyAll">📋 コマンドを全コピー</button>
-              <button class="sidebar-btn secondary" data-action="exportBat">📦 設定を書き出す</button>
-              <button class="sidebar-btn secondary" data-action="exportRollbackBat">💾 バックアップ作成 .zip</button>
-              <div style="margin-top:8px;font-size:10px;color:var(--muted);line-height:1.6;">ZIP形式（.bat + .ps1）で出力。展開後 .bat を右クリック →「管理者として実行」。</div>
+              <div class="sidebar-card-title" data-i18n="step3SideExport">エクスポート</div>
+              <button class="sidebar-btn primary" data-action="copyAll" data-i18n="step3BtnCopyAll">📋 コマンドを全コピー</button>
+              <button class="sidebar-btn secondary" data-action="exportBat" data-i18n-export-btn>📦 設定を書き出す</button>
+              <button class="sidebar-btn secondary" data-action="exportRollbackBat" data-i18n="step3BtnBackup">💾 バックアップ作成 .zip</button>
+              <div data-i18n="step3BackupNote" style="margin-top:8px;font-size:10px;color:var(--muted);line-height:1.6;">ZIP形式（.bat + .ps1）で出力。展開後 .bat を右クリック →「管理者として実行」。</div>
               <div id="nipStep4Btn" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-                <button class="sidebar-btn primary" data-action="goStep4" style="background:var(--text);border-color:var(--text);">📐 NVIDIA Inspector プロファイルを生成</button>
+                <button class="sidebar-btn primary" data-action="goStep4" data-i18n="step3NipBtn" style="background:var(--text);border-color:var(--text);">📐 NVIDIA Inspector プロファイルを生成</button>
               </div>
             </div>
 
             <!-- 競合警告 -->
             <div id="sidebarConflictWrap" style="display:none;">
               <div class="sidebar-card" style="border-color:var(--yellow);background:var(--yellow-light);">
-                <div class="sidebar-card-title" style="color:var(--yellow);">⚠️ 競合チェック</div>
+                <div class="sidebar-card-title" data-i18n="step3ConflictTitle" style="color:var(--yellow);">⚠️ 競合チェック</div>
                 <div id="sidebarConflictList" style="display:flex;flex-direction:column;gap:8px;"></div>
               </div>
             </div>
 
             <!-- 共有 -->
             <div class="sidebar-card">
-              <div class="sidebar-card-title">設定を共有</div>
-              <button class="sidebar-btn secondary" data-action="generateShareCode">📤 共有コードを生成</button>
+              <div class="sidebar-card-title" data-i18n="step3ShareTitle">設定を共有</div>
+              <button class="sidebar-btn secondary" data-action="generateShareCode" data-i18n="step3BtnGenShare">📤 共有コードを生成</button>
               <div id="shareCodeWrap" style="display:none;margin-bottom:8px;">
                 <div class="share-code-box" style="margin-bottom:6px;">
                   <span class="share-code" id="shareCodeText">——</span>
-                  <button class="copy-btn" style="position:static;font-size:10px;padding:4px 10px;" data-action="copyShareCode">コピー</button>
+                  <button class="copy-btn" style="position:static;font-size:10px;padding:4px 10px;" data-action="copyShareCode" data-i18n="step3BtnCopyShare">コピー</button>
                 </div>
-                <button class="sidebar-btn secondary" data-action="copyShareUrl">🔗 URLをコピー</button>
+                <button class="sidebar-btn secondary" data-action="copyShareUrl" data-i18n="step3BtnCopyUrl">🔗 URLをコピー</button>
               </div>
-              <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin:8px 0 4px;letter-spacing:1px;">コードを入力して復元</div>
+              <div data-i18n="step3ImportLabel" style="font-size:10px;font-family:var(--mono);color:var(--muted);margin:8px 0 4px;letter-spacing:1px;">コードを入力して復元</div>
               <div class="share-import-wrap">
-                <input type="text" id="shareInput" placeholder="例: LT2_eyJn..." aria-label="共有コードを入力">
-                <button style="flex-shrink:0;padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" data-action="importShareCode">読込</button>
+                <input type="text" id="shareInput" data-i18n-placeholder="step3ImportPlaceholder" placeholder="例: LT2_eyJn..." aria-label="共有コードを入力">
+                <button style="flex-shrink:0;padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" data-action="importShareCode" data-i18n="step3ImportBtn">読込</button>
               </div>
               <div class="share-msg" id="shareMsg"></div>
             </div>
 
             <!-- CPUコア情報 -->
             <div id="cpuInfoCard" class="sidebar-card" style="display:none;">
-              <div class="sidebar-card-title">🔲 CPUコア情報</div>
+              <div class="sidebar-card-title" data-i18n="step3CpuTitle">🔲 CPUコア情報</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
                 <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-                  <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">論理コア数</div>
+                  <div data-i18n="step3CpuCoresLabel" style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">論理コア数</div>
                   <div id="cpuCores" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);">—</div>
                 </div>
                 <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-                  <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">推奨マスク</div>
+                  <div data-i18n="step3CpuMaskLabel" style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">推奨マスク</div>
                   <div id="cpuMask" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);">—</div>
                 </div>
               </div>
@@ -2196,80 +3467,80 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
     <div>
       <div class="env-card" style="margin-bottom:20px;">
 
-        <h2>📐 NVIDIA Inspector プロファイル生成</h2>
-        <p style="font-size:13px;color:var(--mid);margin-bottom:6px;line-height:1.7;">ゲームごとに最適化されたNVIDIA Inspector用プロファイル（.nipファイル）を生成します。NVIDIA Profile InspectorでインポートするとGPUドライバーレベルで設定が適用されます。</p>
+        <h2 data-i18n="step4Title">📐 NVIDIA Inspector プロファイル生成</h2>
+        <p data-i18n="step4Desc" style="font-size:13px;color:var(--mid);margin-bottom:6px;line-height:1.7;">ゲームごとに最適化されたNVIDIA Inspector用プロファイル（.nipファイル）を生成します。NVIDIA Profile InspectorでインポートするとGPUドライバーレベルで設定が適用されます。</p>
         <div style="background:var(--yellow-light);border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:20px;font-size:12px;color:#7a4a00;line-height:1.7;">
-          ⚠️ ドライバー更新後は設定がリセットされる場合があります。更新後は再度.nipをインポートしてください。<br>
+          <span data-i18n="step4Warning">⚠️ ドライバー更新後は設定がリセットされる場合があります。更新後は再度.nipをインポートしてください。</span><br>
           NVIDIA Profile Inspector: <a href="https://github.com/Orbmu2k/nvidiaProfileInspector/releases" target="_blank" rel="noopener" style="color:var(--accent);">GitHub Releases →</a>
         </div>
 
         <!-- ゲーム選択プルダウン -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
           <div>
-            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">ゲームを選択</div>
+            <div data-i18n="step4GameLabel" style="font-size:12px;font-weight:700;margin-bottom:8px;">ゲームを選択</div>
             <select id="nipGameSelect" data-action="nipSelectGame"
               style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-weight:600;background:var(--white);color:var(--text);cursor:pointer;appearance:auto;">
-              <optgroup label="── バトルロイヤル ──">
+              <optgroup id="optgroupBR" label="── バトルロイヤル ──">
                 <option value="fortnite">Fortnite</option>
                 <option value="apex">Apex Legends</option>
                 <option value="pubg">PUBG: Battlegrounds</option>
               </optgroup>
-              <optgroup label="── タクティカルFPS ──">
+              <optgroup id="optgroupFPS" label="── タクティカルFPS ──">
                 <option value="valorant">VALORANT</option>
                 <option value="cs2">Counter-Strike 2</option>
                 <option value="r6s">Rainbow Six Siege</option>
                 <option value="tarkov">Escape from Tarkov</option>
               </optgroup>
-              <optgroup label="── その他 ──">
+              <optgroup id="optgroupOther" label="── その他 ──">
                 <option value="ow2">Overwatch 2</option>
                 <option value="bf2042">Battlefield 2042</option>
               </optgroup>
-              <optgroup label="────────────">
-                <option value="custom">🔧 カスタム</option>
+              <optgroup id="optgroupCustom" label="────────────">
+                <option value="custom" data-i18n="optCustom">🔧 カスタム</option>
               </optgroup>
             </select>
           </div>
           <div id="nipCustomNameWrap" style="display:none;">
-            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">ゲーム名 / .exe名</div>
-            <input type="text" id="nipCustomName" placeholder="例: Counter-Strike 2"
+            <div data-i18n="step4CustomName" style="font-size:12px;font-weight:700;margin-bottom:8px;">ゲーム名 / .exe名</div>
+            <input type="text" id="nipCustomName" placeholder="例: Counter-Strike 2" data-i18n-placeholder="step4CustomNamePH"
               style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);margin-bottom:8px;box-sizing:border-box;">
-            <input type="text" id="nipCustomExe" placeholder="例: cs2.exe"
+            <input type="text" id="nipCustomExe" placeholder="例: cs2.exe" data-i18n-placeholder="step4CustomExePH"
               style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);box-sizing:border-box;">
           </div>
           <div id="nipGameInfoWrap">
-            <div style="font-size:12px;font-weight:700;margin-bottom:8px;">実行ファイル</div>
+            <div data-i18n="step4ExeLabel" style="font-size:12px;font-weight:700;margin-bottom:8px;">実行ファイル</div>
             <div id="nipExeDisplay" style="font-family:var(--mono);font-size:12px;color:var(--mid);background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 12px;"></div>
           </div>
         </div>
 
         <!-- 設定項目チェックリスト -->
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <div style="font-size:12px;font-weight:700;">適用する設定（チェックした項目のみ.nipに含まれます）<span id="nipSettingsCount" style="font-weight:400;font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
+          <div style="font-size:12px;font-weight:700;"><span data-i18n="step4SettingsLabel">適用する設定（チェックした項目のみ.nipに含まれます）</span><span id="nipSettingsCount" style="font-weight:400;font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
           <div style="margin-left:auto;display:flex;gap:6px;">
-            <button data-action="nipSelectAll" style="font-size:11px;padding:3px 10px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent);border-radius:4px;cursor:pointer;font-family:var(--sans);font-weight:600;">全選択</button>
-            <button data-action="nipDeselectAll" style="font-size:11px;padding:3px 10px;background:var(--white);color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:var(--sans);font-weight:600;">全解除</button>
+            <button data-action="nipSelectAll" data-i18n="step4SelectAll" style="font-size:11px;padding:3px 10px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent);border-radius:4px;cursor:pointer;font-family:var(--sans);font-weight:600;">全選択</button>
+            <button data-action="nipDeselectAll" data-i18n="step4DeselectAll" style="font-size:11px;padding:3px 10px;background:var(--white);color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:var(--sans);font-weight:600;">全解除</button>
           </div>
         </div>
         <div id="nipSettingsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
 
         <!-- カスタムモード: FPSリミッター -->
         <div id="nipFpsLimitWrap" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:20px;">
-          <div style="font-size:12px;font-weight:700;margin-bottom:6px;">🎯 Frame Rate Limiter（任意）</div>
-          <p style="font-size:11px;color:var(--mid);margin-bottom:10px;line-height:1.6;">モニターのリフレッシュレート −3fps を推奨。例: 144Hz → 141fps。GPUが常にVSyncの直前まで余裕を持って動作しスタッターが減ります。空欄の場合は設定しません。</p>
+          <div data-i18n="step4FpsLimitTitle" style="font-size:12px;font-weight:700;margin-bottom:6px;">🎯 Frame Rate Limiter（任意）</div>
+          <p data-i18n="step4FpsLimitDesc" style="font-size:11px;color:var(--mid);margin-bottom:10px;line-height:1.6;">モニターのリフレッシュレート −3fps を推奨。例: 144Hz → 141fps。GPUが常にVSyncの直前まで余裕を持って動作しスタッターが減ります。空欄の場合は設定しません。</p>
           <div style="display:flex;align-items:center;gap:10px;">
-            <input type="number" id="nipFpsLimit" min="30" max="500" placeholder="例: 141" aria-label="FPSリミット値（30〜500）"
+            <input type="number" id="nipFpsLimit" min="30" max="500" placeholder="例: 141" data-i18n-placeholder="step4FpsPlaceholder"
               style="width:120px;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:14px;background:var(--white);color:var(--text);">
-            <span style="font-size:12px;color:var(--muted);">fps</span>
+            <span data-i18n="step4FpsUnit" style="font-size:12px;color:var(--muted);">fps</span>
           </div>
         </div>
 
         <!-- Shader Cache クリア案内 -->
-        <div style="background:var(--green-light);border:1px solid var(--green);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#0a5c35;line-height:1.7;">
+        <div data-i18n-shader-note style="background:var(--green-light);border:1px solid var(--green);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#0a5c35;line-height:1.7;">
           💡 <strong>Shader Cache: Unlimited 適用後の推奨手順</strong><br>
           .nipインポート → 再起動 → <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">Win+R → cleanmgr</code> → 「DirectX Shader Cache」にチェック → 削除 → 再起動。これにより新しい設定でキャッシュが再構築されます。
         </div>
 
-        <button class="s-btn primary" data-action="nipExport" style="font-size:14px;padding:12px 36px;border-radius:9px;">
+        <button class="s-btn primary" data-action="nipExport" data-i18n="step4DownloadBtn" style="font-size:14px;padding:12px 36px;border-radius:9px;">
           📥 .nip ファイルをダウンロード
         </button>
 
@@ -2306,9 +3577,9 @@ function updateStep1NextBtn() {
 
   // 未選択グループを検出
   const missing = [];
-  if (!env.gpu)   missing.push({ group: 'gpu',   label: 'GPUメーカー' });
-  if (!env.os)    missing.push({ group: 'os',     label: 'OSバージョン' });
-  if (!env.genre) missing.push({ group: 'genre',  label: 'ゲームジャンル' });
+  if (!env.gpu)   missing.push({ group: 'gpu',   label: t('step1MissingGpu') });
+  if (!env.os)    missing.push({ group: 'os',     label: t('step1MissingOs') });
+  if (!env.genre) missing.push({ group: 'genre',  label: t('step1MissingGenre') });
 
   // env-cardのハイライト更新（:has()非対応環境のフォールバックあり）
   ['gpu', 'os', 'genre'].forEach(g => {
@@ -2334,11 +3605,11 @@ function updateStep1NextBtn() {
   if (missing.length === 0) {
     btn.style.opacity = '1';
     btn.style.pointerEvents = 'auto';
-    if (hint) hint.textContent = '3項目の選択が完了しました';
+    if (hint) hint.textContent = t('step1NextDone');
   } else {
     btn.style.opacity = '0.4';
     btn.style.pointerEvents = 'none';
-    if (hint) hint.textContent = `未選択: ${missing.map(m => m.label).join(' / ')}`;
+    if (hint) hint.textContent = t('step1MissingPrefix') + missing.map(m => m.label).join(' / ');
   }
 }
 
@@ -2364,8 +3635,8 @@ function restoreEnv() {
   // 全項目が揃っているときのみ一度だけ初期化
   if (env.gpu && env.os && env.genre) {
     const gpuLabel   = env.gpu === 'nvidia' ? 'NVIDIA' : 'AMD';
-    const osLabel    = env.os  === 'win11'  ? 'Win 11' : 'Win 10';
-    const genreLabel = env.genre === 'fps'  ? 'FPS'    : 'MMO';
+    const osLabel    = env.os  === 'win11'  ? t('step1Win11Label') : t('step1Win10Label');
+    const genreLabel = env.genre === 'fps'  ? t('step1GenreLabelFps') : t('step1GenreLabelMmo');
     const s1sum = document.getElementById('step1Summary');
     if (s1sum) s1sum.textContent = `${gpuLabel} × ${osLabel} × ${genreLabel}`;
     goStep(2);
@@ -2387,7 +3658,7 @@ function updateTopbarConflictBadge() {
   );
   const count = CONFLICTS.filter(c => c.ids.every(id => checked.has(id))).length;
   if (count > 0) {
-    badge.textContent = `⚠️ ${count}件競合`;
+    badge.textContent = `⚠️ ${count}${t('topConflictBadge')}`;
     badge.style.display = 'block';
   } else {
     badge.style.display = 'none';
@@ -2516,7 +3787,7 @@ function applyGameHighlight(gameKey) {
       if (titleEl && !titleEl.querySelector('.game-recommend-badge')) {
         const badge = document.createElement('span');
         badge.className = 'game-recommend-badge';
-        badge.textContent = preset.emoji + ' 推奨';
+        badge.textContent = preset.emoji + (currentLang === 'ja' ? ' 推奨' : currentLang === 'zh' ? ' 推荐' : ' Rec.');
         titleEl.appendChild(badge);
       }
     }
@@ -2564,8 +3835,8 @@ function showGameHighlightBanner(preset, gameNote) {
   banner.style.cssText = 'background:#1e2040;border:1px solid #5865f2;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;font-size:12px;color:#c9cdfb;';
   banner.innerHTML = `
     <span style="font-size:16px;">${preset.emoji}</span>
-    <span><strong>${preset.name}</strong> 向け推奨カードを <span style="color:#949cf7;font-weight:700;">${preset.ids.length}枚</span> ハイライト中。チェックは任意です。${gameNote ? ` <span style="opacity:0.7;font-size:10px;">（${gameNote}）</span>` : ''}</span>
-    <button data-action="gamePreset:clear" style="margin-left:auto;font-size:11px;padding:3px 8px;background:transparent;color:#949cf7;border:1px solid #5865f2;border-radius:4px;cursor:pointer;">✕ 解除</button>
+    <span><strong>${preset.name}</strong>${t('highlightBannerMid')}${preset.ids.length}${t('highlightBannerSuffix')}${gameNote ? ` <span style="opacity:0.7;font-size:10px;">（${gameNote}）</span>` : ''}</span>
+    <button data-action="gamePreset:clear" style="margin-left:auto;font-size:11px;padding:3px 8px;background:transparent;color:#949cf7;border:1px solid #5865f2;border-radius:4px;cursor:pointer;">${t('highlightBannerBtn')}</button>
   `;
   grid.parentNode.insertBefore(banner, grid);
 }
@@ -2635,14 +3906,36 @@ function applyPreset(type) {
   }
 }
 
-const PRESET_TOOLTIPS = {
-  beginner:   'リスクなしのカードのみ / 初めての方に最適',
-  safe:       '競合なし・安定重視 / セキュリティ系除外',
-  noconflict: '競合ゼロ保証 / 20枚の安全な組み合わせ',
-  fps:        '入力遅延・描画遅延に特化 / FPS・格闘ゲーム向け',
-  eco:        '省電力でも安定FPS / ノートPC・発熱対策に',
-  all:        '全カードを選択 / 上級者・検証用',
+const PRESET_TOOLTIPS_I18N = {
+  ja: {
+    beginner:   'リスクなしのカードのみ / 初めての方に最適',
+    safe:       '競合なし・安定重視 / セキュリティ系除外',
+    noconflict: '競合ゼロ保証 / 20枚の安全な組み合わせ',
+    fps:        '入力遅延・描画遅延に特化 / FPS・格闘ゲーム向け',
+    eco:        '省電力でも安定FPS / ノートPC・発熱対策に',
+    all:        '全カードを選択 / 上級者・検証用',
+  },
+  en: {
+    beginner:   'No-risk cards only / Perfect for first-timers',
+    safe:       'No conflicts, stability-focused / Security cards excluded',
+    noconflict: 'Zero-conflict guarantee / 20 safe combinations',
+    fps:        'Input & render latency focused / For FPS & fighting games',
+    eco:        'Stable FPS even on power-save / For laptops & heat management',
+    all:        'Select all cards / For advanced users & testing',
+  },
+  zh: {
+    beginner:   '仅无风险卡片 / 最适合初次使用',
+    safe:       '无冲突・稳定优先 / 排除安全相关',
+    noconflict: '零冲突保证 / 20张安全组合',
+    fps:        '专注输入/渲染延迟 / 适合FPS・格斗游戏',
+    eco:        '省电也能稳定帧率 / 适合笔记本・发热对策',
+    all:        '选择全部卡片 / 高级用户・验证用',
+  },
 };
+function getPresetTooltip(type) {
+  return (PRESET_TOOLTIPS_I18N[currentLang] || PRESET_TOOLTIPS_I18N.ja)[type] || '';
+}
+const PRESET_TOOLTIPS = new Proxy({}, { get(_, type) { return getPresetTooltip(type); } });
 
 function updatePresetCounts() {
   ['beginner', 'safe', 'noconflict', 'fps', 'eco', 'all'].forEach(type => {
@@ -2651,7 +3944,7 @@ function updatePresetCounts() {
     if (el) el.textContent = ids.length;
     // サイドバー側のカウントも更新
     const dcEl = document.getElementById(`dcPresetCount-${type}`);
-    if (dcEl) dcEl.textContent = ids.length + '枚';
+    if (dcEl) dcEl.textContent = ids.length + (currentLang === 'en' ? '' : currentLang === 'zh' ? '张' : '枚');
     // ツールチップを動的挿入（重複防止）
     const btn = document.querySelector(`[data-action="preset:${type}"]`);
     if (btn && !btn.querySelector('.preset-tooltip')) {
@@ -2704,8 +3997,8 @@ function goStep(n) {
 }
 
 function updateDcNav(activeStep) {
-  const titles = ['', '環境選択', '診断', '設定一覧', 'NVIDIAプロファイル'];
-  const descs  = ['', 'GPU・OS・ジャンルを選択してください', 'ネットワーク品質・キーリピートを計測', `設定カードを確認してチェックを入れてください`, 'NVIDIA Inspector プロファイルを生成'];
+  const titles = ['', t('topStep1Title'), t('topStep2Title'), t('topStep3Title'), t('topStep4Title')];
+  const descs  = ['', t('topStep1Desc'), t('topStep2Desc'), t('topStep3Desc'), t('topStep4Desc')];
   const dotLabels = ['', '1', '2', '3', '4'];
   [1, 2, 3, 4].forEach(i => {
     const nav = document.getElementById(`dcNav-${i}`);
@@ -2739,7 +4032,7 @@ function updateTopbarBtns(step) {
     wrap.appendChild(badge);
 
     const btn2 = document.createElement('button');
-    btn2.textContent = '💾 バックアップ作成';
+    btn2.textContent = t('topBtnBackup');
     btn2.style.cssText = 'padding:5px 12px;background:#2a2000;color:#f0b132;border:1px solid #f0b132;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;';
     btn2.addEventListener('click', () => { const el = document.querySelector('[data-action="exportRollbackBat"]'); if(el) el.click(); });
     wrap.appendChild(btn2);
@@ -2778,7 +4071,7 @@ function krFocus() {
   const t = document.getElementById('krTarget');
   t.focus();
   t.className = 'keyrepeat-target ready';
-  t.textContent = '⌨️ キーを押しっぱなしにしてください';
+  t.textContent = '⌨️ ' + (t('step2KeyTarget') || 'ここをクリックしてキーを押しっぱなし');
   krState.active = true;
   krState.firstTs = null;
   krState.lastTs  = null;
@@ -2830,7 +4123,7 @@ document.addEventListener('keydown', e => {
     krState.done = true;
     krState.active = false;
     document.getElementById('krTarget').className = 'keyrepeat-target';
-    document.getElementById('krTarget').textContent = '✓ 計測完了';
+    document.getElementById('krTarget').textContent = '✓ ' + (currentLang === 'ja' ? '計測完了' : currentLang === 'zh' ? '测量完成' : 'Measurement complete');
     showKrResult();
   }
 });
@@ -2840,12 +4133,12 @@ document.addEventListener('keyup', e => {
     krState.active = false;
     document.getElementById('krTarget').className = 'keyrepeat-target';
     if (krState.intervals.length < 5) {
-      document.getElementById('krTarget').textContent = '⚠️ もう少し長く押してください';
+      document.getElementById('krTarget').textContent = '⚠️ ' + (currentLang === 'ja' ? 'もう少し長く押してください' : currentLang === 'zh' ? '请再按久一点' : 'Hold the key a bit longer');
       krState.firstTs = null; krState.lastTs = null; krState.intervals = [];
       setTimeout(() => {
         if (!krState.done) {
           document.getElementById('krTarget').className = 'keyrepeat-target ready';
-          document.getElementById('krTarget').textContent = '⌨️ キーを押しっぱなしにしてください';
+          document.getElementById('krTarget').textContent = '⌨️ ' + (currentLang === 'ja' ? 'キーを押しっぱなしにしてください' : currentLang === 'zh' ? '请长按按键' : 'Hold a key');
           krState.active = true;
         }
       }, 800);
@@ -2885,10 +4178,10 @@ function showKrResult() {
   resultEl.style.cssText = `display:block;background:${bg};border-radius:8px;padding:10px 14px;font-size:12px;line-height:1.6;margin-bottom:12px;`;
 
   if (!recommend) {
-    resultEl.innerHTML = `✅ <strong>${label}</strong> — キーリピートは既に最速に近い設定です。`;
+    resultEl.innerHTML = `✅ <strong>${label}</strong> — ${t('krExcellent')}`;
     document.getElementById('krExportToggleWrap').style.display = 'none';
   } else {
-    resultEl.innerHTML = `${emoji} <strong>${label}</strong> — リピート間隔が ${Math.round(avg)}ms です。下のトグルをONにするとエクスポート時に最速設定が自動で含まれます。`;
+    resultEl.innerHTML = `${emoji} <strong>${label}</strong> — ${t('krIntervalNote')}${Math.round(avg)}${t('krMs')}`;
     document.getElementById('krExportToggleWrap').style.display = 'flex';
   }
 
@@ -2962,7 +4255,7 @@ const NIP_SETTINGS = {
     games: ['fortnite','valorant','apex','ow2','cs2','r6s','pubg','tarkov','bf2042'],
   },
   rbar_feature: {
-    label: 'Resizable BAR: 強制有効化（rBAR Options・Size Limitも同時適用）',
+    label: 'Resizable BAR: Force Enable (rBAR Options & Size Limit applied together)',
     desc: 'CPUからVRAMへのアクセス効率向上・1% Low FPS改善。DX12ゲーム（BF2042・PUBG・OW2・Fortnite）で効果大',
     settingID: 284098575,
     value: 2,
@@ -3064,20 +4357,20 @@ function renderNipSettings(gameKey) {
     // ゲーム固有設定かどうかを判定（全ゲーム共通でない＝そのゲームに特化）
     const isGameSpecific = s.games.length <= 4 && gameKey !== 'custom';
     const specificBadge = isGameSpecific
-      ? `<span style="font-size:9px;font-weight:700;background:#5865f220;color:#949cf7;border:1px solid #5865f240;border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;">このゲーム向け</span>`
+      ? `<span style="font-size:9px;font-weight:700;background:#5865f220;color:#949cf7;border:1px solid #5865f240;border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;">${currentLang==='en'?'For this game':currentLang==='zh'?'此游戏专属':'このゲーム向け'}</span>`
       : '';
     row.innerHTML = `
       <input type="checkbox" data-nip-key="${key}" ${checked ? 'checked' : ''}
         style="margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
       <div style="flex:1;">
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;">${escHtml(s.label)}${specificBadge}</div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.5;">${escHtml(s.desc)}</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">${escHtml((currentLang !== "ja" && NIP_DESC_I18N[key] && NIP_DESC_I18N[key][currentLang]) || s.desc)}</div>
       </div>`;
     list.appendChild(row);
   });
   // 設定件数を表示
   const countEl = document.getElementById('nipSettingsCount');
-  if (countEl) countEl.textContent = `${count}件の設定`;
+  if (countEl) countEl.textContent = currentLang === 'en' ? `${count} settings` : currentLang === 'zh' ? `${count}项设置` : `${count}件の設定`;
 }
 
 function nipExport() {
@@ -3091,10 +4384,10 @@ function nipExport() {
   if (sel === 'custom' && !document.getElementById('nipCustomName').value.trim()) {
     const nameInput = document.getElementById('nipCustomName');
     nameInput.style.borderColor = 'var(--yellow)';
-    nameInput.placeholder = '⚠ ゲーム名を入力してください（省略時: Custom Game）';
+    nameInput.placeholder = currentLang === 'en' ? '⚠ Enter game name (default: Custom Game)' : currentLang === 'zh' ? '⚠ 请输入游戏名称（默认：Custom Game）' : '⚠ ゲーム名を入力してください（省略時: Custom Game）';
     setTimeout(() => {
       nameInput.style.borderColor = '';
-      nameInput.placeholder = '例: Counter-Strike 2';
+      nameInput.placeholder = 'e.g. Counter-Strike 2';
     }, 3000);
   }
 
@@ -3177,13 +4470,13 @@ function updateFromWaveform() {
   }
 
   const gradeMsg = {
-    'A': '✅ <strong>Grade A</strong> — Bufferbloat は良好です。NICバッファはデフォルト（256）推奨。',
-    'B': '✅ <strong>Grade B</strong> — 概ね良好。NICバッファを少し低めに設定しました。',
-    'C': '⚠️ <strong>Grade C</strong> — Bufferbloat が発生しています。Nagle無効化・LSO無効化を優先してください。',
-    'D': '⚠️ <strong>Grade D</strong> — Bufferbloat が深刻です。NICバッファを低めに設定し、Nagle無効化・LSO無効化・ルーターのQoS設定を確認してください。',
-    'F': '🔴 <strong>Grade F</strong> — 深刻なBufferbloat。ルーターのQoS（fq_codel / cake）の有効化を最優先で検討してください。NICの設定だけでは改善に限界があります。',
+    'A': `✅ <strong>Grade A</strong> — ${t('waveformGradeA')}`,
+    'B': `✅ <strong>Grade B</strong> — ${t('waveformGradeB')}`,
+    'C': `⚠️ <strong>Grade C</strong> — ${t('waveformGradeC')}`,
+    'D': `⚠️ <strong>Grade D</strong> — ${t('waveformGradeD')}`,
+    'F': `🔴 <strong>Grade F</strong> — ${t('waveformGradeF')}`,
   };
-  const pingMsg = pingVal ? ` Ping under load: <strong>${pingVal}ms</strong>。` : '';
+  const pingMsg = pingVal ? ` Ping under load: <strong>${pingVal}ms</strong>.` : '';
   resultEl.innerHTML = (gradeMsg[waveformState.grade] || '') + pingMsg;
   resultEl.style.display = 'block';
 }
@@ -3203,11 +4496,11 @@ function detectCpu() {
 
   let recommend = '';
   if (cores <= 4) {
-    recommend = `⚠️ コア数が少ないため、アフィニティの固定は逆効果になる場合があります。プロセス優先度「高」の設定のみ推奨します。`;
+    recommend = currentLang === 'en' ? `⚠️ Low core count — affinity pinning may be counterproductive. Only set process priority to 'High'.` : currentLang === 'zh' ? `⚠️ 核心数少，固定亲和性可能适得其反。仅建议设置进程优先级为「高」。` : `⚠️ コア数が少ないため、アフィニティの固定は逆効果になる場合があります。プロセス優先度「高」の設定のみ推奨します。`;
   } else if (cores <= 8) {
-    recommend = `✅ ${cores}コア環境です。ゲームプロセスを最初の${gameCores}コア（マスク値: ${maskHex}）に割り当てることで、残り2コアをOS処理に確保できます。下の設定カードのコマンドにこの値が反映されています。`;
+    recommend = currentLang === 'en' ? `✅ ${cores}-core environment. Assigning the game process to the first ${gameCores} cores (mask: ${maskHex}) reserves 2 cores for OS processing. This value is reflected in the setting card commands.` : currentLang === 'zh' ? `✅ ${cores}核心环境。将游戏进程分配给前${gameCores}个核心（掩码值：${maskHex}），可为OS处理保留2个核心。此值已反映在设置卡片的命令中。` : `✅ ${cores}コア環境です。ゲームプロセスを最初の${gameCores}コア（マスク値: ${maskHex}）に割り当てることで、残り2コアをOS処理に確保できます。下の設定カードのコマンドにこの値が反映されています。`;
   } else {
-    recommend = `✅ ${cores}コアの高コア環境です。ゲームプロセスを${gameCores}コア（マスク値: ${maskHex}）に割り当て、残りをOS・バックグラウンド処理に確保します。コア数が多い場合はゲームタイトルによって最適値が異なる場合があります。`;
+    recommend = currentLang === 'en' ? `✅ High-core environment (${cores} cores). Assigning the game process to ${gameCores} cores (mask: ${maskHex}) reserves the rest for OS and background processing. With high core counts, the optimal value may vary by game title.` : currentLang === 'zh' ? `✅ 高核心数环境（${cores}核）。将游戏进程分配给${gameCores}个核心（掩码值：${maskHex}），其余保留给OS和后台处理。核心数多时，最优值因游戏而异。` : `✅ ${cores}コアの高コア環境です。ゲームプロセスを${gameCores}コア（マスク値: ${maskHex}）に割り当て、残りをOS・バックグラウンド処理に確保します。コア数が多い場合はゲームタイトルによって最適値が異なる場合があります。`;
   }
   document.getElementById('cpuRecommend').innerHTML = recommend;
 }
@@ -3225,8 +4518,8 @@ function buildMarkers(containerId, isFps) {
   if (!container) return;
   const min = 64, max = 1024;
   const markers = isFps
-    ? [{ val: 128, label: 'FPS推奨', cls: 'fps' }, { val: 256, label: 'FPS上限', cls: 'fps' }]
-    : [{ val: 256, label: 'MMO推奨', cls: 'mmo' }, { val: 512, label: 'MMO上限', cls: 'mmo' }];
+    ? [{ val: 128, label: currentLang==='en'?'FPS Rec.':currentLang==='zh'?'FPS推荐':'FPS推奨', cls: 'fps' }, { val: 256, label: currentLang==='en'?'FPS Max':currentLang==='zh'?'FPS上限':'FPS上限', cls: 'fps' }]
+    : [{ val: 256, label: currentLang==='en'?'MMO Rec.':currentLang==='zh'?'MMO推荐':'MMO推奨', cls: 'mmo' }, { val: 512, label: currentLang==='en'?'MMO Max':currentLang==='zh'?'MMO上限':'MMO上限', cls: 'mmo' }];
 
   container.innerHTML = markers.map(m => {
     const pct = (m.val - min) / (max - min) * 100;
@@ -4200,16 +5493,28 @@ function getSettings() {
   // フィールド値を解決するユーティリティ
   const resolve = (val) => typeof val === 'function' ? val(e) : val;
 
-  return SETTINGS_CONFIG.map(cfg => ({
-    ...cfg,
-    title:     resolve(cfg.title),
-    sub:       resolve(cfg.sub),
-    desc:      resolve(cfg.desc),
-    available: resolve(cfg.available),
-    commands:  resolve(cfg.commands) ?? [],
-    manual:    resolve(cfg.manual)   ?? '',
-    verify:    resolve(cfg.verify)   ?? null,
-  }));
+  return SETTINGS_CONFIG.map(cfg => {
+    const base = {
+      ...cfg,
+      title:     resolve(cfg.title),
+      sub:       resolve(cfg.sub),
+      desc:      resolve(cfg.desc),
+      available: resolve(cfg.available),
+      commands:  resolve(cfg.commands) ?? [],
+      manual:    resolve(cfg.manual)   ?? '',
+      verify:    resolve(cfg.verify)   ?? null,
+    };
+    // i18n上書き（ja以外の場合のみ）
+    if (currentLang !== 'ja') {
+      const override = {};
+      ['title','sub','desc','manual','riskLabel','naReason'].forEach(field => {
+        const v = getCardI18nText(cfg.id, field, currentLang, e);
+        if (v !== null && v !== undefined) override[field] = v;
+      });
+      return { ...base, ...override };
+    }
+    return base;
+  });
 }
 
 
@@ -4252,9 +5557,9 @@ function renderResults() {
   const filterBar = document.getElementById('cardFilterBar');
   if (filterBar) filterBar.style.display = 'flex';
 
-  const genreLabel = env.genre === 'fps' ? 'FPS・格闘' : 'MMO・RTS';
+  const genreLabel = env.genre === 'fps' ? t('resultSummaryFps') : t('resultSummaryMmo');
   document.getElementById('resultSummary').innerHTML =
-    `✅ <strong>${gpuLabel} × ${osLabel} × ${genreLabel}</strong> 向けの設定を ${settings.filter(s=>s.available).length} 件表示しています。カードをクリックして手順を確認し、チェックを入れながら進めてください。`;
+    `✅ <strong>${gpuLabel} × ${osLabel} × ${genreLabel}</strong>${t('resultSummarySuffix')}${settings.filter(s=>s.available).length}${t('resultSummaryCount')}`;
 
   const grid = document.getElementById('settingsGrid');
   grid.innerHTML = '';
@@ -4281,9 +5586,9 @@ function renderResults() {
         info.innerHTML = `
           <div class="info-card-icon">🖥️</div>
           <div class="info-card-body">
-            <div class="info-card-title">${gsyncLabel} の正しい設定方法</div>
-            <div class="info-card-desc">有効にするだけでは不十分です。FPSリミッターとの組み合わせ方によって効果が大きく変わります。NVIDIA・AMD別の最適手順を解説しています。</div>
-            <a class="info-card-link" href="${gsyncUrl}" target="_blank" rel="noopener">yttyの記事で詳しく見る →</a>
+            <div class="info-card-title">${gsyncLabel}${t('gsyncCardTitle')}</div>
+            <div class="info-card-desc">${t('gsyncCardDesc')}</div>
+            <a class="info-card-link" href="${gsyncUrl}" target="_blank" rel="noopener">${t('gsyncCardLink')}</a>
           </div>`;
         grid.appendChild(info);
       }
@@ -4301,7 +5606,7 @@ function renderResults() {
     const riskClass = s.risk === 'none' ? 'risk-none' : s.risk === 'low' ? 'risk-low' : 'risk-high';
     const fpsTag    = s.fps    ? `<span class="badge-fps">FPS ${s.fps}</span>` : '';
     const mmoTag    = s.mmo    ? `<span class="badge-mmo">MMO ${s.mmo}</span>` : '';
-    const impactMap = { high: ['badge-impact-high','効果: 高'], medium: ['badge-impact-medium','効果: 中'], low: ['badge-impact-low','効果: 低'] };
+    const impactMap = { high: ['badge-impact-high',t('cardEffectHigh')], medium: ['badge-impact-medium',t('cardEffectMed')], low: ['badge-impact-low',t('cardEffectLow')] };
     const [impCls, impLabel] = impactMap[s.impact] || ['badge-impact-low','効果: 低'];
     const impactTag = `<span class="${impCls}">${impLabel}</span>`;
 
@@ -4315,14 +5620,14 @@ function renderResults() {
           <div class="cmd-block">
             <div class="cmd-label">${cmd.label}</div>
             <div class="cmd-text" id="cmdtext-${s.id}-${i}">${escHtml(cmd.text)}</div>
-            <button class="copy-btn" id="${btnId}" data-target="cmdtext-${s.id}-${i}" data-action="copyCmdFromTarget">コピー</button>
+            <button class="copy-btn" id="${btnId}" data-target="cmdtext-${s.id}-${i}" data-action="copyCmdFromTarget">${t('cardCopyBtn')}</button>
           </div>`;
       });
     }
     if (s.manual) {
       cmdHTML += `
         <div style="margin-top:12px;">
-          <div style="font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:2px;margin-bottom:8px;">手順</div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:2px;margin-bottom:8px;">${t('cardManualLabel')}</div>
           <div style="font-size:13px;color:var(--mid);line-height:1.8;white-space:pre-line;">${escHtml(s.manual)}</div>
         </div>`;
     }
@@ -4330,11 +5635,11 @@ function renderResults() {
       const verifyId = `verify-${s.id}`;
       cmdHTML += `
         <div class="verify-block">
-          <div class="verify-label">✔ 適用確認コマンド</div>
+          <div class="verify-label">${t('cardVerifyLabel')}</div>
           <div class="cmd-block" style="margin-top:0;">
             <div class="cmd-label">PowerShell（管理者）</div>
             <div class="cmd-text" id="${verifyId}">${escHtml(s.verify)}</div>
-            <button class="copy-btn" data-target="${verifyId}" data-action="copyCmdFromTarget">コピー</button>
+            <button class="copy-btn" data-target="${verifyId}" data-action="copyCmdFromTarget">${t('cardCopyBtn')}</button>
           </div>
         </div>`;
     }
@@ -4356,7 +5661,7 @@ function renderResults() {
         </div>
       </div>
       <div class="card-body">
-        ${!s.available ? `<div class="na-notice">⚠️ ${escHtml(s.naReason || 'この環境では対象外の設定です')}</div>` : `
+        ${!s.available ? `<div class="na-notice">${t('cardNaPrefix')}${escHtml(s.naReason || t('cardNaDefault'))}</div>` : `
           ${s.securityRisk ? `
           <div class="security-banner">
             <span class="security-banner-icon">🔐</span>
@@ -4367,7 +5672,7 @@ function renderResults() {
           </div>` : ''}
           ${s.win11Limited && env.os === 'win11' ? `
           <div class="win11-limited-banner">
-            ⚠️ <strong>Win11環境:</strong>&nbsp;この設定の効果は限定的です。「タイマー解像度」カードを優先してください。
+            ${t('cardWin11LimitedPrefix')}${t('cardWin11Limited')}
           </div>` : ''}
           <p class="card-desc">${escHtml(s.desc)}</p>
           ${cmdHTML}
@@ -4403,8 +5708,8 @@ function updateConflictsWithBadges() {
     if (overlapping.length > 0) {
       const badge = document.createElement('span');
       badge.className = 'badge-conflict-warn';
-      badge.textContent = '⚠️ 重複あり';
-      badge.title = '次のカードと設定が重複しています: ' + overlapping.join(', ');
+      badge.textContent = currentLang === 'en' ? '⚠️ Overlap' : currentLang === 'zh' ? '⚠️ 重复' : '⚠️ 重複あり';
+      badge.title = (currentLang === 'en' ? 'Overlapping settings with: ' : currentLang === 'zh' ? '与以下卡片设置重复: ' : '次のカードと設定が重複しています: ') + overlapping.join(', ');
       badgeRow.appendChild(badge);
     }
   });
@@ -4414,44 +5719,76 @@ function updateConflictsWithBadges() {
 const CONFLICTS = [
   {
     ids: ['nic_lso', 'coreparking'],
-    msg: 'LSO無効化とコアパーキング無効化を同時に適用するとCPU負荷が増加します。高負荷ゲームでは逆効果になるケースがあります。💡 推奨: まずコアパーキング無効化のみ試し、フレームタイムが安定したら次にLSO無効化を追加してください。'
+    get msg() {
+      if (currentLang === 'en') return 'Applying LSO disable and Core Parking disable together can increase CPU load and may be counterproductive in demanding games. 💡 Recommended: try Core Parking disable first; once frame times stabilize, add LSO disable.';
+      if (currentLang === 'zh') return '同时应用禁用LSO和禁用Core Parking可能增加CPU负载，在高负载游戏中可能适得其反。💡 推荐：先单独尝试禁用Core Parking，帧时间稳定后再添加禁用LSO。';
+      return 'LSO無効化とコアパーキング無効化を同時に適用するとCPU負荷が増加します。高負荷ゲームでは逆効果になるケースがあります。💡 推奨: まずコアパーキング無効化のみ試し、フレームタイムが安定したら次にLSO無効化を追加してください。';
+    }
   },
   {
     ids: ['affinity', 'interrupt_affinity'],
-    msg: 'CPUアフィニティとNVIDIA割り込みアフィニティを同時に設定する場合、同じコアが競合しないよう注意してください。💡 推奨: interrupt_affinityで割り当てるコアはaffinityのゲームコアと必ず別のコアにしてください（例: ゲーム=Core0-5、NVIDIA割り込み=Core6）。'
+    get msg() { return (currentLang !== 'ja' && CONFLICT_MSG_I18N.affinity_interrupt && CONFLICT_MSG_I18N.affinity_interrupt[currentLang]) || 'CPUアフィニティとNVIDIA割り込みアフィニティを同時に設定する場合、同じコアが競合しないよう注意してください。💡 推奨: interrupt_affinityで割り当てるコアはaffinityのゲームコアと必ず別のコアにしてください（例: ゲーム=Core0-5、NVIDIA割り込み=Core6）。'; }
   },
   {
     ids: ['affinity', 'irq_affinity'],
-    msg: 'CPUアフィニティとIRQアフィニティを同時に設定する場合、ゲーム用コアと割り込み処理コアが重複しないよう確認してください。💡 推奨: コア数が8未満の環境ではどちらか一方のみにしてください。8コア以上ならaffinityを先に適用し、残ったコアにIRQを割り当ててください。'
+    get msg() { return (currentLang !== 'ja' && CONFLICT_MSG_I18N.affinity_irq && CONFLICT_MSG_I18N.affinity_irq[currentLang]) || 'CPUアフィニティとIRQアフィニティを同時に設定する場合、ゲーム用コアと割り込み処理コアが重複しないよう確認してください。💡 推奨: コア数が8未満の環境ではどちらか一方のみにしてください。8コア以上ならaffinityを先に適用し、残ったコアにIRQを割り当ててください。'; }
   },
   {
     ids: ['hpet', 'timer'],
-    msg: '💡 HPETとタイマー解像度は別レイヤーの設定で両立可能です。推奨順序: HPETを先に無効化してからTimerResolutionを適用してください。Win10環境での組み合わせが最も効果的です。'
+    get msg() {
+      if (currentLang === 'en') return '💡 HPET and timer resolution are independent layers and can both be applied. Recommended order: disable HPET first, then apply TimerResolution. Most effective in Win10 environments.';
+      if (currentLang === 'zh') return '💡 HPET和计时器分辨率是独立层面的设置，可以同时应用。推荐顺序：先禁用HPET，再应用TimerResolution。在Win10环境中组合效果最佳。';
+      return '💡 HPETとタイマー解像度は別レイヤーの設定で両立可能です。推奨順序: HPETを先に無効化してからTimerResolutionを適用してください。Win10環境での組み合わせが最も効果的です。';
+    }
   },
   {
     ids: ['vbs', 'spectre'],
-    msg: '⚠️ VBSとSpectre/Meltdownパッチを同時に無効化するとシステムのセキュリティが著しく低下します。どちらか一方から効果を確認してから判断することを強く推奨します。'
+    get msg() {
+      if (currentLang === 'en') return '⚠️ Disabling both VBS and Spectre/Meltdown patches significantly reduces system security. It is strongly recommended to test one at a time and evaluate the impact before proceeding.';
+      if (currentLang === 'zh') return '⚠️ 同时禁用VBS和Spectre/Meltdown补丁会显著降低系统安全性。强烈建议每次只测试一个，确认效果后再决定是否继续。';
+      return '⚠️ VBSとSpectre/Meltdownパッチを同時に無効化するとシステムのセキュリティが著しく低下します。どちらか一方から効果を確認してから判断することを強く推奨します。';
+    }
   },
   {
     ids: ['coreparking', 'win32priority'],
-    msg: 'コアパーキング無効化とWin32PrioritySeparationはどちらもCPUスケジューリングに影響します。💡 推奨: 両方適用可能ですが、高負荷ゲームではコアパーキング無効化を優先してください。Win32Priorityはフォアグラウンド優先度の調整なので効果は独立しています。'
+    get msg() {
+      if (currentLang === 'en') return 'Core Parking disable and Win32PrioritySeparation both affect CPU scheduling. 💡 Recommended: both can be applied, but prioritize Core Parking disable for demanding games. Win32Priority adjusts foreground priority, so the effects are independent.';
+      if (currentLang === 'zh') return '禁用Core Parking和Win32PrioritySeparation都会影响CPU调度。💡 推荐：两者均可应用，但高负载游戏请优先禁用Core Parking。Win32Priority调整前台优先级，效果相互独立。';
+      return 'コアパーキング無効化とWin32PrioritySeparationはどちらもCPUスケジューリングに影響します。💡 推奨: 両方適用可能ですが、高負荷ゲームではコアパーキング無効化を優先してください。Win32Priorityはフォアグラウンド優先度の調整なので効果は独立しています。';
+    }
   },
   // ── v2追加カード競合定義 ──
   {
     ids: ['mpo', 'hags'],
-    msg: 'MPO無効化とHAGSはどちらもGPU/DWMのPresent経路に影響します。💡 推奨順序: まずHAGSのみ有効化して効果を確認 → 問題なければMPO無効化を追加してください。DLSS 3 Frame Generation使用時はHAGSは必須です。'
+    get msg() {
+      if (currentLang === 'en') return 'Both MPO disable and HAGS affect the GPU/DWM Present path. 💡 Recommended order: enable HAGS first and verify → if stable, add MPO disable. HAGS is required when using DLSS 3 Frame Generation.';
+      if (currentLang === 'zh') return 'MPO禁用和HAGS都会影响GPU/DWM的Present路径。💡 推荐顺序：先仅启用HAGS并确认效果 → 无问题后再添加MPO禁用。使用DLSS 3帧生成时HAGS为必须项。';
+      return 'MPO無効化とHAGSはどちらもGPU/DWMのPresent経路に影響します。💡 推奨順序: まずHAGSのみ有効化して効果を確認 → 問題なければMPO無効化を追加してください。DLSS 3 Frame Generation使用時はHAGSは必須です。';
+    }
   },
   {
     ids: ['mmcss_sr', 'network_throttle'],
-    msg: 'MMCSS SystemResponsivenessカードとNetworkThrottlingIndexカードは同じレジストリキーを操作します。後から適用した方の値が有効になります。どちらか一方のみ適用してください。'
+    get msg() {
+      if (currentLang === 'en') return 'The MMCSS SystemResponsiveness card and the NetworkThrottlingIndex card modify the same registry key. The value applied last takes effect. Apply only one of them.';
+      if (currentLang === 'zh') return 'MMCSS SystemResponsiveness卡片和NetworkThrottlingIndex卡片操作相同的注册表键，后应用的值生效。请只应用其中一个。';
+      return 'MMCSS SystemResponsivenessカードとNetworkThrottlingIndexカードは同じレジストリキーを操作します。後から適用した方の値が有効になります。どちらか一方のみ適用してください。';
+    }
   },
   {
     ids: ['network_throttle', 'registry'],
-    msg: 'NetworkThrottlingIndex無効化カードとGPUスケジューラ優先度カードはどちらもTasks\\Gamesキーを含む同一パスを操作します。どちらか一方の適用で十分ですが、両方チェックしても競合はしません。'
+    get msg() {
+      if (currentLang === 'en') return 'The NetworkThrottlingIndex disable card and the GPU Scheduler Priority card both operate on the same registry path including Tasks\\Games. Applying either one is sufficient, but checking both causes no conflict.';
+      if (currentLang === 'zh') return 'NetworkThrottlingIndex禁用卡片和GPU调度器优先级卡片都操作包含Tasks\\Games的相同注册表路径。应用其中一个即可，但同时勾选也不会产生冲突。';
+      return 'NetworkThrottlingIndex無効化カードとGPUスケジューラ優先度カードはどちらもTasks\\Gamesキーを含む同一パスを操作します。どちらか一方の適用で十分ですが、両方チェックしても競合はしません。';
+    }
   },
   {
     ids: ['mmcss_sr', 'registry'],
-    msg: 'MMCSS SystemResponsivenessカードはTasks\\Gamesを含む複数キーを設定します。GPUスケジューラ優先度カードはTasks\\Gamesのみを設定します。重複するキーは後から適用した値が有効になります。どちらか一方の適用で十分ですが、両方チェックしても競合はしません。'
+    get msg() {
+      if (currentLang === 'en') return 'The MMCSS SystemResponsiveness card sets multiple keys including Tasks\\Games. The GPU Scheduler Priority card sets only Tasks\\Games. For overlapping keys, the last-applied value wins. Either card alone is sufficient, but checking both causes no conflict.';
+      if (currentLang === 'zh') return 'MMCSS SystemResponsiveness卡片设置包含Tasks\\Games在内的多个键，GPU调度器优先级卡片仅设置Tasks\\Games。重复键以后应用的值为准。应用其中一个即可，同时勾选也不会冲突。';
+      return 'MMCSS SystemResponsivenessカードはTasks\\Gamesを含む複数キーを設定します。GPUスケジューラ優先度カードはTasks\\Gamesのみを設定します。重複するキーは後から適用した値が有効になります。どちらか一方の適用で十分ですが、両方チェックしても競合はしません。';
+    }
   },
 ];
 
@@ -4494,7 +5831,7 @@ function checkConflicts(changedId) {
       const icon = document.createElement('span');
       icon.className = 'conflict-icon';
       icon.textContent = '⚠️';
-      icon.title = '他の設定と競合しています';
+      icon.title = currentLang === 'en' ? 'Conflicts with another setting' : currentLang === 'zh' ? '与其他设置冲突' : '他の設定と競合しています';
       titleEl.appendChild(icon);
     }
   });
@@ -4652,17 +5989,17 @@ function updateProgress() {
   // トップバーの説明文を更新
   const desc = document.getElementById('dcTopbarDesc');
   if (desc && cards.length > 0) {
-    desc.textContent = `${cards.length}枚 · ${checked.length}枚チェック済み`;
+    desc.textContent = `${cards.length}${t('progressTopbarDesc')}${checked.length}${t('progressTopbarDescSuffix')}`;
   }
   // 「設定を書き出す」ボタンのアピール演出
   const exportBtn = document.querySelector('[data-action="exportBat"]');
   if (exportBtn) {
     if (checked.length > 0) {
       exportBtn.classList.add('export-highlight');
-      exportBtn.textContent = `📦 設定を書き出す（${checked.length}件）`;
+      exportBtn.textContent = t('progressExportCount') + checked.length + t('progressExportCountSuffix');
     } else {
       exportBtn.classList.remove('export-highlight');
-      exportBtn.textContent = '📦 設定を書き出す';
+      exportBtn.textContent = t('progressExportBtn');
     }
   }
 }
@@ -4687,13 +6024,13 @@ function escXml(str) {
 }
 
 function clipboardCopy(btn, text, resetLabel) {
-  const label = resetLabel || 'コピー';
+  const label = resetLabel || t('cardCopyBtn');
   navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = '✓ コピー済み';
+    btn.textContent = t('cardCopied');
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = label; btn.classList.remove('copied'); }, 2000);
   }).catch(() => {
-    btn.textContent = '⚠ コピー失敗';
+    btn.textContent = t('cardCopyFail');
     setTimeout(() => { btn.textContent = label; }, 2000);
   });
 }
@@ -5620,6 +6957,85 @@ document.addEventListener('DOMContentLoaded', () => {
   tryImportFromUrl();
   updateDcNav(1);
 });
+// ═══════════════════════════════════════════════════════
+// 言語切替関数
+// ═══════════════════════════════════════════════════════
+function switchLang(lang) {
+  if (!I18N[lang]) return;
+  currentLang = lang;
+  // ボタン状態更新
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    const isActive = btn.dataset.lang === lang;
+    btn.style.background = isActive ? '#5865f2' : 'transparent';
+    btn.style.color = isActive ? '#fff' : '#949ba4';
+    btn.style.borderColor = isActive ? '#5865f2' : '#404249';
+    btn.classList.toggle('active', isActive);
+  });
+  // DOM書き換え
+  applyLang();
+  // カードが表示中なら再レンダリング
+  if (env.gpu && env.os && env.genre) {
+    renderResults();
+    initSliders(); // スライダーマーカーのラベル再構築
+  }
+  // topbarを現在のステップで更新
+  const activeStep = (() => {
+    for (let i = 1; i <= 4; i++) {
+      const panel = document.getElementById('stepPanel-' + i);
+      if (panel && panel.classList.contains('active')) return i;
+    }
+    return 1;
+  })();
+  updateDcNav(activeStep);
+  // localStorage保存
+  try { localStorage.setItem('lang', lang); } catch(e) {}
+}
+
+function applyLang() {
+  // data-i18n属性をもつ要素のtextContentを更新
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val) el.textContent = val;
+  });
+  // placeholder用
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const val = t(key);
+    if (val) el.placeholder = val;
+  });
+  // optgroup label更新
+  const optgroupMap = {
+    'optgroupBR':    'optgroupBR',
+    'optgroupFPS':   'optgroupFPS',
+    'optgroupOther': 'optgroupOther',
+    'optgroupCustom':'optgroupCustom',
+  };
+  Object.entries(optgroupMap).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.label = t(key);
+  });
+  // dcTopbarTitle/Desc はupdateDcNavで更新されるため不要
+  // step2NetDesc（innerHTML）
+  const netDesc = document.getElementById('step2NetDesc');
+  if (netDesc) netDesc.innerHTML = t('step2NetDesc');
+  // step4ShaderNote（innerHTML）
+  const shaderNote = document.querySelector('[data-i18n-shader-note]');
+  if (shaderNote) shaderNote.innerHTML = t('step4ShaderNote');
+}
+
+// 起動時に保存言語を復元
+(function() {
+  try {
+    const saved = localStorage.getItem('lang');
+    if (saved && I18N[saved] && saved !== 'ja') {
+      currentLang = saved;
+      // DOMロード後に適用
+      document.addEventListener('DOMContentLoaded', () => switchLang(saved));
+    }
+  } catch(e) {}
+})();
+
 </script>
 </body>
 </html>
