@@ -15,41 +15,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f7f7f5;
-  --white: #ffffff;
-  --border: #e4e4e0;
-  --accent: #0055ee;
-  --accent-light: #e6eeff;
-  --green: #0a9e5c;
-  --green-light: #e6f7f0;
-  --red: #d93030;
-  --red-light: #fdeaea;
-  --yellow: #e07b00;
-  --yellow-light: #fff3e0;
-  --text: #111111;
-  --mid: #444444;
-  --muted: #888888;
+  --bg: #2e3035;
+  --white: #313338;
+  --border: #1e1f22;
+  --accent: #5865f2;
+  --accent-light: #1e2058;
+  --green: #23a559;
+  --green-light: #1a2e20;
+  --red: #da373c;
+  --red-light: #2e1212;
+  --yellow: #f0b132;
+  --yellow-light: #2a2000;
+  --text: #f2f3f5;
+  --mid: #dbdee1;
+  --muted: #949ba4;
   --mono: 'JetBrains Mono', monospace;
   --sans: 'Noto Sans JP', sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141414;
-    --white: #1e1e1e;
-    --border: #2e2e2e;
-    --accent: #4488ff;
-    --accent-light: #1a2a4a;
-    --green: #2ab870;
-    --green-light: #0e2e1e;
-    --red: #e05050;
-    --red-light: #2e1010;
-    --yellow: #f0a030;
-    --yellow-light: #2e2000;
-    --text: #eeeeee;
-    --mid: #aaaaaa;
-    --muted: #666666;
-  }
+  --dc-sidebar: #2b2d31;
+  --dc-topbar: #313338;
+  --dc-surface: #383a40;
+  --dc-hover: #35373c;
+  --dc-input: #1e1f22;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -59,7 +45,8 @@ body {
   font-family: var(--sans);
   color: var(--text);
   min-height: 100vh;
-  padding: 0 0 80px;
+  padding: 0;
+  overflow: hidden;
 }
 
 /* ── HEADER ── */
@@ -133,11 +120,11 @@ body {
 /* ── STICKY PANEL ── */
 .sticky-panel {
   position: sticky;
-  top: 24px;
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
+  top: 60px;
+  background: #2b2d31;
+  border: 1px solid #1e1f22;
+  border-radius: 8px;
+  padding: 16px;
   display: none;
 }
 .sticky-panel.show { display: block; }
@@ -163,9 +150,9 @@ body {
   display: block;
 }
 .sticky-panel .s-btn.primary { background: var(--accent); color: #fff; border: none; }
-.sticky-panel .s-btn.primary:hover { background: #0044cc; }
-.sticky-panel .s-btn.secondary { background: var(--white); color: var(--accent); border: 1.5px solid var(--accent); }
-.sticky-panel .s-btn.secondary:hover { background: var(--accent-light); }
+.sticky-panel .s-btn.primary:hover { background: #4752c4; }
+.sticky-panel .s-btn.secondary { background: #383a40; color: var(--mid); border: 1px solid #3f4147; }
+.sticky-panel .s-btn.secondary:hover { background: #404249; color: #f2f3f5; }
 .sticky-progress { margin-bottom: 14px; }
 .sticky-progress-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
 .sticky-progress-bar { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
@@ -235,11 +222,11 @@ input[type=range] {
 .stepper::before {
   content: '';
   position: absolute;
-  top: 18px;
-  left: 18px;
-  right: 18px;
+  top: 16px;
+  left: 16px;
+  right: 16px;
   height: 2px;
-  background: var(--border);
+  background: #3f4147;
   z-index: 0;
 }
 .stepper-item {
@@ -504,10 +491,10 @@ input[type=range] {
 
 .keyrepeat-target {
   width: 100%;
-  padding: 20px;
-  background: var(--bg);
-  border: 2px dashed var(--border);
-  border-radius: 10px;
+  padding: 18px;
+  background: #1e1f22;
+  border: 2px dashed #3f4147;
+  border-radius: 6px;
   text-align: center;
   font-size: 13px;
   font-weight: 700;
@@ -518,8 +505,8 @@ input[type=range] {
   outline: none;
   user-select: none;
 }
-.keyrepeat-target.ready   { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-.keyrepeat-target.holding { border-color: var(--green); color: var(--green); background: var(--green-light); }
+.keyrepeat-target.ready   { border-color: var(--accent); color: #949cf7; background: #1e2040; }
+.keyrepeat-target.holding { border-color: var(--green); color: var(--green); background: #1e2d23; }
 .kr-bar-wrap {
   height: 6px;
   background: var(--border);
@@ -1022,7 +1009,7 @@ input[type=range] {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: var(--green);
+  color: #23a559;
   text-transform: uppercase;
   margin-bottom: 6px;
 }
@@ -1205,27 +1192,389 @@ input[type=range] {
 .delta-better { color: var(--green); font-weight: 700; }
 .delta-worse  { color: var(--red);   font-weight: 700; }
 .delta-same   { color: var(--muted); }
+
+/* ── DISCORD LAYOUT ── */
+html, body { height: 100%; overflow: hidden; }
+
+.dc-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #949ba4;
+  margin: 1px 4px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.1s, color 0.1s;
+}
+.dc-nav-item:hover { background: #35373c; color: #dbdee1; }
+.dc-nav-item.active { background: #35373c; color: #f2f3f5; }
+.dc-nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dc-side-btn {
+  padding: 6px 0;
+  background: #404249;
+  color: #dbdee1;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: center;
+  font-family: var(--sans);
+}
+.dc-side-btn:hover { background: #5865f2; color: #fff; }
+
+/* カード上書き */
+.setting-card { background: #2b2d31; border-color: #1e1f22; }
+.setting-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.setting-card.checked { border-color: #23a559; }
+.setting-card.checked .card-header { background: #1a2e20; }
+.card-header:hover { background: #35373c; }
+.card-body { background: #2e3035; }
+.env-card { background: #2b2d31; border-color: #1e1f22; }
+.cmd-block { background: #1e1f22; }
+.sidebar-card { background: #2b2d31; border-color: #1e1f22; }
+
+/* ステッパー上書き */
+.stepper::before { background: #1e1f22; }
+.stepper-circle { background: #2b2d31; border-color: #1e1f22; }
+
+/* setting-card カラム2列（Discord風） */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.settings-category { grid-column: 1 / -1; }
+
+/* Step3 サイドバー非表示（Discord左サイドに統合） */
+.step3-sidebar { display: none !important; }
+.step3-layout { grid-template-columns: 1fr !important; }
+
+/* main-content のpaddingリセット */
+.main { padding: 0; max-width: 100%; grid-template-columns: 1fr; }
+.hero { display: none; }
+.site-header { display: none; }
+
+/* 入力インプット Discordカラー */
+input[type=text], input[type=number], select {
+  background: #1e1f22 !important;
+  border-color: #1e1f22 !important;
+  color: #f2f3f5 !important;
+}
+input[type=text]:focus, input[type=number]:focus {
+  border-color: #5865f2 !important;
+}
+
+/* ステッパーをコンパクトに（Discord風タブ） */
+.stepper {
+  background: #2b2d31;
+  border-radius: 6px;
+  padding: 4px;
+  margin-bottom: 16px;
+  gap: 4px;
+}
+.stepper::before { display: none; }
+.stepper-item {
+  flex: 1;
+  flex-direction: row;
+  gap: 6px;
+  background: transparent;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.stepper-item:hover { background: #35373c; }
+.stepper-item.active { background: #5865f2; }
+.stepper-item.active .stepper-circle { background: rgba(255,255,255,0.2); border-color: transparent; color: #fff; }
+.stepper-item.active .stepper-label { color: #fff; }
+.stepper-item.done .stepper-circle { background: #23a559; border-color: #23a559; }
+.stepper-circle { width: 24px; height: 24px; font-size: 11px; }
+.stepper-label { font-size: 12px; letter-spacing: 0; text-transform: none; }
+
+/* waveformResult Discordカラー */
+#waveformResult { background: var(--accent-light) !important; border-color: #5865f2 !important; color: #dbdee1 !important; }
+
+/* badge系 Discordダーク対応 */
+.badge-impact-high   { background: #2a1800; color: #f0b132; border-color: #4a3000; }
+.badge-impact-medium { background: #1e2058; color: #949cf7; border-color: #3a3d90; }
+.badge-impact-low    { background: #2e3035; color: #949ba4; border-color: #404249; }
+.badge-fps { background: #1e2058; color: #949cf7; }
+.badge-mmo { background: #1a2e20; color: #23a559; }
+.badge-layer { background: #404249; color: #dbdee1; }
+.badge-risk { background: #404249; color: #949ba4; }
+.risk-none  { background: #1a2e20; color: #23a559; }
+.risk-low   { background: #2a2000; color: #f0b132; }
+.risk-high  { background: #2e1212; color: #da373c; }
+
+/* キーリピートエリア */
+.keyrepeat-target { background: #2e3035; border-color: #404249; }
+.keyrepeat-target.ready   { border-color: #5865f2; color: #949cf7; background: #1e2058; }
+.keyrepeat-target.holding { border-color: #23a559; color: #23a559; background: #1a2e20; }
+
+/* スクロールバー */
+#dcMainScroll::-webkit-scrollbar { width: 6px; }
+#dcMainScroll::-webkit-scrollbar-track { background: transparent; }
+#dcMainScroll::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 3px; }
+#dcSidebar::-webkit-scrollbar { width: 4px; }
+#dcSidebar::-webkit-scrollbar-track { background: transparent; }
+#dcSidebar::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 2px; }
+
+/* 進捗バー */
+.progress-bar-wrap { background: #1e1f22; }
+.sidebar-prog-bar { background: #1e1f22; }
+
+/* share-code-box */
+.share-code-box { background: #1e1f22; border-color: #5865f2; }
+.share-import-wrap input { background: #1e1f22 !important; border-color: #404249 !important; }
+
+/* preset-btn Discord風 */
+.preset-btn { background: #2b2d31; border-color: #404249; color: #dbdee1; }
+.preset-btn:hover { background: #35373c; border-color: #5865f2; color: #f2f3f5; }
+.preset-btn.active { background: #5865f2; border-color: #5865f2; color: #fff; }
+.preset-clear { background: #2b2d31; border-color: #404249; }
+
+/* compare-log */
+.compare-log { border-color: #1e1f22; }
+.compare-log-header { background: #2e3035; }
+.compare-row { border-color: #1e1f22; }
+.compare-cell { border-color: #1e1f22; }
+
+/* result-summary */
+.result-summary { background: #1e2058; border-color: #5865f2; color: #949cf7; }
+
+/* conflict-warning */
+.conflict-warning { background: #2a2000; border-color: #f0b132; color: #f0b132; }
+
+/* verify-block */
+.verify-block { border-color: #404249; }
+
+/* na-notice */
+.na-notice { color: #949ba4; }
+
+/* step-summary */
+.step-summary { background: #2b2d31; border-color: #1e1f22; }
+.step-summary:hover { border-color: #5865f2; }
+.step-done-badge { background: #1a2e20; color: #23a559; border-color: #23a559; }
+
+/* grade-btn */
+.grade-btn { background: #2b2d31; border-color: #404249; color: #dbdee1; }
+
+
+/* ── DISCORD LAYOUT ── */
+html, body { height: 100%; overflow: hidden; }
+body { padding: 0; }
+
+.dc-nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 4px; cursor: pointer;
+  color: #949ba4; margin: 1px 4px; font-size: 13px; font-weight: 500;
+  transition: background 0.1s, color 0.1s;
+}
+.dc-nav-item:hover { background: #35373c; color: #dbdee1; }
+.dc-nav-item.active { background: #35373c; color: #f2f3f5; }
+.dc-nav-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dc-side-btn {
+  padding: 6px 0; background: #404249; color: #dbdee1; border: none;
+  border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s; text-align: center; font-family: var(--sans);
+}
+.dc-side-btn:hover { background: #5865f2; color: #fff; }
+
+/* カード上書き */
+.setting-card { background: #2b2d31; border-color: #1e1f22; }
+.setting-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.setting-card.checked { border-color: #23a559; }
+.setting-card.checked .card-header { background: #1a2e20; }
+.card-header:hover { background: #35373c; }
+.card-body { background: #2e3035; }
+.env-card { background: #2b2d31; border-color: #1e1f22; }
+.cmd-block { background: #1e1f22; }
+.sidebar-card { background: #2b2d31; border-color: #1e1f22; }
+.stepper::before { background: #1e1f22; }
+.stepper-circle { background: #2b2d31; border-color: #1e1f22; }
+
+/* 設定カード 2列グリッド */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.settings-category { grid-column: 1 / -1; }
+
+/* Step3旧サイドバー非表示 */
+.step3-sidebar { display: none !important; }
+.step3-layout { grid-template-columns: 1fr !important; }
+
+/* main-content */
+.main { padding: 0; max-width: 100%; grid-template-columns: 1fr; }
+.hero { display: none; }
+.site-header { display: none; }
+
+/* input Discord */
+input[type=text], input[type=number], select {
+  background: #1e1f22 !important; border-color: #1e1f22 !important; color: #f2f3f5 !important;
+}
+input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !important; }
+
+/* ステッパーをDiscord風タブに */
+.stepper { background: #2b2d31; border-radius: 6px; padding: 4px; margin-bottom: 16px; gap: 4px; }
+.stepper::before { display: none; }
+.stepper-item { flex: 1; flex-direction: row; gap: 6px; background: transparent; border-radius: 4px; padding: 6px 10px; cursor: pointer; transition: background 0.1s; }
+.stepper-item:hover { background: #35373c; }
+.stepper-item.active { background: #5865f2; }
+.stepper-item.active .stepper-circle { background: rgba(255,255,255,0.2); border-color: transparent; color: #fff; }
+.stepper-item.active .stepper-label { color: #fff; }
+.stepper-item.done .stepper-circle { background: #23a559; border-color: #23a559; }
+.stepper-circle { width: 24px; height: 24px; font-size: 11px; }
+.stepper-label { font-size: 12px; letter-spacing: 0; text-transform: none; }
+
+/* badge */
+.badge-impact-high   { background: #2a1800; color: #f0b132; border-color: #4a3000; }
+.badge-impact-medium { background: #1e2058; color: #949cf7; border-color: #3a3d90; }
+.badge-impact-low    { background: #2e3035; color: #949ba4; border-color: #404249; }
+.badge-fps { background: #1e2058; color: #949cf7; }
+.badge-mmo { background: #1a2e20; color: #23a559; }
+.badge-layer { background: #404249; color: #dbdee1; }
+.risk-none  { background: #1a2e20; color: #23a559; }
+.risk-low   { background: #2a2000; color: #f0b132; }
+.risk-high  { background: #2e1212; color: #da373c; }
+.keyrepeat-target { background: #2e3035; border-color: #404249; }
+.keyrepeat-target.ready   { border-color: #5865f2; color: #949cf7; background: #1e2058; }
+.keyrepeat-target.holding { border-color: #23a559; color: #23a559; background: #1a2e20; }
+.progress-bar-wrap { background: #1e1f22; }
+.share-code-box { background: #1e1f22; border-color: #5865f2; }
+.share-import-wrap input { background: #1e1f22 !important; border-color: #404249 !important; }
+.preset-btn { background: #2b2d31; border-color: #404249; color: #dbdee1; }
+.preset-btn:hover { background: #35373c; border-color: #5865f2; color: #f2f3f5; }
+.preset-btn.active { background: #5865f2; border-color: #5865f2; color: #fff; }
+.preset-clear { background: #2b2d31; border-color: #404249; }
+.result-summary { background: #1e2058; border-color: #5865f2; color: #949cf7; }
+.conflict-warning { background: #2a2000; border-color: #f0b132; color: #f0b132; }
+.step-summary { background: #2b2d31; border-color: #1e1f22; }
+.step-summary:hover { border-color: #5865f2; }
+.step-done-badge { background: #1a2e20; color: #23a559; border-color: #23a559; }
+.grade-btn { background: #2b2d31; border-color: #404249; color: #dbdee1; }
+.compare-log { border-color: #1e1f22; }
+.compare-log-header { background: #2e3035; }
+.compare-row { border-color: #1e1f22; }
+.compare-cell { border-color: #1e1f22; }
+#waveformResult { background: var(--accent-light) !important; border-color: #5865f2 !important; color: #dbdee1 !important; }
+
+/* スクロールバー */
+#dcMainScroll::-webkit-scrollbar { width: 6px; }
+#dcMainScroll::-webkit-scrollbar-track { background: transparent; }
+#dcMainScroll::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 3px; }
+#dcSidebar::-webkit-scrollbar { width: 4px; }
+#dcSidebar::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 2px; }
+
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
-<header class="site-header">
-  <div class="logo">LATENCY<span>TOOL</span></div>
-  <div class="header-sub">PCゲーム遅延最適化ガイド</div>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
-    <a href="https://github.com/ytty-pc" target="_blank" style="font-family:var(--mono);font-size:11px;color:#aaa;text-decoration:none;letter-spacing:1px;">by ytty</a>
-    <a href="https://note.com/noted_pothos7691/n/nfaa8c322d641" target="_blank" style="font-family:var(--mono);font-size:10px;color:#fff;background:#41c9b4;padding:5px 12px;border-radius:5px;text-decoration:none;letter-spacing:0.5px;white-space:nowrap;">📝 元記事を読む</a>
-  </div>
-</header>
+<div id="dcApp" style="display:flex;height:100vh;overflow:hidden;background:#313338;font-family:var(--sans);">
 
-<div class="hero">
-  <h1>PCゲーム<em>遅延最適化</em>ツール</h1>
-  <p>GPU・OS・ジャンルを選ぶだけ。あなたの環境に効く設定だけを絞り込み、コマンドをそのまま貼り付けて実行できます。</p>
-  <div id="storeBadge" style="display:none;margin-top:12px;font-size:11px;font-family:var(--mono);color:var(--green);background:var(--green-light);border:1px solid var(--green);border-radius:5px;padding:4px 10px;">↺ 前回の選択を復元しました</div>
-</div>
+  <!-- Discord左サイドバー -->
+  <div id="dcSidebar" style="width:240px;background:#2b2d31;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;">
 
-<div class="main">
+    <!-- サーバータイトル -->
+    <div style="padding:16px 12px 12px;border-bottom:1px solid #1e1f22;flex-shrink:0;">
+      <div style="font-size:15px;font-weight:700;color:#f2f3f5;letter-spacing:.01em;">遅延最適化ツール</div>
+      <div style="font-size:11px;color:#949ba4;margin-top:2px;font-family:var(--mono);">v21.1 · PCゲーム向け</div>
+    </div>
+
+    <!-- ステップナビ -->
+    <div style="padding:12px 8px 4px;">
+      <div style="font-size:11px;font-weight:700;color:#949ba4;letter-spacing:.06em;text-transform:uppercase;padding:0 4px 6px;">ステップ</div>
+
+      <div class="dc-nav-item active" id="dcNav-1" data-action="dcNavStep:1">
+        <div class="dc-nav-dot" id="dcNavDot-1" style="background:#23a559;"></div>
+        <span>環境選択</span>
+      </div>
+      <div class="dc-nav-item" id="dcNav-2" data-action="dcNavStep:2">
+        <div class="dc-nav-dot" id="dcNavDot-2" style="background:#f0b132;"></div>
+        <span>診断</span>
+        <div id="dcNavBadge-2" style="display:none;margin-left:auto;background:#da373c;color:#fff;border-radius:8px;font-size:10px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;">2</div>
+      </div>
+      <div class="dc-nav-item" id="dcNav-3" data-action="dcNavStep:3">
+        <div class="dc-nav-dot" id="dcNavDot-3" style="background:#80848e;"></div>
+        <span>設定一覧</span>
+        <div id="dcCheckedCount" style="display:none;margin-left:auto;background:#5865f2;color:#fff;border-radius:8px;font-size:10px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;">0</div>
+      </div>
+      <div class="dc-nav-item" id="dcNav-4" data-action="dcNavStep:4" style="display:none;">
+        <div class="dc-nav-dot" style="background:#80848e;"></div>
+        <span>NVIDIAプロファイル</span>
+      </div>
+    </div>
+
+    <!-- プリセット（Step3時のみ表示） -->
+    <div id="dcPresetSection" style="display:none;padding:12px 8px 4px;">
+      <div style="font-size:11px;font-weight:700;color:#949ba4;letter-spacing:.06em;text-transform:uppercase;padding:0 4px 6px;">プリセット</div>
+      <div class="dc-nav-item" data-action="preset:beginner">🔰 <span style="margin-left:4px;">初心者向け</span></div>
+      <div class="dc-nav-item" data-action="preset:safe">🛡️ <span style="margin-left:4px;">安全重視</span></div>
+      <div class="dc-nav-item" data-action="preset:secure">🔒 <span style="margin-left:4px;">セキュリティ優先</span></div>
+      <div class="dc-nav-item" data-action="preset:noconflict">🤝 <span style="margin-left:4px;">競合なし</span></div>
+      <div class="dc-nav-item" data-action="preset:all">⚡ <span style="margin-left:4px;">全部盛り</span></div>
+      <div class="dc-nav-item" data-action="preset:clear" style="color:#949ba4;font-size:12px;">✕ クリア</div>
+    </div>
+
+    <!-- 競合警告（Step3時） -->
+    <div id="dcConflictSection" style="display:none;margin:8px;background:#2a2000;border:1px solid #f0b132;border-radius:6px;padding:10px 12px;">
+      <div style="font-size:11px;font-weight:700;color:#f0b132;margin-bottom:6px;">⚠️ 競合チェック</div>
+      <div id="dcConflictList" style="font-size:11px;color:#dbdee1;line-height:1.6;"></div>
+    </div>
+
+    <!-- 下部：環境チップ + ボタン -->
+    <div style="margin-top:auto;padding:8px;border-top:1px solid #1e1f22;flex-shrink:0;">
+      <div id="storeBadge" style="display:none;margin-bottom:6px;font-size:11px;font-family:var(--mono);color:var(--green);background:var(--green-light);border:1px solid var(--green);border-radius:5px;padding:4px 10px;">↺ 前回の選択を復元しました</div>
+      <div id="dcEnvChips" style="display:none;margin-bottom:10px;">
+        <div style="font-size:10px;color:#949ba4;margin-bottom:5px;font-family:var(--mono);">現在の選択</div>
+        <div id="dcEnvText" style="font-size:13px;font-weight:700;color:#dbdee1;background:#404249;border-radius:6px;padding:7px 10px;"></div>
+      </div>
+      <div id="dcExportBtns" style="display:none;gap:6px;">
+        <button class="dc-side-btn" data-action="generateShareCode" style="flex:1;">📤 共有</button>
+        <button class="dc-side-btn" data-action="exportRollbackBat" style="flex:1;background:#2a2000;color:#f0b132;border:1px solid #f0b132;">↩ ロールバック</button>
+      </div>
+      <!-- 共有コード常時表示枠 -->
+      <div id="dcShareCodeBox" style="display:none;margin-top:8px;">
+        <div style="font-size:10px;color:#949ba4;margin-bottom:4px;font-family:var(--mono);">共有コード</div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div id="dcShareCodeText" style="flex:1;font-family:var(--mono);font-size:11px;color:#949cf7;background:#1e1f22;border:1px solid #404249;border-radius:5px;padding:5px 8px;word-break:break-all;min-height:28px;line-height:1.4;">——</div>
+          <button id="dcShareCodeCopyBtn" data-action="copyDcShareCode" style="flex-shrink:0;background:#2b2d31;border:1px solid #404249;border-radius:5px;color:#949ba4;font-size:11px;padding:5px 7px;cursor:pointer;font-family:var(--mono);white-space:nowrap;" title="コードをコピー">📋</button>
+        </div>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:6px;">
+        <a href="https://github.com/ytty-pc" target="_blank" style="font-family:var(--mono);font-size:10px;color:#949ba4;text-decoration:none;">by ytty</a>
+        <a href="https://note.com/noted_pothos7691/n/n3016e5312a4f" target="_blank" style="font-family:var(--mono);font-size:10px;color:#5865f2;text-decoration:none;margin-left:auto;">📝 記事</a>
+      </div>
+    </div>
+
+  </div><!-- /dcSidebar -->
+
+  <!-- メインエリア -->
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+
+    <!-- トップバー -->
+    <div id="dcTopbar" style="height:48px;background:#313338;border-bottom:1px solid #1e1f22;display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;">
+      <div style="width:20px;height:20px;background:#5865f2;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700;flex-shrink:0;">#</div>
+      <div id="dcTopbarTitle" style="font-size:15px;font-weight:700;color:#f2f3f5;">環境選択</div>
+      <div style="width:1px;height:20px;background:#3f4147;margin:0 4px;"></div>
+      <div id="dcTopbarDesc" style="font-size:13px;color:#949ba4;">GPU・OS・ジャンルを選択してください</div>
+      <div id="dcTopbarBtns" style="margin-left:auto;display:flex;gap:8px;"></div>
+    </div>
+
+    <!-- スクロールエリア -->
+    <div id="dcMainScroll" style="flex:1;overflow-y:auto;padding:20px 24px;">
+
 <div class="main-content">
 
   <!-- STEPPER -->
@@ -1427,6 +1776,7 @@ input[type=range] {
           <button class="preset-btn" data-action="preset:beginner">🔰 初心者向け<span class="preset-count" id="presetCount-beginner">—</span></button>
           <button class="preset-btn" data-action="preset:safe">🛡️ 安全重視<span class="preset-count" id="presetCount-safe">—</span></button>
           <button class="preset-btn" data-action="preset:secure">🔒 セキュリティ優先<span class="preset-count" id="presetCount-secure">—</span></button>
+          <button class="preset-btn" data-action="preset:noconflict">🤝 競合なし<span class="preset-count" id="presetCount-noconflict">—</span></button>
           <button class="preset-btn" data-action="preset:all">⚡ 全部盛り<span class="preset-count" id="presetCount-all">—</span></button>
           <button class="preset-clear" data-action="preset:clear">✕ クリア</button>
         </div>
@@ -1491,7 +1841,7 @@ input[type=range] {
               </div>
               <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin:8px 0 4px;letter-spacing:1px;">コードを入力して復元</div>
               <div class="share-import-wrap">
-                <input type="text" id="shareInput" placeholder="例: LTBiAS" aria-label="共有コードを入力">
+                <input type="text" id="shareInput" placeholder="例: LT2_eyJn..." aria-label="共有コードを入力">
                 <button style="flex-shrink:0;padding:7px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" data-action="importShareCode">読込</button>
               </div>
               <div class="share-msg" id="shareMsg"></div>
@@ -1588,7 +1938,9 @@ input[type=range] {
   </div>
 
 </div><!-- /main-content -->
-</div><!-- /main -->
+    </div><!-- /dcMainScroll -->
+  </div><!-- /dcMain -->
+</div><!-- /dcApp -->
 
 <script>
 const APP_VERSION = 'v21.1';
@@ -1611,6 +1963,10 @@ function selectEnv(group, val, btn) {
     const genreLabel = env.genre === 'fps'  ? 'FPS'    : 'MMO';
     const s1sum = document.getElementById('step1Summary');
     if (s1sum) s1sum.textContent = `${gpuLabel} × ${osLabel} × ${genreLabel}`;
+    const dcChips = document.getElementById('dcEnvChips');
+    const dcEnvText = document.getElementById('dcEnvText');
+    if (dcChips) dcChips.style.display = 'block';
+    if (dcEnvText) dcEnvText.textContent = `${gpuLabel} · ${osLabel} · ${genreLabel}`;
     goStep(2);
     initSliders();
     renderResults();
@@ -1654,6 +2010,21 @@ function copyKrCmd(btn) {
   clipboardCopy(btn, text);
 }
 
+function updateTopbarConflictBadge() {
+  const badge = document.getElementById('topbarConflictBadge');
+  if (!badge) return;
+  const checked = new Set(
+    [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
+  );
+  const count = CONFLICTS.filter(c => c.ids.every(id => checked.has(id))).length;
+  if (count > 0) {
+    badge.textContent = `⚠️ ${count}件競合`;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
 // ── PRESETS ──
 function getPresetIds(type) {
   const settings = getSettings();
@@ -1668,6 +2039,37 @@ function getPresetIds(type) {
     targets = settings.filter(s => s.available && !(s.securityRisk === true));
   } else if (type === 'all') {
     targets = settings.filter(s => s.available);
+  } else if (type === 'noconflict') {
+    // 競合ペアを完全回避しつつ impact:high→medium→low 優先で選択
+    // 各ペアから片方のみ採用（high優先、同等なら先頭のIDを採用）
+    const impactOrder = { high: 0, medium: 1, low: 2 };
+    const available = settings.filter(s => s.available);
+    const excluded = new Set();
+
+    // 競合ペアを impact 昇順でソートし、低インパクト側を除外
+    const sortedConflicts = [...CONFLICTS].sort((a, b) => {
+      const getMinImpact = ids => Math.min(...ids.map(id => {
+        const s = available.find(x => x.id === id);
+        return s ? (impactOrder[s.impact] ?? 2) : 2;
+      }));
+      return getMinImpact(a.ids) - getMinImpact(b.ids);
+    });
+
+    sortedConflicts.forEach(pair => {
+      // ペア内でまだ除外されていないIDのみ対象
+      const active = pair.ids.filter(id => !excluded.has(id) && available.find(s => s.id === id));
+      if (active.length < 2) return; // 既に片方除外済みなら不要
+      // impactが低い方（または後ろの方）を除外
+      const sorted = [...active].sort((a, b) => {
+        const sa = available.find(s => s.id === a);
+        const sb = available.find(s => s.id === b);
+        return (impactOrder[sb?.impact] ?? 2) - (impactOrder[sa?.impact] ?? 2);
+      });
+      // 最もimpactが低いIDを除外（同等なら末尾）
+      excluded.add(sorted[0]);
+    });
+
+    targets = available.filter(s => !excluded.has(s.id));
   }
   return (targets || []).map(s => s.id);
 }
@@ -1725,7 +2127,7 @@ function applyPreset(type) {
 }
 
 function updatePresetCounts() {
-  ['beginner', 'safe', 'secure', 'all'].forEach(type => {
+  ['beginner', 'safe', 'secure', 'noconflict', 'all'].forEach(type => {
     const ids = getPresetIds(type);
     const el = document.getElementById(`presetCount-${type}`);
     if (el) el.textContent = ids.length;
@@ -1733,6 +2135,8 @@ function updatePresetCounts() {
 }
 
 function goStep4() {
+  updateDcNav(4);
+  updateDcNav(4);
   const panel4 = document.getElementById('stepPanel-4');
   if (!panel4) return;
   const isOpen = panel4.style.display !== 'none';
@@ -1767,6 +2171,48 @@ function goStep(n) {
       document.getElementById(`stepCircle-${i}`).textContent = i;
     }
   });
+  // DC左サイドバーのナビ更新
+  updateDcNav(n);
+}
+
+function updateDcNav(activeStep) {
+  const titles = ['', '環境選択', '診断', '設定一覧', 'NVIDIAプロファイル'];
+  const descs  = ['', 'GPU・OS・ジャンルを選択してください', 'ネットワーク品質・キーリピートを計測', `設定カードを確認してチェックを入れてください`, 'NVIDIA Inspector プロファイルを生成'];
+  [1, 2, 3, 4].forEach(i => {
+    const nav = document.getElementById(`dcNav-${i}`);
+    if (!nav) return;
+    nav.classList.toggle('active', i === activeStep);
+  });
+  const topTitle = document.getElementById('dcTopbarTitle');
+  const topDesc  = document.getElementById('dcTopbarDesc');
+  if (topTitle) topTitle.textContent = titles[activeStep] || '';
+  if (topDesc && !(activeStep === 3 && document.querySelectorAll('.setting-card').length > 0)) {
+    topDesc.textContent = descs[activeStep] || '';
+  }
+  // トップバーのボタンを更新
+  updateTopbarBtns(activeStep);
+}
+
+function updateTopbarBtns(step) {
+  const wrap = document.getElementById('dcTopbarBtns');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  if (step === 3) {
+    // 競合バッジ（競合ありのみ表示・checkConflictsから更新される）
+    const badge = document.createElement('div');
+    badge.id = 'topbarConflictBadge';
+    badge.style.cssText = 'display:none;padding:4px 10px;background:#da373c;color:#fff;border-radius:4px;font-size:12px;font-weight:700;';
+    wrap.appendChild(badge);
+
+    const btn2 = document.createElement('button');
+    btn2.textContent = '📦 適用 .bat 生成';
+    btn2.style.cssText = 'padding:5px 12px;background:#5865f2;color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;';
+    btn2.addEventListener('click', () => { const el = document.querySelector('[data-action="exportBat"]'); if(el) el.click(); });
+    wrap.appendChild(btn2);
+
+    // 現在の競合状態を即反映
+    updateTopbarConflictBadge();
+  }
 }
 
 function expandStep(n) {
@@ -3135,7 +3581,20 @@ function renderResults() {
   const results = document.getElementById('results');
   if (results) results.classList.add('show');
 
-  // サイドバーを表示
+  // DC左サイドバーのプリセット・エクスポートセクションを表示
+  const dcPreset = document.getElementById('dcPresetSection');
+  if (dcPreset) dcPreset.style.display = 'block';
+  const dcExport = document.getElementById('dcExportBtns');
+  if (dcExport) { dcExport.style.display = 'flex'; dcExport.style.flexDirection = 'row'; }
+  const dcShareCodeBox = document.getElementById('dcShareCodeBox');
+  if (dcShareCodeBox) dcShareCodeBox.style.display = 'block';
+  updateSidebarShareCode();
+
+  // NVIDIA環境ならStep 4ナビを表示
+  const dcNav4 = document.getElementById('dcNav-4');
+  if (dcNav4) dcNav4.style.display = env.gpu === 'nvidia' ? 'flex' : 'none';
+
+  // 旧サイドバーを表示（非表示にはならないようにする）
   const sidebar = document.getElementById('step3Sidebar');
   if (sidebar) sidebar.style.display = 'block';
 
@@ -3354,24 +3813,35 @@ function checkConflicts(changedId) {
 
   const wrap = document.getElementById('sidebarConflictWrap');
   const list = document.getElementById('sidebarConflictList');
-  if (!wrap || !list) return;
+
+  // DC左サイドバーの競合表示も更新
+  const dcSection = document.getElementById('dcConflictSection');
+  const dcList    = document.getElementById('dcConflictList');
 
   if (active.length === 0) {
-    wrap.style.display = 'none';
-    list.innerHTML = '';
+    if (wrap) { wrap.style.display = 'none'; }
+    if (list) list.innerHTML = '';
+    if (dcSection) dcSection.style.display = 'none';
+    if (dcList)    dcList.innerHTML = '';
+    updateTopbarConflictBadge();
     return;
   }
 
-  list.innerHTML = active.map(c => `
-    <div style="font-size:11px;color:#7a4a00;line-height:1.6;padding:8px 10px;background:rgba(255,255,255,0.5);border-radius:6px;">
-      <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:3px;color:var(--yellow);">
-        ${c.ids.join(' + ')}
-      </div>
-      ${c.msg}
+  const conflictHTML = active.map(c => `
+    <div style="margin-bottom:6px;">
+      <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;color:#f0b132;margin-bottom:2px;">${c.ids.join(' + ')}</div>
+      <div style="font-size:11px;color:#dbdee1;line-height:1.5;">${c.msg}</div>
     </div>`).join('');
 
-  wrap.style.display = 'block';
-  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (dcSection) { dcSection.style.display = 'block'; }
+  if (dcList)    dcList.innerHTML = conflictHTML;
+  if (wrap) { wrap.style.display = 'block'; }
+  if (list) list.innerHTML = active.map(c => `
+    <div style="font-size:11px;color:#7a4a00;line-height:1.6;padding:8px 10px;background:rgba(255,255,255,0.5);border-radius:6px;">
+      <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:3px;color:var(--yellow);">${c.ids.join(' + ')}</div>
+      ${c.msg}
+    </div>`).join('');
+  updateTopbarConflictBadge();
 }
 
 
@@ -3379,6 +3849,7 @@ function saveCheckedCards() {
   const checked = [...document.querySelectorAll('.setting-card.checked')]
     .map(c => c.id.replace('card-', ''));
   localStorage.setItem('lt_checked', JSON.stringify(checked));
+  updateSidebarShareCode();
 }
 
 function restoreCheckedCards() {
@@ -3430,6 +3901,17 @@ function updateProgress() {
   document.getElementById('progressBar').style.width = pct + '%';
   document.getElementById('stickyProgressFill').style.width = pct + '%';
   document.getElementById('stickyProgressText').textContent = `${checked.length} / ${cards.length}`;
+  // DC左サイドバーのチェック数バッジを更新
+  const badge = document.getElementById('dcCheckedCount');
+  if (badge) {
+    badge.textContent = checked.length;
+    badge.style.display = checked.length > 0 ? 'block' : 'none';
+  }
+  // トップバーの説明文を更新
+  const desc = document.getElementById('dcTopbarDesc');
+  if (desc && cards.length > 0) {
+    desc.textContent = `${cards.length}枚 · ${checked.length}枚チェック済み`;
+  }
 }
 
 function escHtml(str) {
@@ -4033,50 +4515,56 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
 // ══════════════════════════════════════════════
 
 // ── SHARE CODE v2: Base64 JSON（全カード対応） ──
+// ── 共有コード v3（ビットマスク・常に11文字固定） ──
+// ID順序固定。追加は末尾のみ。既存インデックス変更禁止。
+const SHARE_IDS = [
+  'reflex','ull','shader_cache','hypr_rx','mpo','mmcss_sr','hags',
+  'power','nagle','vbs','spectre','timer','network_throttle','nic_lso',
+  'nic_buffer','usb_suspend','rss','tcp_autotuning','hpet','gamedvr',
+  'msi_mode','interrupt_affinity','coreparking','process',
+  'affinity','irq_affinity','win32priority','registry',
+];
+
 function encodeSharePayload(data) {
-  const payload = {
-    g: data.g,
-    o: data.o,
-    genre: data.genre,
-    rx: data.rx,
-    tx: data.tx,
-    c: data.checked || [],
-  };
-  const json = JSON.stringify(payload);
-  const b64  = btoa(unescape(encodeURIComponent(json)))
+  const gpuBit   = data.g     === 'nvidia' ? 0n : 1n;
+  const osBit    = data.o     === 'win11'  ? 0n : 1n;
+  const genreBit = data.genre === 'fps'    ? 0n : 1n;
+  const rxIdx    = BigInt(Math.min(15, Math.max(0, Math.round((data.rx || 256) / 64) - 1)));
+  const txIdx    = BigInt(Math.min(15, Math.max(0, Math.round((data.tx || 256) / 64) - 1)));
+  let mask = 0n;
+  (data.checked || []).forEach(id => {
+    const i = SHARE_IDS.indexOf(id);
+    if (i >= 0) mask |= (1n << BigInt(i + 1));
+  });
+  const n = (gpuBit << 39n) | (osBit << 38n) | (genreBit << 37n) |
+            (rxIdx << 33n) | (txIdx << 29n) | mask;
+  const bytes = [];
+  let tmp = n;
+  for (let i = 0; i < 5; i++) { bytes.unshift(Number(tmp & 0xffn)); tmp >>= 8n; }
+  const b64 = btoa(String.fromCharCode(...bytes))
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return 'LT2_' + b64;
+  return 'LT3_' + b64;
 }
 
 function decodeSharePayload(code) {
   try {
     const s = code.trim();
-    // v2形式
-    if (s.startsWith('LT2_')) {
-      const b64 = s.slice(4).replace(/-/g, '+').replace(/_/g, '/');
-      const pad = (4 - b64.length % 4) % 4;
-      const json = decodeURIComponent(escape(atob(b64 + '='.repeat(pad))));
-      const d = JSON.parse(json);
-      return { g: d.g, o: d.o, genre: d.genre, rx: d.rx, tx: d.tx, checked: d.c || [] };
-    }
-    // v1後方互換（旧LT + 4文字）
-    if (s.toUpperCase().startsWith('LT') && s.length <= 10) {
-      const raw = s.slice(2);
-      const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
-      const bin = atob(b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '='));
-      const n = (((bin.charCodeAt(0) << 16) | (bin.charCodeAt(1) << 8) | bin.charCodeAt(2)) >>> 0);
-      const OLD_IDS = ['reflex','ull','hags','power','timer','nagle','gamedvr','nic_lso','nic_buffer','affinity','registry','network_throttle'];
-      const mask    = (n >> 1) & 0xFFF;
-      return {
-        g:       ['nvidia','amd'][(n >> 23) & 1],
-        o:       ['win11','win10'][(n >> 22) & 1],
-        genre:   ['fps','mmo'][(n >> 21) & 1],
-        rx:      (((n >> 17) & 0xF) + 1) * 64,
-        tx:      (((n >> 13) & 0xF) + 1) * 64,
-        checked: OLD_IDS.filter((_, i) => (mask >> i) & 1),
-      };
-    }
-    return null;
+    if (!s.startsWith('LT3_')) return null;
+    const b64 = s.slice(4).replace(/-/g, '+').replace(/_/g, '/');
+    const pad = (4 - b64.length % 4) % 4;
+    const bin = atob(b64 + '='.repeat(pad));
+    if (bin.length < 5) return null;
+    let n = 0n;
+    for (let i = 0; i < 5; i++) n = (n << 8n) | BigInt(bin.charCodeAt(i));
+    const checked = SHARE_IDS.filter((_, i) => (n >> BigInt(i + 1)) & 1n);
+    return {
+      g:       Number((n >> 39n) & 1n) ? 'amd'   : 'nvidia',
+      o:       Number((n >> 38n) & 1n) ? 'win10' : 'win11',
+      genre:   Number((n >> 37n) & 1n) ? 'mmo'   : 'fps',
+      rx:      (Number((n >> 33n) & 0xfn) + 1) * 64,
+      tx:      (Number((n >> 29n) & 0xfn) + 1) * 64,
+      checked,
+    };
   } catch(e) { return null; }
 }
 
@@ -4099,9 +4587,29 @@ function generateShareCode() {
   document.getElementById('shareCodeText').textContent = code;
   document.getElementById('shareCodeWrap').style.display = 'block';
 
-  // URLハッシュにも反映
-  history.replaceState(null, '', location.pathname + location.search + '#' + code);
+  // サイドバーコード表示枠にも反映
+  const dcEl = document.getElementById('dcShareCodeText');
+  if (dcEl) dcEl.textContent = code;
+
+  // URLパラメータ ?lt= に反映（ハッシュより安定・OGP対応しやすい）
+  try { history.replaceState(null, '', location.pathname + '?lt=' + encodeURIComponent(code)); } catch(e) {}
   showShareMsg('✓ 共有コードを生成しました', 'ok');
+}
+
+// サイドバーの共有コード表示枠をリアルタイム更新
+function updateSidebarShareCode() {
+  const el = document.getElementById('dcShareCodeText');
+  if (!el) return;
+  if (!env.gpu || !env.os || !env.genre) {
+    el.textContent = '——';
+    return;
+  }
+  try {
+    const code = encodeSharePayload(buildShareData());
+    el.textContent = code;
+  } catch(e) {
+    el.textContent = '——';
+  }
 }
 
 function copyShareCode(btn) {
@@ -4111,7 +4619,11 @@ function copyShareCode(btn) {
 
 function copyShareUrl(btn) {
   const code = document.getElementById('shareCodeText').textContent;
-  const url = location.origin + location.pathname + '#' + code;
+  if (!code || code === '——') {
+    showShareMsg('先に「共有コードを生成」してください', 'err');
+    return;
+  }
+  const url = location.origin + location.pathname + '?lt=' + encodeURIComponent(code);
   clipboardCopy(btn, url, btn.textContent);
   btn.textContent = '✓ URLをコピーしました';
 }
@@ -4168,18 +4680,33 @@ function importShareCode() {
   input.classList.remove('error');
   input.value = '';
   applyShareData(data);
-  showShareMsg('✓ 設定を復元しました', 'ok');
+  const count = data.checked ? data.checked.length : 0;
+  const countMsg = count > 0 ? `（${count}枚の設定を復元）` : '';
+  showShareMsg(`✓ 設定を復元しました ${countMsg}`, 'ok');
 }
 
 function tryImportFromUrl() {
-  const hash = location.hash.slice(1);
-  if (!hash.startsWith('LT')) return;
-  const data = decodeSharePayload(hash);
+  // URLパラメータ ?lt=LT2_xxx を優先、なければハッシュ #LT2_xxx
+  const params = new URLSearchParams(location.search);
+  const paramCode = params.get('lt');
+  const hashCode  = location.hash.slice(1);
+  const code = (paramCode && paramCode.startsWith('LT')) ? paramCode
+             : (hashCode.startsWith('LT')) ? hashCode
+             : null;
+  if (!code) return;
+  const data = decodeSharePayload(code);
   if (!data) return;
   applyShareData(data);
-  showShareMsg('✓ URLから設定を復元しました', 'ok');
-  document.getElementById('shareCodeText').textContent = hash;
+  // 復元枚数をカウントしてメッセージ表示
+  const count = data.checked ? data.checked.length : 0;
+  const countMsg = count > 0 ? `（${count}枚の設定を復元）` : '';
+  showShareMsg(`✓ URLから設定を復元しました ${countMsg}`, 'ok');
+  document.getElementById('shareCodeText').textContent = code;
   document.getElementById('shareCodeWrap').style.display = 'block';
+  // クリーンなURLに書き換え（?lt= パラメータを # に統一して履歴汚染を防ぐ）
+  if (paramCode) {
+    try { history.replaceState(null, '', location.pathname + '#' + code); } catch(e) {}
+  }
 }
 
 function clearShareMsg() {
@@ -4210,6 +4737,24 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (a === 'exportBat')        exportBat();
     else if (a === 'exportRollbackBat') exportRollbackBat();
     else if (a === 'copyShareCode')    copyShareCode(el);
+    else if (a === 'copyDcShareCode') {
+      const code = document.getElementById('dcShareCodeText')?.textContent;
+      if (code && code !== '——') clipboardCopy(el, code, '📋');
+    }
+    else if (a.startsWith('dcNavStep:')) {
+      const n = parseInt(a.split(':')[1]);
+      if (n === 1) expandStep(1);
+      else if (n === 2) expandStep(2);
+      else if (n === 3) goStep(3);
+      else if (n === 4) goStep4();
+    }
+    else if (a.startsWith('dcNavStep:')) {
+      const n = parseInt(a.split(':')[1]);
+      if (n === 1) expandStep(1);
+      else if (n === 2) expandStep(2);
+      else if (n === 3) { goStep(3); }
+      else if (n === 4) goStep4();
+    }
     else if (a === 'copyShareUrl')     copyShareUrl(el);
     else if (a === 'generateShareCode') generateShareCode();
     else if (a === 'importShareCode')  importShareCode();
@@ -4256,6 +4801,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   restoreEnv();
   tryImportFromUrl();
+  updateDcNav(1);
+  updateDcNav(1);
 });
 </script>
 </body>
