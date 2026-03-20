@@ -825,6 +825,32 @@ input[type=range] {
 .risk-low   { background: var(--yellow-light); color: var(--yellow); }
 .risk-high  { background: var(--red-light);    color: var(--red); }
 
+/* ── conflictsWith バッジ ── */
+.badge-conflict-warn {
+  font-size: 10px; padding: 2px 8px; border-radius: 4px;
+  font-weight: 600; background: var(--yellow-light); color: var(--yellow); cursor: default;
+}
+/* ── セキュリティリスクバナー ── */
+.security-banner {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: var(--red-light); border: 1px solid var(--red);
+  border-radius: 6px; padding: 8px 12px; margin-bottom: 12px;
+  font-size: 12px; color: var(--red); line-height: 1.5;
+}
+.security-banner-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.security-banner-text { flex: 1; }
+.security-banner-text strong {
+  display: block; font-weight: 700; margin-bottom: 2px;
+  font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+/* ── Win11 限定バナー ── */
+.win11-limited-banner {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--yellow-light); border: 1px solid var(--yellow);
+  border-radius: 6px; padding: 7px 12px; margin-bottom: 12px;
+  font-size: 12px; color: var(--yellow); line-height: 1.5;
+}
+
 .card-body {
   display: none;
   border-top: 1px solid var(--border);
@@ -1495,6 +1521,9 @@ input[type=text]:focus, input[type=number]:focus {
 .risk-none  { background: #1a2e20; color: #23a559; }
 .risk-low   { background: #2a2000; color: #f0b132; }
 .risk-high  { background: #2e1212; color: #da373c; }
+.badge-conflict-warn { background: #2a2000; color: #f0b132; }
+.security-banner { background: #2e1212; border-color: #da373c; color: #da373c; }
+.win11-limited-banner { background: #2a2000; border-color: #f0b132; color: #f0b132; }
 
 /* キーリピートエリア */
 .keyrepeat-target { background: #2e3035; border-color: #404249; }
@@ -1630,6 +1659,9 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 .risk-none  { background: #1a2e20; color: #23a559; }
 .risk-low   { background: #2a2000; color: #f0b132; }
 .risk-high  { background: #2e1212; color: #da373c; }
+.badge-conflict-warn { background: #2a2000; color: #f0b132; }
+.security-banner { background: #2e1212; border-color: #da373c; color: #da373c; }
+.win11-limited-banner { background: #2a2000; border-color: #f0b132; color: #f0b132; }
 .keyrepeat-target { background: #2e3035; border-color: #404249; }
 .keyrepeat-target.ready   { border-color: #5865f2; color: #949cf7; background: #1e2058; }
 .keyrepeat-target.holding { border-color: #23a559; color: #23a559; background: #1a2e20; }
@@ -2252,7 +2284,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 
 <script>
 const APP_VERSION = 'v22.0';
-const env = { gpu: null, os: null, genre: null };
+const env = { gpu: null, os: null, genre: null, cpu_cores: null };
 const pingState = { avg: null, jitter: null };
 
 function selectEnv(group, val, btn) {
@@ -2384,55 +2416,55 @@ const PRESET_ECO = [
 // ゲーム別推奨カード（Step4連動・ハイライト用）
 const PRESET_GAME = {
   fortnite: {
-    name: 'Fortnite', emoji: '🪂',
+    name: 'Fortnite', emoji: '🪂', note: 'Reflex非対応 / AMD HYPR-RX対応',
     ids: ['reflex','ull','shader_cache','hypr_rx','mpo','power','nagle',
           'dpc_latency','hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','process'],
   },
   valorant: {
-    name: 'VALORANT', emoji: '🎯',
+    name: 'VALORANT', emoji: '🎯', note: 'Reflex対応 / HYPR-RX非対応',
     ids: ['reflex','ull','shader_cache','mpo','power','nagle','dpc_latency',
           'hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','win32priority','interrupt_affinity','process'],
   },
   apex: {
-    name: 'Apex Legends', emoji: '🦁',
+    name: 'Apex Legends', emoji: '🦁', note: 'Reflex対応 / HYPR-RX非対応',
     ids: ['reflex','ull','shader_cache','mpo','power','nagle','dpc_latency',
           'hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','process','affinity'],
   },
   ow2: {
-    name: 'Overwatch 2', emoji: '🔫',
+    name: 'Overwatch 2', emoji: '🦸', note: 'Reflex対応 / AMD HYPR-RX対応',
     ids: ['reflex','ull','shader_cache','hypr_rx','mpo','power','nagle',
           'dpc_latency','hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','process'],
   },
   cs2: {
-    name: 'Counter-Strike 2', emoji: '💣',
+    name: 'Counter-Strike 2', emoji: '💣', note: 'Reflex対応 / HYPR-RX非対応',
     ids: ['reflex','ull','shader_cache','mpo','power','nagle','dpc_latency',
           'hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','win32priority','interrupt_affinity','process'],
   },
   r6s: {
-    name: 'Rainbow Six Siege', emoji: '🛡️',
+    name: 'Rainbow Six Siege', emoji: '🛡️', note: 'Reflex対応 / HYPR-RX非対応',
     ids: ['reflex','ull','shader_cache','mpo','power','nagle','dpc_latency',
           'hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','win32priority','process'],
   },
   pubg: {
-    name: 'PUBG', emoji: '🔵',
+    name: 'PUBG', emoji: '🎒', note: 'Reflex非対応 / AMD HYPR-RX対応',
     ids: ['shader_cache','hypr_rx','mpo','power','nagle','dpc_latency',
           'hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','coreparking','process'],
   },
   tarkov: {
-    name: 'Escape from Tarkov', emoji: '🪖',
+    name: 'Escape from Tarkov', emoji: '🪖', note: 'Reflex非対応 / HYPR-RX非対応',
     ids: ['shader_cache','mpo','power','nagle','dpc_latency',
           'hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','coreparking','process','affinity'],
   },
   bf2042: {
-    name: 'Battlefield 2042', emoji: '🎖️',
+    name: 'Battlefield 2042', emoji: '🎖️', note: 'Reflex非対応 / AMD HYPR-RX対応',
     ids: ['shader_cache','hypr_rx','mpo','power','nagle','dpc_latency',
           'hpet','rss','nic_buffer','gamedvr','nvme_queue',
           'msi_mode','coreparking','process'],
@@ -2470,6 +2502,7 @@ let currentGameHighlight = null;
 function applyGameHighlight(gameKey) {
   clearGameHighlight(false);
   const preset = PRESET_GAME[gameKey];
+  const gameNote = preset && preset.note ? preset.note : null;
   if (!preset) return;
   currentGameHighlight = gameKey;
 
@@ -2505,7 +2538,7 @@ function applyGameHighlight(gameKey) {
   }
 
   // ハイライト通知バナー
-  showGameHighlightBanner(preset);
+  showGameHighlightBanner(preset, gameNote);
 }
 
 function clearGameHighlight(resetSidebar = true) {
@@ -2521,7 +2554,7 @@ function clearGameHighlight(resetSidebar = true) {
   if (banner) banner.remove();
 }
 
-function showGameHighlightBanner(preset) {
+function showGameHighlightBanner(preset, gameNote) {
   const existing = document.getElementById('gameHighlightBanner');
   if (existing) existing.remove();
   const grid = document.getElementById('settingsGrid');
@@ -2531,7 +2564,7 @@ function showGameHighlightBanner(preset) {
   banner.style.cssText = 'background:#1e2040;border:1px solid #5865f2;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;font-size:12px;color:#c9cdfb;';
   banner.innerHTML = `
     <span style="font-size:16px;">${preset.emoji}</span>
-    <span><strong>${preset.name}</strong> 向け推奨カードを <span style="color:#949cf7;font-weight:700;">${preset.ids.length}枚</span> ハイライト中。チェックは任意です。</span>
+    <span><strong>${preset.name}</strong> 向け推奨カードを <span style="color:#949cf7;font-weight:700;">${preset.ids.length}枚</span> ハイライト中。チェックは任意です。${gameNote ? ` <span style="opacity:0.7;font-size:10px;">（${gameNote}）</span>` : ''}</span>
     <button data-action="gamePreset:clear" style="margin-left:auto;font-size:11px;padding:3px 8px;background:transparent;color:#949cf7;border:1px solid #5865f2;border-radius:4px;cursor:pointer;">✕ 解除</button>
   `;
   grid.parentNode.insertBefore(banner, grid);
@@ -3441,6 +3474,7 @@ Write-Host "確認: フレームタイムをCapFrameX等で計測してくださ
     //   ・再起動不要（即時反映）
     // ──────────────────────────────────────────
     id: 'mmcss_sr',
+    conflictsWith: ['network_throttle', 'registry'],
     layer: 'GPU', layerColor: '#0066ff',
     emoji: '📐',
     title: 'MMCSS SystemResponsiveness をゲーム最優先に設定',
@@ -3625,7 +3659,7 @@ Set-ItemProperty -Path $krnPath -Name "DpcWatchdogProfileOffset" -Value 0 -Type 
 Write-Host "DPC/ISRレイテンシ軽減設定を適用しました"`,
     }],
     manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\NDIS\\Parameters\n   → MaxNumRoutineCallbacks = 64（DWORD）\n③ HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel\n   → DpcWatchdogProfileOffset = 0（DWORD）\n④ 再起動\n\n※ 効果の確認にはLatencyMon（無料ツール）が有用です',
-    verify: `$a = (Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NDIS\\Parameters' -ErrorAction SilentlyContinue).MaxNumRoutineCallbacks; $b = (Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel' -ErrorAction SilentlyContinue).DpcWatchdogProfileOffset; "MaxNumRoutineCallbacks=$a / DpcWatchdogProfileOffset=$b"`,
+    verify: `$a = (Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NDIS\\Parameters' -ErrorAction SilentlyContinue).MaxNumRoutineCallbacks; $b = (Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel' -ErrorAction SilentlyContinue).DpcWatchdogProfileOffset; $aStr = if ($null -ne $a) { $a } else { '未設定（デフォルト）' }; $bStr = if ($null -ne $b) { $b } else { '未設定（デフォルト）' }; "MaxNumRoutineCallbacks=$aStr / DpcWatchdogProfileOffset=$bStr"`,
   },
     {
     id: 'timer',
@@ -3649,6 +3683,7 @@ Write-Host "DPC/ISRレイテンシ軽減設定を適用しました"`,
   },
   {
     id: 'network_throttle',
+    conflictsWith: ['mmcss_sr', 'registry'],
     layer: 'OS', layerColor: '#12b76a',
     emoji: '⚙️',
     title: 'NetworkThrottlingIndex を無効化',
@@ -3828,18 +3863,23 @@ Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueue
     emoji: '⚙️',
     title: 'HPET（High Precision Event Timer）を無効化',
     sub: 'システムタイマー — タイマー解像度カードと併用推奨',
-    desc: 'HPETはWindowsが精密な時間計測に使用するハードウェアタイマーです。一部のシステムではHPETの割り込みオーバーヘッドがCPUの処理に影響し、フレームタイムの不安定さにつながります。bcdeditでHPETを無効化し、TSCベースのタイマーに切り替えることで改善が見込めます。効果は環境によって異なるため、前後でフレームタイムを比較してください。\n\n💡 「タイマー解像度」カードとの関係: HPETは「どのタイマーソースを使うか」、タイマー解像度は「割り込み間隔を何msにするか」という別レイヤーの設定です。両立可能で、HPETを先に無効化してからTimerResolutionを適用するのが推奨順序です。\n\n⚠️ Win11環境ではHPETの扱いが変わっており効果が限定的です。Win10環境で効果が顕著です。',
+    desc: e => e.os === 'win11'
+      ? '⚠️ 【Win11の場合】Win11ではHPETの扱いが変更されており、bcdeditでの無効化効果は限定的です。代わりに「タイマー解像度」カードをご確認ください（Win11 22H2以降はゲーム中に自動で1ms設定されます）。\n\n以下は参考情報です: HPETはWindowsが精密な時間計測に使用するハードウェアタイマーです。bcdeditでHPETを無効化しTSCベースのタイマーに切り替えることでフレームタイムが改善するケースがありますが、Win10環境での効果が顕著です。'
+      : 'HPETはWindowsが精密な時間計測に使用するハードウェアタイマーです。一部のシステムではHPETの割り込みオーバーヘッドがCPUの処理に影響し、フレームタイムの不安定さにつながります。bcdeditでHPETを無効化し、TSCベースのタイマーに切り替えることで改善が見込めます。効果は環境によって異なるため、前後でフレームタイムを比較してください。\n\n💡 「タイマー解像度」カードとの関係: HPETは「どのタイマーソースを使うか」、タイマー解像度は「割り込み間隔を何msにするか」という別レイヤーの設定です。両立可能で、HPETを先に無効化してからTimerResolutionを適用するのが推奨順序です。',
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
     fps: '◎', mmo: '○',
-    available: e => e.os !== 'win11',
-    naReason: 'Windows 11ではHPETの扱いが変更されており、この設定の効果は限定的です',
-    commands: [{
+    available: true,
+    win11Limited: true,
+    naReason: 'Windows 11ではHPETの扱いが変更されており効果は限定的です。代わりに「タイマー解像度」カードをご確認ください（Win11 22H2以降はゲーム中に自動で1ms設定されます）。',
+    commands: e => e.os === 'win11' ? [] : [{
       label: 'PowerShell（管理者）',
       text:
 `# HPET を無効化してTSCタイマーに切り替え\nStart-Process bcdedit -ArgumentList '/deletevalue useplatformclock' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/set useplatformtick yes' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/set disabledynamictick yes' -Wait -NoNewWindow\nWrite-Host "HPET を無効化しました。再起動後に反映されます。"`
     }],
-    manual: '① 管理者PowerShellで上記コマンドを実行\n② 再起動\n③ フレームタイムを計測して変化を確認\n\n復元方法:\nbcdedit /set useplatformclock true\nbcdedit /deletevalue useplatformtick\nbcdedit /deletevalue disabledynamictick',
+    manual: e => e.os === 'win11'
+      ? 'Win11環境ではこの設定の効果は限定的です。「タイマー解像度」カードをご確認ください。\n\n適用する場合:\n① 管理者PowerShellで上記コマンドを実行\n② 再起動\n③ フレームタイムを計測して変化を確認'
+      : '① 管理者PowerShellで上記コマンドを実行\n② 再起動\n③ フレームタイムを計測して変化を確認\n\n復元方法:\nbcdedit /set useplatformclock true\nbcdedit /deletevalue useplatformtick\nbcdedit /deletevalue disabledynamictick',
     verify: '& bcdedit /enum | Select-String -Pattern "useplatformclock|useplatformtick|disabledynamictick"',
   },
   {
@@ -3848,7 +3888,7 @@ Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueue
     emoji: '⚙️',
     title: 'NVMe I/O レイテンシを軽減',
     sub: 'レジストリ → NVMe I/Oキューを絞ってレイテンシを改善',
-    desc: 'NVMe SSDはI/Oキューに最大254リクエストを積むよう設定されており、これはスループット重視の構成です。ゲームのストリーミングロードやオープンワールドのチャンク読み込みでは、キューサイズを32に絞ることでI/O要求の滞留を減らし、平均レイテンシが改善するケースがあります。HDDやSATA SSD環境では効果がないため、NVMe SSD搭載環境のみ推奨します。',
+    desc: 'NVMe SSDはI/Oキューに最大254リクエストを積むよう設定されており、これはスループット重視の構成です。ゲームのストリーミングロードやオープンワールドのチャンク読み込みでは、キューサイズを32に絞ることでI/O要求の滞留を減らし、平均レイテンシが改善するケースがあります。ゲーム用途のI/Oはシーケンシャルかつ短期集中型であり、深いキューを必要としないため32が実用上の最適値です（256や128では効果が薄く、16以下ではスループットが犠牲になります）。HDDやSATA SSD環境では効果がないため、NVMe SSD搭載環境のみ推奨します。',
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
     fps: '◎', mmo: '◎',
@@ -4046,7 +4086,7 @@ if ($proc) {
       const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
       const maskHex = '0x' + mask.toString(16).toUpperCase();
       if (cores <= 4) return `⚠️ ${cores}コア環境のため、アフィニティ固定は逆効果になる場合があります。この設定はスキップしてプロセス優先度「高」のみ設定することを推奨します。`;
-      return `ゲームプロセスを特定のCPUコアに固定することで、OSのバックグラウンド処理との競合を減らしフレームタイムが安定します。検出されたコア数（${cores}コア）から、ゲーム用に${gameCores}コア（マスク値: ${maskHex}）を割り当てます。\n\n⚠️ Intel 第12世代（Alder Lake）以降のPコア／Eコア混在CPUをお使いの場合: 単純に「後ろのコアを空ける」設定にすると、性能の低いEコアだけでゲームが実行されるリスクがあります。Pコア番号をタスクマネージャーの「CPU」タブで確認し、Pコアのみを選択するマスク値を手動で計算することを推奨します。\n\n💡 関連カードとの使い分け: 「NVIDIA割り込みアフィニティ」はGPUドライバーの割り込みコアを固定する設定、「IRQアフィニティ」はすべてのデバイス割り込みを固定する上級設定です。このカードはゲームプロセス自体のコアを固定します。3つは独立した設定で組み合わせ可能ですが、コア数が少ない環境では全部適用すると逆効果になることがあります。`;
+      return `ゲームプロセスを特定のCPUコアに固定することで、OSのバックグラウンド処理との競合を減らしフレームタイムが安定します。検出されたコア数（${cores}コア）から、ゲーム用に${gameCores}コア（マスク値: ${maskHex}）を割り当てます。\n\n⚠️ Intel 第12世代（Alder Lake）以降のPコア／Eコア混在CPUをお使いの場合: 単純に「後ろのコアを空ける」設定にすると、性能の低いEコアだけでゲームが実行されるリスクがあります。Pコア番号をタスクマネージャーの「CPU」タブで確認し、Pコアのみを選択するマスク値を手動で計算することを推奨します。\n\n💡 コア数の確認方法: Win+Pause（または「システム情報」）→「プロセッサ」欄に論理コア数が表示されます。タスクマネージャーの「パフォーマンス」→「CPU」タブでも確認できます。\n\n💡 関連カードとの使い分け: 「NVIDIA割り込みアフィニティ」はGPUドライバーの割り込みコアを固定する設定、「IRQアフィニティ」はすべてのデバイス割り込みを固定する上級設定です。このカードはゲームプロセス自体のコアを固定します。3つは独立した設定で組み合わせ可能ですが、コア数が少ない環境では全部適用すると逆効果になることがあります。`;
     },
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
@@ -4133,6 +4173,7 @@ Write-Host "現在値: $((Get-ItemProperty $path).Win32PrioritySeparation)"`,
   },
   {
     id: 'registry',
+    conflictsWith: ['mmcss_sr', 'network_throttle'],
     layer: 'CPU', layerColor: '#f5a623',
     emoji: '🔲',
     title: 'GPUスケジューラ優先度 + SFIO Priority をレジストリで変更',
@@ -4316,6 +4357,18 @@ function renderResults() {
       </div>
       <div class="card-body">
         ${!s.available ? `<div class="na-notice">⚠️ ${escHtml(s.naReason || 'この環境では対象外の設定です')}</div>` : `
+          ${s.securityRisk ? `
+          <div class="security-banner">
+            <span class="security-banner-icon">🔐</span>
+            <span class="security-banner-text">
+              <strong>セキュリティ機能の無効化</strong>
+              この設定はWindowsのセキュリティ保護を低下させます。個人のゲーム専用PC・競技専用機のみ推奨。企業環境・共有PC・ネットバンキング利用環境では実行しないでください。
+            </span>
+          </div>` : ''}
+          ${s.win11Limited && env.os === 'win11' ? `
+          <div class="win11-limited-banner">
+            ⚠️ <strong>Win11環境:</strong>&nbsp;この設定の効果は限定的です。「タイマー解像度」カードを優先してください。
+          </div>` : ''}
           <p class="card-desc">${escHtml(s.desc)}</p>
           ${cmdHTML}
         `}
@@ -4330,6 +4383,31 @@ function renderResults() {
   if (currentGameHighlight) {
     applyGameHighlight(currentGameHighlight);
   }
+  updateConflictsWithBadges();
+}
+
+// ── CONFLICTS-WITH BADGE UPDATE ──
+function updateConflictsWithBadges() {
+  const settings = getSettings();
+  const checkedIds = new Set(
+    [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
+  );
+  settings.forEach(s => {
+    if (!s.conflictsWith || !s.conflictsWith.length) return;
+    const card = document.getElementById('card-' + s.id);
+    if (!card) return;
+    const badgeRow = card.querySelector('.card-badge-row');
+    if (!badgeRow) return;
+    badgeRow.querySelectorAll('.badge-conflict-warn').forEach(el => el.remove());
+    const overlapping = s.conflictsWith.filter(id => checkedIds.has(id));
+    if (overlapping.length > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'badge-conflict-warn';
+      badge.textContent = '⚠️ 重複あり';
+      badge.title = '次のカードと設定が重複しています: ' + overlapping.join(', ');
+      badgeRow.appendChild(badge);
+    }
+  });
 }
 
 // ── CONFLICT CHECK ──
@@ -4436,6 +4514,7 @@ function checkConflicts(changedId) {
     if (dcSection) dcSection.style.display = 'none';
     if (dcList)    dcList.innerHTML = '';
     updateTopbarConflictBadge();
+    updateConflictsWithBadges();
     return;
   }
 
@@ -4454,6 +4533,7 @@ function checkConflicts(changedId) {
       ${c.msg}
     </div>`).join('');
   updateTopbarConflictBadge();
+  updateConflictsWithBadges();
 }
 
 
@@ -4504,6 +4584,7 @@ function toggleCard(id) {
   updateProgress();
   saveCheckedCards();
   checkConflicts(id);
+  updateConflictsWithBadges();
 }
 
 function filterCards() {
