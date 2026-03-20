@@ -3848,7 +3848,7 @@ Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueue
     emoji: '⚙️',
     title: 'NVMe I/O レイテンシを軽減',
     sub: 'レジストリ → NVMe I/Oキューを絞ってレイテンシを改善',
-    desc: 'NVMe SSDのデフォルトキュー深度（254）はスループット重視の設定です。ゲームのストリーミングロードやオープンワールドのチャンク読み込みでは、キュー深度を32に絞ることでI/O要求の滞留を減らし、平均レイテンシが改善するケースがあります。HDDやSATA SSD環境では効果がないため、NVMe SSD搭載環境のみ推奨します。',
+    desc: 'NVMe SSDはI/Oキューに最大254リクエストを積むよう設定されており、これはスループット重視の構成です。ゲームのストリーミングロードやオープンワールドのチャンク読み込みでは、キューサイズを32に絞ることでI/O要求の滞留を減らし、平均レイテンシが改善するケースがあります。HDDやSATA SSD環境では効果がないため、NVMe SSD搭載環境のみ推奨します。',
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
     fps: '◎', mmo: '◎',
@@ -3856,7 +3856,7 @@ Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueue
     commands: [{
       label: 'PowerShell（管理者）',
       text:
-`# NVMe キュー深度を 32 に設定（デフォルト: 254）
+`# NVMe I/Oキューサイズを 32 に設定（通常値: 254）
 $path = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\StorNVMe\\Parameters\\Device"
 If (!(Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
 Set-ItemProperty -Path $path -Name "QueueDepth" -Value 32 -Type DWord
@@ -5045,7 +5045,7 @@ Write-Host "  --> バックアップ完了: $backupDir" -ForegroundColor Green`;
       psCode: `$ndisPath = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NDIS\\Parameters"\nRemove-ItemProperty -Path $ndisPath -Name "MaxNumRoutineCallbacks" -ErrorAction SilentlyContinue\n$krnPath = "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel"\nRemove-ItemProperty -Path $krnPath -Name "DpcWatchdogProfileOffset" -ErrorAction SilentlyContinue\nWrite-Host "  --> DPC/ISR設定をデフォルトに戻しました（再起動後に反映）" -ForegroundColor Green` },
 
     { id: 'nvme_queue', title: 'NVMe I/Oレイテンシ設定をデフォルトに戻す',
-      psCode: `$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\StorNVMe\\Parameters\\Device"\nRemove-ItemProperty -Path $path -Name "QueueDepth" -ErrorAction SilentlyContinue\nWrite-Host "  --> NVMeキュー深度をデフォルト（254）に戻しました（再起動後に反映）" -ForegroundColor Green` },
+      psCode: `$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\StorNVMe\\Parameters\\Device"\nRemove-ItemProperty -Path $path -Name "QueueDepth" -ErrorAction SilentlyContinue\nWrite-Host "  --> NVMe I/Oキューサイズを元の値（254）に戻しました（再起動後に反映）" -ForegroundColor Green` },
 
   ].filter(r => {
     if (!checkedIds.has(r.id)) return false;
