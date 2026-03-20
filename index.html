@@ -1489,7 +1489,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
     <!-- サーバータイトル -->
     <div style="padding:16px 12px 12px;border-bottom:1px solid #1e1f22;flex-shrink:0;">
       <div style="font-size:15px;font-weight:700;color:#f2f3f5;letter-spacing:.01em;">遅延最適化ツール</div>
-      <div style="font-size:11px;color:#949ba4;margin-top:2px;font-family:var(--mono);">v21.1 · PCゲーム向け</div>
+      <div style="font-size:11px;color:#949ba4;margin-top:2px;font-family:var(--mono);">v21.2 · PCゲーム向け</div>
     </div>
 
     <!-- ステップナビ -->
@@ -1943,7 +1943,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 </div><!-- /dcApp -->
 
 <script>
-const APP_VERSION = 'v21.1';
+const APP_VERSION = 'v21.2';
 const env = { gpu: null, os: null, genre: null };
 const pingState = { avg: null, jitter: null };
 
@@ -2136,7 +2136,6 @@ function updatePresetCounts() {
 
 function goStep4() {
   updateDcNav(4);
-  updateDcNav(4);
   const panel4 = document.getElementById('stepPanel-4');
   if (!panel4) return;
   const isOpen = panel4.style.display !== 'none';
@@ -2270,6 +2269,7 @@ function krReset() {
 
 document.addEventListener('keydown', e => {
   if (!krState.active || krState.done) return;
+  if (e.ctrlKey || e.altKey || e.metaKey) return; // 修飾キーはブラウザ操作を優先
   e.preventDefault();
   const now = performance.now();
   if (krState.firstTs === null) {
@@ -4056,13 +4056,43 @@ function showPs1Guide(batName, ps1Name, zipName) {
   setTimeout(() => { if (guide.parentNode) guide.remove(); }, 30000);
 }
 
+// ── PS1ファイル UTF-8 BOM付きエンコード（共通）──
+function encodePs1WithBom(text) {
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  const body = new TextEncoder().encode(text.replace(/\r?\n/g, '\r\n'));
+  const out = new Uint8Array(bom.length + body.length);
+  out.set(bom, 0); out.set(body, bom.length);
+  return out;
+}
+
+// ── 汎用エラートースト（alert代替）──
+function showErrorToast(msg) {
+  const existing = document.getElementById('errorToast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'errorToast';
+  toast.style.cssText = [
+    'position:fixed','bottom:28px','right:24px',
+    'background:var(--white)','border:2px solid var(--red)',
+    'border-radius:12px','padding:14px 18px',
+    'z-index:9999','box-shadow:0 8px 30px rgba(0,0,0,0.3)',
+    'font-family:var(--sans)','font-size:13px',
+    'color:var(--red)','font-weight:700',
+    'display:flex','align-items:center','gap:10px',
+    'max-width:320px','animation:stepIn 0.2s ease',
+  ].join(';');
+  toast.innerHTML = `<span>⚠️</span><span>${msg}</span>`;
+  document.body.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
+}
+
 function exportBat() {
   const settings = getSettings();
   const checkedIds = new Set(
     [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
   );
   if (checkedIds.size === 0) {
-    alert('設定を1つ以上チェックしてからエクスポートしてください。');
+    showErrorToast('設定を1つ以上チェックしてからエクスポートしてください。');
     return;
   }
 
@@ -4178,12 +4208,7 @@ Read-Host "  Enterキーで終了"
   const batName = `latency-optimize-${env.gpu}-${env.os}.bat`;
   const zipName = `latency-optimize-${env.gpu}-${env.os}.zip`;
 
-  const ps1Text = psMain.replace(/\r?\n/g, '\r\n');
-  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  const enc = new TextEncoder();
-  const body = enc.encode(ps1Text);
-  const ps1Bytes = new Uint8Array(bom.length + body.length);
-  ps1Bytes.set(bom, 0); ps1Bytes.set(body, bom.length);
+  const ps1Bytes = encodePs1WithBom(psMain);
 
   const batLines = [
     '@echo off',
@@ -4205,22 +4230,27 @@ Read-Host "  Enterキーで終了"
   const zip = new JSZip();
   zip.file(ps1Name, ps1Bytes);
   zip.file(batName, batLines);
-  zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
-    const a = document.createElement('a');
-    const objUrl2 = URL.createObjectURL(blob);
-    a.href = objUrl2;
-    a.download = zipName;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(objUrl2), 10000);
-    showPs1Guide(batName, ps1Name, zipName);
-  });
+  zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
+    .then(blob => {
+      const a = document.createElement('a');
+      const objUrl2 = URL.createObjectURL(blob);
+      a.href = objUrl2;
+      a.download = zipName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(objUrl2), 10000);
+      showPs1Guide(batName, ps1Name, zipName);
+    })
+    .catch(err => {
+      console.error('ZIP生成エラー:', err);
+      showErrorToast('ZIPの生成に失敗しました。ブラウザを更新して再試行してください。');
+    });
 }
 function exportRollbackBat() {
   const checkedIds = new Set(
     [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
   );
   if (checkedIds.size === 0) {
-    alert('設定を1つ以上チェックしてからロールバックBATを生成してください。');
+    showErrorToast('設定を1つ以上チェックしてからロールバックBATを生成してください。');
     return;
   }
 
@@ -4463,12 +4493,7 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
   const batName = `latency-ROLLBACK-${env.gpu}-${env.os}.bat`;
   const zipName = `latency-ROLLBACK-${env.gpu}-${env.os}.zip`;
 
-  const ps1Text = psMain.replace(/\r?\n/g, '\r\n');
-  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  const enc = new TextEncoder();
-  const body = enc.encode(ps1Text);
-  const ps1Bytes = new Uint8Array(bom.length + body.length);
-  ps1Bytes.set(bom, 0); ps1Bytes.set(body, bom.length);
+  const ps1Bytes = encodePs1WithBom(psMain);
 
   const batLines = [
     '@echo off',
@@ -4490,15 +4515,20 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
   const zip = new JSZip();
   zip.file(ps1Name, ps1Bytes);
   zip.file(batName, batLines);
-  zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(blob => {
-    const a = document.createElement('a');
-    const objUrl3 = URL.createObjectURL(blob);
-    a.href = objUrl3;
-    a.download = zipName;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(objUrl3), 10000);
-    showPs1Guide(batName, ps1Name, zipName);
-  });
+  zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
+    .then(blob => {
+      const a = document.createElement('a');
+      const objUrl3 = URL.createObjectURL(blob);
+      a.href = objUrl3;
+      a.download = zipName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(objUrl3), 10000);
+      showPs1Guide(batName, ps1Name, zipName);
+    })
+    .catch(err => {
+      console.error('ロールバックZIP生成エラー:', err);
+      showErrorToast('ZIPの生成に失敗しました。ブラウザを更新して再試行してください。');
+    });
 }
 // ══════════════════════════════════════════════
 // ── SHARE SYSTEM ──
@@ -4703,10 +4733,8 @@ function tryImportFromUrl() {
   showShareMsg(`✓ URLから設定を復元しました ${countMsg}`, 'ok');
   document.getElementById('shareCodeText').textContent = code;
   document.getElementById('shareCodeWrap').style.display = 'block';
-  // クリーンなURLに書き換え（?lt= パラメータを # に統一して履歴汚染を防ぐ）
-  if (paramCode) {
-    try { history.replaceState(null, '', location.pathname + '#' + code); } catch(e) {}
-  }
+  // URLを ?lt= 形式に統一（generateShareCode と一致させる）
+  try { history.replaceState(null, '', location.pathname + '?lt=' + encodeURIComponent(code)); } catch(e) {}
 }
 
 function clearShareMsg() {
@@ -4746,13 +4774,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (n === 1) expandStep(1);
       else if (n === 2) expandStep(2);
       else if (n === 3) goStep(3);
-      else if (n === 4) goStep4();
-    }
-    else if (a.startsWith('dcNavStep:')) {
-      const n = parseInt(a.split(':')[1]);
-      if (n === 1) expandStep(1);
-      else if (n === 2) expandStep(2);
-      else if (n === 3) { goStep(3); }
       else if (n === 4) goStep4();
     }
     else if (a === 'copyShareUrl')     copyShareUrl(el);
@@ -4801,7 +4822,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   restoreEnv();
   tryImportFromUrl();
-  updateDcNav(1);
   updateDcNav(1);
 });
 </script>
