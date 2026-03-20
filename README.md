@@ -82,7 +82,7 @@ Step 4  NVIDIA Inspector プロファイル生成（NVIDIA環境のみ）
 | `tcp_autotuning` | TCP自動チューニング無効化 | 受信ウィンドウサイズの動的変動を固定化 |
 | `hpet` | HPET無効化 | システムタイマーをTSCベースに統一 |
 | `dpc_latency` | DPC/ISR レイテンシ軽減 | NDISコールバック制限・DPCウォッチドッグ調整でレイテンシスパイクを抑制 |
-| `nvme_queue` | NVMe I/O レイテンシ軽減 | NVMeキュー深度を32に絞りI/O滞留を削減（NVMe SSD環境向け） |
+| `nvme_queue` | NVMe I/O レイテンシ軽減 | NVMeキューサイズを32に絞りI/O滞留を削減（NVMe SSD環境向け） |
 | `gamedvr` | Game DVR無効化 | バックグラウンド録画によるGPU・CPU負荷を排除 |
 
 ### 🔲 CPU（8枚）
