@@ -19,7 +19,7 @@ const I18N = {
 ja: {
   // サイドバー・共通
   appTitle: '遅延最適化ツール',
-  appSub: 'v23.0 · PCゲーム向け',
+  appSub: 'v23.2 · PCゲーム向け',
   navStep: 'ステップ',
   nav1: '環境選択',
   nav2: '診断',
@@ -236,6 +236,26 @@ ja: {
   step1Win10Label: 'Win 10',
   // topbar conflict badge
   topConflictBadge: '件競合',
+  // NIPパネル追加キー
+  nipGameSpecificBadge: 'このゲーム向け',
+  nipCustomNameWarn: '⚠ ゲーム名を入力してください（省略時: Custom Game）',
+  // カード共通
+  cardSecBannerTitle: 'セキュリティ機能の無効化',
+  cardSecBannerDesc: 'この設定はWindowsのセキュリティ保護を低下させます。個人のゲーム専用PC・競技専用機のみ推奨。企業環境・共有PC・ネットバンキング利用環境では実行しないでください。',
+  cardVerifyPsLabel: 'PowerShell（管理者）',
+  // Step4 NIPパネル
+  step4ShaderNoteTitle: 'Shader Cache: Unlimited 適用後の推奨手順',
+  step4ShaderNoteDesc: '.nipインポート → 再起動 → ',
+  step4ShaderNoteDesc2: ' → 「DirectX Shader Cache」にチェック → 削除 → 再起動。これにより新しい設定でキャッシュが再構築されます。',
+  // エラー・メッセージ
+  toastExportEmpty: '設定を1つ以上チェックしてからエクスポートしてください。',
+  toastBackupEmpty: '設定を1つ以上チェックしてからバックアップ作成を実行してください。',
+  toastZipFail: 'ZIPの生成に失敗しました。ブラウザを更新して再試行してください。',
+  shareMsgNeedEnv: '先にGPU・OS・ジャンルを選択してください',
+  shareMsgGenerated: '✓ 共有コードを生成しました',
+  shareMsgNeedGenerate: '先に「共有コードを生成」してください',
+  shareMsgNeedCode: 'コードを入力してください',
+  shareMsgInvalid: '無効なコードです。コードを確認してください',
 },
 
 // ────────────────────────────────────────────────────
@@ -443,6 +463,26 @@ en: {
   step1Win11Label: 'Win 11',
   step1Win10Label: 'Win 10',
   topConflictBadge: ' conflict(s)',
+  // NIP panel
+  nipGameSpecificBadge: 'For this game',
+  nipCustomNameWarn: '⚠ Enter game name (default: Custom Game)',
+  // Card common
+  cardSecBannerTitle: 'Security Feature Disabled',
+  cardSecBannerDesc: 'This setting reduces Windows security protection. Recommended for personal gaming/competitive PCs only. Do not apply in corporate, shared, or online banking environments.',
+  cardVerifyPsLabel: 'PowerShell (Admin)',
+  // Step4 NIP panel
+  step4ShaderNoteTitle: 'Recommended steps after applying Shader Cache: Unlimited',
+  step4ShaderNoteDesc: '.nip import → Restart → ',
+  step4ShaderNoteDesc2: ' → Check "DirectX Shader Cache" → Delete → Restart. This forces the cache to rebuild with the new settings.',
+  // Error messages
+  toastExportEmpty: 'Check at least one setting before exporting.',
+  toastBackupEmpty: 'Check at least one setting before creating a backup.',
+  toastZipFail: 'Failed to generate ZIP. Please refresh and try again.',
+  shareMsgNeedEnv: 'Please select GPU, OS, and genre first',
+  shareMsgGenerated: '✓ Share code generated',
+  shareMsgNeedGenerate: 'Please generate a share code first',
+  shareMsgNeedCode: 'Please enter a code',
+  shareMsgInvalid: 'Invalid code. Please check the code and try again',
 },
 
 // ────────────────────────────────────────────────────
@@ -450,7 +490,7 @@ en: {
 // ────────────────────────────────────────────────────
 zh: {
   appTitle: '延迟优化工具',
-  appSub: 'v23.0 · PC游戏专用',
+  appSub: 'v23.2 · PC游戏专用',
   navStep: '步骤',
   nav1: '环境选择',
   nav2: '诊断',
@@ -663,6 +703,23 @@ function t(key) {
 
 
 // NIP設定descの翻訳
+
+// NIP設定のlabel翻訳（NIP_SETTINGS.labelはja固定のためEN/ZH用に分離）
+const NIP_LABEL_I18N = {
+  shader_cache:        { en: 'Shader Cache: Unlimited',                                          zh: 'Shader Cache: 无限制' },
+  texture_filtering:   { en: 'Texture Filtering: High Performance',                              zh: '纹理过滤: 高性能' },
+  threaded_opt:        { en: 'Threaded Optimization: On',                                        zh: '多线程优化: 开启' },
+  low_latency:         { en: 'Low Latency Mode: On',                                             zh: '低延迟模式: 开启' },
+  power_management:    { en: 'Power Management: Prefer Max Performance',                         zh: '电源管理: 首选最高性能' },
+  prerendered_frames:  { en: 'Maximum Pre-Rendered Frames: 1',                                   zh: '最大预渲染帧数: 1' },
+  rbar_feature:        { en: 'Resizable BAR: Force Enable (rBAR Options & Size Limit applied together)', zh: 'Resizable BAR: 强制启用（rBAR选项和大小限制一起应用）' },
+  cuda_p2:             { en: 'CUDA - Force P2 State (VRAM Clock Lock)',                          zh: 'CUDA - 强制P2状态（显存频率锁定）' },
+  memory_allocation:   { en: 'Memory Allocation Policy: Immediate',                              zh: '内存分配策略: 立即分配' },
+  async_compute:       { en: 'Enable Async Compute: Off (DX12 stability)',                       zh: '启用异步计算: 关闭（DX12稳定性）' },
+  aa_transparency:     { en: 'Antialiasing - Transparency: Multisample',                         zh: '透明抗锯齿: 多重采样' },
+  predefined_aniso:    { en: 'Texture Filtering - Driver Controlled LOD Bias: Off',              zh: '纹理过滤 - 驱动控制LOD偏差: 关闭' },
+};
+
 const NIP_DESC_I18N = {
   shader_cache: {
     en: 'Prevents stuttering from shader compilation. Especially effective in open-world and large maps.',
@@ -938,16 +995,11 @@ const CARD_I18N = {
     affinity: {
       title: 'Set Game Process CPU Affinity',
       sub: () => {
-        const cores = navigator.hardwareConcurrency || 4;
-        const gameCores = Math.max(1, cores - 2);
-        const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+        const { cores, gameCores, mask, maskHex } = getCoreInfo();
         return `Detected cores: ${cores} → Recommended mask: 0x${mask.toString(16).toUpperCase()}`;
       },
       desc: () => {
-        const cores = navigator.hardwareConcurrency || 4;
-        const gameCores = Math.max(1, cores - 2);
-        const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
-        const maskHex = '0x' + mask.toString(16).toUpperCase();
+        const { cores, gameCores, mask, maskHex } = getCoreInfo();
         if (cores <= 4) return `⚠️ ${cores}-core environment — affinity pinning may be counterproductive. Skip this setting and only set process priority to "High".`;
         return `Pinning the game process to specific CPU cores reduces contention with OS background tasks, stabilizing frame times. From the detected core count (${cores} cores), assigning ${gameCores} cores (mask: ${maskHex}) to the game.
 
@@ -958,8 +1010,7 @@ const CARD_I18N = {
       riskLabel: 'Check behavior',
       naReason: 'Detected core count is 4 or fewer. Affinity pinning is not recommended. Only set process priority to "High".',
       manual: () => {
-        const cores = navigator.hardwareConcurrency || 4;
-        const gameCores = Math.max(1, cores - 2);
+        const { cores, gameCores } = getCoreInfo();
         if (cores <= 4) return '⚠️ Low core count — skipping this setting is recommended.';
         return `① Launch game, then open Task Manager (Ctrl+Shift+Esc)
 ② "Details" tab → right-click game .exe → "Set Affinity"
@@ -1202,16 +1253,11 @@ const CARD_I18N = {
     affinity: {
       title: '设置游戏进程CPU亲和性',
       sub: () => {
-        const cores = navigator.hardwareConcurrency || 4;
-        const gameCores = Math.max(1, cores - 2);
-        const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+        const { cores, gameCores, mask, maskHex } = getCoreInfo();
         return `检测到核心数: ${cores} → 推荐掩码: 0x${mask.toString(16).toUpperCase()}`;
       },
       desc: () => {
-        const cores = navigator.hardwareConcurrency || 4;
-        const gameCores = Math.max(1, cores - 2);
-        const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
-        const maskHex = '0x' + mask.toString(16).toUpperCase();
+        const { cores, gameCores, mask, maskHex } = getCoreInfo();
         if (cores <= 4) return `⚠️ ${cores}核心环境，固定亲和性可能适得其反。建议跳过此设置，仅设置进程优先级为「高」。`;
         return `将游戏进程固定到特定CPU核心，减少与OS后台处理的竞争，稳定帧时间。根据检测到的核心数（${cores}核），为游戏分配${gameCores}个核心（掩码值：${maskHex}）。
 
@@ -1222,8 +1268,7 @@ const CARD_I18N = {
       riskLabel: '需确认运行状态',
       naReason: '检测到核心数为4个以下，不建议固定亲和性。请仅设置进程优先级为「高」。',
       manual: () => {
-        const cores = navigator.hardwareConcurrency || 4;
-        const gameCores = Math.max(1, cores - 2);
+        const { cores, gameCores } = getCoreInfo();
         if (cores <= 4) return '⚠️ 核心数少，建议跳过此设置。';
         return `① 启动游戏后按Ctrl+Shift+Esc打开任务管理器
 ② 「详细信息」标签 → 右键游戏.exe → 「设置相关性」
@@ -1256,6 +1301,26 @@ const CARD_I18N = {
       riskLabel: '轻微风险',
       manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games\n③ GPU Priority → 8，Priority → 6，Scheduling Category → High\n④ SFIO Priority → High（字符串值）',
     },
+    // NIP面板
+    nipGameSpecificBadge: '此游戏专属',
+    nipCustomNameWarn: '⚠ 请输入游戏名称（默认：Custom Game）',
+    // 卡片通用
+    cardSecBannerTitle: '安全功能已禁用',
+    cardSecBannerDesc: '此设置会降低Windows安全保护。仅推荐用于个人游戏专用机/竞技专用机。请勿在企业、共享电脑或网上银行使用的环境中执行。',
+    cardVerifyPsLabel: 'PowerShell（管理员）',
+    // Step4 NIP面板
+    step4ShaderNoteTitle: '应用 Shader Cache: Unlimited 后的推荐步骤',
+    step4ShaderNoteDesc: '.nip导入 → 重启 → ',
+    step4ShaderNoteDesc2: ' → 勾选「DirectX Shader Cache」→ 删除 → 重启。这样可以用新设置重新构建缓存。',
+    // 错误消息
+    toastExportEmpty: '请至少勾选一项设置后再导出。',
+    toastBackupEmpty: '请至少勾选一项设置后再创建备份。',
+    toastZipFail: 'ZIP生成失败。请刷新页面后重试。',
+    shareMsgNeedEnv: '请先选择GPU、OS和游戏类型',
+    shareMsgGenerated: '✓ 共享代码已生成',
+    shareMsgNeedGenerate: '请先生成共享代码',
+    shareMsgNeedCode: '请输入代码',
+    shareMsgInvalid: '无效的代码，请确认后重试',
   }, // end zh
 };
 
@@ -2988,15 +3053,167 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 .dc-game-tree-item:hover { background: #35373c; color: #dbdee1; }
 .dc-game-tree-item.active { color: #fff; background: #404249; }
 
+
+/* ── キーボードショートカットヘルプ ── */
+#kbdHelp {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+#kbdHelp.show { display: flex; }
+#kbdHelpBox {
+  background: var(--dc-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 28px;
+  min-width: 320px;
+  max-width: 420px;
+}
+#kbdHelpBox h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.kbd-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--mid);
+}
+.kbd-row:last-child { border-bottom: none; }
+.kbd-key {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--dc-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--text);
+}
+
+
+/* ── プログレスバー スムーズトランジション ── */
+#progressBar, #stickyProgressFill {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ── カードチェック アニメーション ── */
+@keyframes checkPop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.2); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.setting-card.checked .card-check {
+  animation: checkPop 0.2s ease-out;
+}
+@keyframes cardHighlight {
+  0%   { box-shadow: 0 0 0 0 rgba(88,101,242,0.4); }
+  50%  { box-shadow: 0 0 0 6px rgba(88,101,242,0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(88,101,242,0); }
+}
+.setting-card.just-checked {
+  animation: cardHighlight 0.4s ease-out;
+}
+
+
+/* ── コピー成功ミニトースト ── */
+#copyToast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--green);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 10000;
+  white-space: nowrap;
+}
+#copyToast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+
+/* ── 達成演出 ── */
+@keyframes pulseGreen {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(35,165,89,0.4); }
+  50%       { box-shadow: 0 0 0 8px rgba(35,165,89,0); }
+}
+#progressBar.all-green {
+  background: var(--green) !important;
+  animation: pulseGreen 1.5s ease-in-out 3;
+}
+
+
+/* ── スキップリンク（アクセシビリティ） ── */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 8px;
+  z-index: 99999;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 0 0 8px 8px;
+  text-decoration: none;
+  transition: top 0.1s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+
+/* ── フォーカス視認性（キーボード操作用） ── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.card-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+.sel-btn:focus-visible,
+.preset-btn:focus-visible,
+.grade-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* デフォルトのoutlineを抑制（マウス操作時は不要） */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
+<a href="#dcMainScroll" class="skip-link">メインコンテンツへスキップ</a>
 
 <div id="dcApp" style="display:flex;height:100vh;overflow:hidden;background:#313338;font-family:var(--sans);">
 
   <!-- Discord左サイドバー -->
-  <div id="dcSidebar" style="width:240px;background:#2b2d31;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;">
+  <div id="dcSidebar" role="navigation" aria-label="サイドバーナビゲーション" style="width:240px;background:#2b2d31;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;">
 
     <!-- サーバータイトル -->
     <div style="padding:16px 12px 12px;border-bottom:1px solid #1e1f22;flex-shrink:0;">
@@ -3118,11 +3335,12 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       <button class="lang-btn" data-lang="en" onclick="switchLang('en')" style="padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #404249;background:transparent;color:#949ba4;font-family:var(--mono);">EN</button>
       <button class="lang-btn" data-lang="zh" onclick="switchLang('zh')" style="padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #404249;background:transparent;color:#949ba4;font-family:var(--mono);">中文</button>
     </div>
+    <button onclick="toggleKbdHelp()" title="キーボードショートカット (?)" style="padding:4px 9px;background:var(--dc-hover);border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;font-size:12px;font-family:var(--mono);flex-shrink:0;" id="kbdHelpBtn">⌨️</button>
     <div id="dcTopbarBtns" style="display:flex;gap:8px;"></div>
     </div>
 
     <!-- スクロールエリア -->
-    <div id="dcMainScroll" style="flex:1;overflow-y:auto;padding:20px 24px;">
+    <div id="dcMainScroll" role="main" style="flex:1;overflow-y:auto;padding:20px 24px;">
 
 <div class="main-content">
 
@@ -3154,7 +3372,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       <div class="env-card">
         <h2 data-i18n="step1GpuTitle">🎮 GPUメーカー</h2>
         <p data-i18n="step1GpuDesc" style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">タスクマネージャー → パフォーマンス → GPU で確認できます。GeForce RTX/GTX → NVIDIA、Radeon RX → AMD</p>
-        <div class="btn-group">
+        <div class="btn-group" role="group" aria-label="GPUメーカーを選択">
           <button class="sel-btn" data-group="gpu" data-val="nvidia" data-i18n="step1GpuNvidia" aria-pressed="false">NVIDIA（GeForce）</button>
           <button class="sel-btn" data-group="gpu" data-val="amd" data-i18n="step1GpuAmd"    aria-pressed="false">AMD（Radeon）</button>
         </div>
@@ -3162,7 +3380,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       <div class="env-card">
         <h2 data-i18n="step1OsTitle">💻 OSバージョン</h2>
         <p data-i18n="step1OsDesc" style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">Win+R → winver で確認できます。「10.0.22000以降」はWindows 11です。</p>
-        <div class="btn-group">
+        <div class="btn-group" role="group" aria-label="OSバージョンを選択">
           <button class="sel-btn" data-group="os" data-val="win11" aria-pressed="false">Windows 11</button>
           <button class="sel-btn" data-group="os" data-val="win10" aria-pressed="false">Windows 10</button>
         </div>
@@ -3170,7 +3388,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       <div class="env-card">
         <h2 data-i18n="step1GenreTitle">🎯 ゲームジャンル</h2>
         <p data-i18n="step1GenreDesc" style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;">主にプレイするゲームの種類を選択。カードの◎/○評価がこの選択に基づいて表示されます。</p>
-        <div class="btn-group">
+        <div class="btn-group" role="group" aria-label="プレイジャンルを選択">
           <button class="sel-btn" data-group="genre" data-val="fps" data-i18n="step1GenreFps" aria-pressed="false">FPS・格闘（低遅延最優先）</button>
           <button class="sel-btn" data-group="genre" data-val="mmo" data-i18n="step1GenreMmo" aria-pressed="false">MMO・RTS（安定性重視）</button>
         </div>
@@ -3252,7 +3470,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
           </div>
           <div id="bufferCmdWrap" style="margin-top:10px;display:none;">
             <div class="cmd-block">
-              <div class="cmd-label">PowerShell（管理者）</div>
+              <div class="cmd-label">${t('cardVerifyPsLabel')}</div>
               <div class="cmd-text" id="bufferCmdText"></div>
               <button class="copy-btn" data-action="copyBufferCmd">コピー</button>
             </div>
@@ -3335,9 +3553,13 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       <div id="results" class="results">
 
         <!-- 検索・フィルター -->
-        <div id="cardFilterBar" style="display:none;margin-bottom:12px;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="text" id="cardSearchInput" data-i18n-placeholder="step3SearchPlaceholder" placeholder="🔍 カードを検索..." data-action="filterCards"
-            style="flex:1;min-width:160px;padding:7px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);font-family:var(--sans);">
+        <div id="cardFilterBar" role="search" aria-label="設定カードを検索・フィルター" style="display:none;margin-bottom:12px;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div style="position:relative;flex:1;min-width:160px;">
+            <input type="text" id="cardSearchInput" data-i18n-placeholder="step3SearchPlaceholder" placeholder="🔍 カードを検索..." data-action="filterCards"
+              style="width:100%;padding:7px 32px 7px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);font-family:var(--sans);"
+              oninput="updateSearchClearBtn()">
+            <button id="searchClearBtn" onclick="clearSearchInput()" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:2px;">✕</button>
+          </div>
           <select id="cardImpactFilter" data-action="filterCards"
             style="padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;background:var(--bg);color:var(--text);cursor:pointer;">
             <option value="" data-i18n="step3FilterEffect">効果: すべて</option>
@@ -3371,6 +3593,10 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
           <button class="preset-btn" data-action="preset:eco"><span data-i18n="presetBarEco">🔋 省電力</span><span class="preset-count" id="presetCount-eco">—</span></button>
           <button class="preset-btn" data-action="preset:all"><span data-i18n="presetBarAll">⚡ 全部盛り</span><span class="preset-count" id="presetCount-all">—</span></button>
           <button class="preset-clear" data-action="preset:clear" data-i18n="presetBarClear">✕ クリア</button>
+          <div style="margin-left:auto;display:flex;gap:6px;">
+            <button id="checkAllBtn" onclick="checkAllCards()" title="表示中のカードを全チェック" style="padding:5px 10px;background:var(--green-light);color:var(--green);border:1px solid var(--green);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">✓ 全チェック</button>
+            <button id="uncheckAllBtn" onclick="uncheckAllCards()" title="全チェック解除" style="padding:5px 10px;background:var(--dc-input);color:var(--muted);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">□ 全解除</button>
+          </div>
         </div>
 
         <!-- 3:1 レイアウト -->
@@ -3379,7 +3605,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
           <!-- メインカラム: 設定カード -->
           <div class="step3-main">
             <div class="result-summary" id="resultSummary"></div>
-            <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="設定チェック進捗"></div></div>
             <div class="settings-grid" id="settingsGrid"></div>
             <div id="placeholder" data-i18n="step3Placeholder" style="text-align:center;padding:48px 0;color:var(--muted);font-size:13px;">
               ↑ GPU・OS・ゲームジャンルを選択すると設定一覧が表示されます
@@ -3535,9 +3761,9 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
         </div>
 
         <!-- Shader Cache クリア案内 -->
-        <div data-i18n-shader-note style="background:var(--green-light);border:1px solid var(--green);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#0a5c35;line-height:1.7;">
-          💡 <strong>Shader Cache: Unlimited 適用後の推奨手順</strong><br>
-          .nipインポート → 再起動 → <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">Win+R → cleanmgr</code> → 「DirectX Shader Cache」にチェック → 削除 → 再起動。これにより新しい設定でキャッシュが再構築されます。
+        <div id="nipShaderNote" style="background:var(--green-light);border:1px solid var(--green);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#0a5c35;line-height:1.7;">
+          💡 <strong data-i18n="step4ShaderNoteTitle">Shader Cache: Unlimited 適用後の推奨手順</strong><br>
+          <span data-i18n="step4ShaderNoteDesc">.nipインポート → 再起動 → </span><code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">Win+R → cleanmgr</code><span data-i18n="step4ShaderNoteDesc2"> → 「DirectX Shader Cache」にチェック → 削除 → 再起動。これにより新しい設定でキャッシュが再構築されます。</span>
         </div>
 
         <button class="s-btn primary" data-action="nipExport" data-i18n="step4DownloadBtn" style="font-size:14px;padding:12px 36px;border-radius:9px;">
@@ -3554,7 +3780,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 </div><!-- /dcApp -->
 
 <script>
-const APP_VERSION = 'v22.0';
+const APP_VERSION = 'v23.2';
 const env = { gpu: null, os: null, genre: null, cpu_cores: null };
 const pingState = { avg: null, jitter: null };
 
@@ -3566,7 +3792,7 @@ function selectEnv(group, val, btn) {
   });
   btn.classList.add('active');
   btn.setAttribute('aria-pressed', 'true');
-  localStorage.setItem('env_' + group, val);
+  localStorage.setItem('lt2_env_' + group, val);
   updateStep1NextBtn();
 }
 
@@ -3619,7 +3845,7 @@ function restoreEnv() {
   // env とボタン状態だけ先にセットし、最後に一度だけ初期化する。
   let restored = false;
   ['gpu', 'os', 'genre'].forEach(group => {
-    const saved = localStorage.getItem('env_' + group);
+    const saved = localStorage.getItem('lt2_env_' + group) ?? localStorage.getItem('env_' + group); // v23移行フォールバック
     if (!saved) return;
     const btn = document.querySelector(`[data-group="${group}"][data-val="${saved}"]`);
     if (!btn) return;
@@ -3826,6 +4052,10 @@ function clearGameHighlight(resetSidebar = true) {
 }
 
 function showGameHighlightBanner(preset, gameNote) {
+  // 高速連打時の重複生成防止
+  if (showGameHighlightBanner._pending) return;
+  showGameHighlightBanner._pending = true;
+  requestAnimationFrame(() => { showGameHighlightBanner._pending = false; });
   const existing = document.getElementById('gameHighlightBanner');
   if (existing) existing.remove();
   const grid = document.getElementById('settingsGrid');
@@ -4357,13 +4587,13 @@ function renderNipSettings(gameKey) {
     // ゲーム固有設定かどうかを判定（全ゲーム共通でない＝そのゲームに特化）
     const isGameSpecific = s.games.length <= 4 && gameKey !== 'custom';
     const specificBadge = isGameSpecific
-      ? `<span style="font-size:9px;font-weight:700;background:#5865f220;color:#949cf7;border:1px solid #5865f240;border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;">${currentLang==='en'?'For this game':currentLang==='zh'?'此游戏专属':'このゲーム向け'}</span>`
+      ? `<span style="font-size:9px;font-weight:700;background:#5865f220;color:#949cf7;border:1px solid #5865f240;border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;">${t('nipGameSpecificBadge')}</span>`
       : '';
     row.innerHTML = `
       <input type="checkbox" data-nip-key="${key}" ${checked ? 'checked' : ''}
         style="margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
       <div style="flex:1;">
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px;">${escHtml(s.label)}${specificBadge}</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;">${escHtml((currentLang !== 'ja' && NIP_LABEL_I18N[key] && NIP_LABEL_I18N[key][currentLang]) || s.label)}${specificBadge}</div>
         <div style="font-size:11px;color:var(--muted);line-height:1.5;">${escHtml((currentLang !== "ja" && NIP_DESC_I18N[key] && NIP_DESC_I18N[key][currentLang]) || s.desc)}</div>
       </div>`;
     list.appendChild(row);
@@ -4384,7 +4614,7 @@ function nipExport() {
   if (sel === 'custom' && !document.getElementById('nipCustomName').value.trim()) {
     const nameInput = document.getElementById('nipCustomName');
     nameInput.style.borderColor = 'var(--yellow)';
-    nameInput.placeholder = currentLang === 'en' ? '⚠ Enter game name (default: Custom Game)' : currentLang === 'zh' ? '⚠ 请输入游戏名称（默认：Custom Game）' : '⚠ ゲーム名を入力してください（省略時: Custom Game）';
+    nameInput.placeholder = t('nipCustomNameWarn');
     setTimeout(() => {
       nameInput.style.borderColor = '';
       nameInput.placeholder = 'e.g. Counter-Strike 2';
@@ -4484,14 +4714,10 @@ function updateFromWaveform() {
 // ── CPU CORE DETECTION ──
 function detectCpu() {
   document.getElementById('cpuInfoCard').style.display = 'flex';
-  const cores = navigator.hardwareConcurrency || 4;
+  const { cores, gameCores, mask, maskHex } = getCoreInfo();
   document.getElementById('cpuCores').textContent = cores;
 
   // アフィニティマスク：最後の2コア（OSとバックグラウンド用）を除いたビットマスク
-  const gameCores = Math.max(1, cores - 2);
-  // 32コア超でのビットシフトオーバーフロー防止（JS は32bit整数シフト）
-  const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
-  const maskHex = '0x' + Math.floor(mask).toString(16).toUpperCase();
   document.getElementById('cpuMask').textContent = maskHex;
 
   let recommend = '';
@@ -5368,16 +5594,11 @@ if ($proc) {
     emoji: '🔲',
     title: 'ゲームプロセスのCPUアフィニティ設定',
     sub: () => {
-      const cores = navigator.hardwareConcurrency || 4;
-      const gameCores = Math.max(1, cores - 2);
-      const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+      const { cores, gameCores, mask, maskHex } = getCoreInfo();
       return `検出コア数: ${cores} → 推奨マスク: 0x${mask.toString(16).toUpperCase()}`;
     },
     desc: () => {
-      const cores = navigator.hardwareConcurrency || 4;
-      const gameCores = Math.max(1, cores - 2);
-      const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
-      const maskHex = '0x' + mask.toString(16).toUpperCase();
+      const { cores, gameCores, mask, maskHex } = getCoreInfo();
       if (cores <= 4) return `⚠️ ${cores}コア環境のため、アフィニティ固定は逆効果になる場合があります。この設定はスキップしてプロセス優先度「高」のみ設定することを推奨します。`;
       return `ゲームプロセスを特定のCPUコアに固定することで、OSのバックグラウンド処理との競合を減らしフレームタイムが安定します。検出されたコア数（${cores}コア）から、ゲーム用に${gameCores}コア（マスク値: ${maskHex}）を割り当てます。\n\n⚠️ Intel 第12世代（Alder Lake）以降のPコア／Eコア混在CPUをお使いの場合: 単純に「後ろのコアを空ける」設定にすると、性能の低いEコアだけでゲームが実行されるリスクがあります。Pコア番号をタスクマネージャーの「CPU」タブで確認し、Pコアのみを選択するマスク値を手動で計算することを推奨します。\n\n💡 コア数の確認方法: Win+Pause（または「システム情報」）→「プロセッサ」欄に論理コア数が表示されます。タスクマネージャーの「パフォーマンス」→「CPU」タブでも確認できます。\n\n💡 関連カードとの使い分け: 「NVIDIA割り込みアフィニティ」はGPUドライバーの割り込みコアを固定する設定、「IRQアフィニティ」はすべてのデバイス割り込みを固定する上級設定です。このカードはゲームプロセス自体のコアを固定します。3つは独立した設定で組み合わせ可能ですが、コア数が少ない環境では全部適用すると逆効果になることがあります。`;
     },
@@ -5387,10 +5608,7 @@ if ($proc) {
     available: () => (navigator.hardwareConcurrency || 4) > 4,
     naReason: `検出コア数が4以下のため、アフィニティ固定は推奨しません。プロセス優先度「高」の設定のみ行ってください。`,
     commands: () => {
-      const cores = navigator.hardwareConcurrency || 4;
-      const gameCores = Math.max(1, cores - 2);
-      const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
-      const maskHex = '0x' + mask.toString(16).toUpperCase();
+      const { cores, gameCores, mask, maskHex } = getCoreInfo();
       return [{
         label: 'PowerShell（ゲーム起動後に実行）',
         text:
@@ -5412,8 +5630,7 @@ if ($proc) {
       }];
     },
     manual: () => {
-      const cores = navigator.hardwareConcurrency || 4;
-      const gameCores = Math.max(1, cores - 2);
+      const { cores, gameCores, mask, maskHex } = getCoreInfo();
       if (cores <= 4) return '⚠️ コア数が少ないためこの設定はスキップを推奨します。';
       return `① ゲームを起動してからCtrl+Shift+Escでタスクマネージャーを開く\n② 「詳細」タブ → ゲームの.exeを右クリック → 「関係の設定」\n③ 最初の${gameCores}コア（CPU 0〜${gameCores - 1}）にチェックを入れてOK\n④ 同じく右クリック → 「優先度の設定」→「高」\n⚠️ 毎回設定が必要。自動化はProcess Lassoを推奨。\n\n⚠️ Intel 第12世代（Alder Lake）以降のPコア・Eコア混在環境: 上記の設定ではEコアだけが選ばれる場合があります。タスクマネージャーの「パフォーマンス」→「CPU」→「コア」でPコアの番号を確認し、Pコアのみにチェックを入れてください。`;
     },
@@ -5521,6 +5738,7 @@ function getSettings() {
 
 function renderResults() {
   const settings = getSettings();
+  window._filterEnv = { ...env }; // filterCards用にenvをキャッシュ
   const gpuLabel = env.gpu === 'nvidia' ? 'NVIDIA' : 'AMD';
   const osLabel  = env.os  === 'win11'  ? 'Windows 11' : 'Windows 10';
 
@@ -5601,13 +5819,15 @@ function renderResults() {
     const card = document.createElement('div');
     card.className = `setting-card${!s.available ? ' na' : ''}`;
     card.id = `card-${s.id}`;
+    card.setAttribute('aria-expanded', 'false');
+    card.setAttribute('role', 'article');
 
     const layerBg = s.layerColor + '18';
     const riskClass = s.risk === 'none' ? 'risk-none' : s.risk === 'low' ? 'risk-low' : 'risk-high';
     const fpsTag    = s.fps    ? `<span class="badge-fps">FPS ${s.fps}</span>` : '';
     const mmoTag    = s.mmo    ? `<span class="badge-mmo">MMO ${s.mmo}</span>` : '';
     const impactMap = { high: ['badge-impact-high',t('cardEffectHigh')], medium: ['badge-impact-medium',t('cardEffectMed')], low: ['badge-impact-low',t('cardEffectLow')] };
-    const [impCls, impLabel] = impactMap[s.impact] || ['badge-impact-low','効果: 低'];
+    const [impCls, impLabel] = impactMap[s.impact] || ['badge-impact-low', t('cardEffectLow')];
     const impactTag = `<span class="${impCls}">${impLabel}</span>`;
 
     // FPS/MMO効果タグ
@@ -5637,7 +5857,7 @@ function renderResults() {
         <div class="verify-block">
           <div class="verify-label">${t('cardVerifyLabel')}</div>
           <div class="cmd-block" style="margin-top:0;">
-            <div class="cmd-label">PowerShell（管理者）</div>
+            <div class="cmd-label">${t('cardVerifyPsLabel')}</div>
             <div class="cmd-text" id="${verifyId}">${escHtml(s.verify)}</div>
             <button class="copy-btn" data-target="${verifyId}" data-action="copyCmdFromTarget">${t('cardCopyBtn')}</button>
           </div>
@@ -5645,7 +5865,7 @@ function renderResults() {
     }
 
     card.innerHTML = `
-      <div class="card-header" data-action="toggleCard:${escHtml(s.id)}">
+      <div class="card-header" data-action="toggleCard:${escHtml(s.id)}" tabindex="0" role="button" aria-label="${escHtml(s.title)}" aria-controls="card-body-${escHtml(s.id)}">
         <div class="card-check" id="check-${escHtml(s.id)}"></div>
         <div class="card-title-wrap">
           <div class="card-title">
@@ -5660,14 +5880,14 @@ function renderResults() {
           <div class="card-sub">${escHtml(s.sub)}</div>
         </div>
       </div>
-      <div class="card-body">
+      <div class="card-body" id="card-body-${escHtml(s.id)}">
         ${!s.available ? `<div class="na-notice">${t('cardNaPrefix')}${escHtml(s.naReason || t('cardNaDefault'))}</div>` : `
           ${s.securityRisk ? `
           <div class="security-banner">
             <span class="security-banner-icon">🔐</span>
             <span class="security-banner-text">
-              <strong>セキュリティ機能の無効化</strong>
-              この設定はWindowsのセキュリティ保護を低下させます。個人のゲーム専用PC・競技専用機のみ推奨。企業環境・共有PC・ネットバンキング利用環境では実行しないでください。
+              <strong>${t('cardSecBannerTitle')}</strong>
+              ${t('cardSecBannerDesc')}
             </span>
           </div>` : ''}
           ${s.win11Limited && env.os === 'win11' ? `
@@ -5716,6 +5936,16 @@ function updateConflictsWithBadges() {
 }
 
 // ── CONFLICT CHECK ──
+
+// ── Core計算ヘルパー（重複排除）──
+function getCoreInfo() {
+  const cores = navigator.hardwareConcurrency || 4;
+  const gameCores = Math.max(1, cores - 2);
+  const mask = gameCores < 31 ? (1 << gameCores) - 1 : Math.pow(2, gameCores) - 1;
+  const maskHex = '0x' + Math.floor(mask).toString(16).toUpperCase();
+  return { cores, gameCores, mask, maskHex };
+}
+
 const CONFLICTS = [
   {
     ids: ['nic_lso', 'coreparking'],
@@ -5796,6 +6026,7 @@ const CONFLICTS = [
 let _prevConflictIds = new Set();
 
 function checkConflicts(changedId) {
+  // changedId が null の場合は全体再チェック（全チェック/全解除時）
   const checked = new Set(
     [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
   );
@@ -5877,13 +6108,13 @@ function checkConflicts(changedId) {
 function saveCheckedCards() {
   const checked = [...document.querySelectorAll('.setting-card.checked')]
     .map(c => c.id.replace('card-', ''));
-  localStorage.setItem('lt_checked', JSON.stringify(checked));
+  localStorage.setItem('lt2_checked', JSON.stringify(checked));
   updateSidebarShareCode();
 }
 
 function restoreCheckedCards() {
   try {
-    const raw = localStorage.getItem('lt_checked');
+    const raw = localStorage.getItem('lt2_checked') ?? localStorage.getItem('lt_checked'); // v23移行フォールバック
     const parsed = JSON.parse(raw || '[]');
     // 破損データ（null・非配列）への防御
     const saved = Array.isArray(parsed) ? parsed : [];
@@ -5918,6 +6149,15 @@ function toggleCard(id) {
   }
   const check = document.getElementById(`check-${id}`);
   if (check) check.textContent = card.classList.contains('checked') ? '✓' : '';
+  // aria-expanded を open状態に同期
+  card.setAttribute('aria-expanded', card.classList.contains('open') ? 'true' : 'false');
+  // チェック時のマイクロアニメーション
+  if (card.classList.contains('checked')) {
+    card.classList.remove('just-checked');
+    void card.offsetWidth; // reflow
+    card.classList.add('just-checked');
+    setTimeout(() => card.classList.remove('just-checked'), 400);
+  }
   updateProgress();
   saveCheckedCards();
   checkConflicts(id);
@@ -5943,7 +6183,17 @@ function filterCards() {
     const s  = idToSetting[id];
     if (!s) return;
     const isChecked = el.classList.contains('checked');
-    const matchQuery   = !query   || s.title.toLowerCase().includes(query) || s.desc.toLowerCase().includes(query) || s.sub.toLowerCase().includes(query);
+    // i18n対応: currentLang のタイトル・説明・サブも検索対象に含める
+    const i18nTitle = getCardI18nText(id, 'title', currentLang, window._filterEnv || {}) || '';
+    const i18nDesc  = getCardI18nText(id, 'desc',  currentLang, window._filterEnv || {}) || '';
+    const i18nSub   = getCardI18nText(id, 'sub',   currentLang, window._filterEnv || {}) || '';
+    const matchQuery   = !query
+      || s.title.toLowerCase().includes(query)
+      || s.desc.toLowerCase().includes(query)
+      || s.sub.toLowerCase().includes(query)
+      || i18nTitle.toLowerCase().includes(query)
+      || i18nDesc.toLowerCase().includes(query)
+      || i18nSub.toLowerCase().includes(query);
     const matchImpact  = !impact  || s.impact === impact;
     const matchLayer   = !layer   || s.layer  === layer;
     const matchChecked = !checked || (checked === 'checked' ? isChecked : !isChecked);
@@ -5956,9 +6206,26 @@ function filterCards() {
   if (countEl) {
     const total = document.querySelectorAll('.setting-card:not(.na)').length;
     const anyFilter = query || impact || layer || checked;
-    countEl.textContent = anyFilter ? `${visible}件表示` : '';
+    countEl.textContent = anyFilter ? (currentLang === 'en' ? `${visible} shown` : currentLang === 'zh' ? `显示${visible}项` : `${visible}件表示`) : '';
     countEl.style.color = anyFilter ? 'var(--accent)' : 'var(--muted)';
   }
+}
+
+
+function updateSearchClearBtn() {
+  const input = document.getElementById('cardSearchInput');
+  const btn = document.getElementById('searchClearBtn');
+  if (!input || !btn) return;
+  btn.style.display = input.value ? 'block' : 'none';
+  filterCards();
+}
+
+function clearSearchInput() {
+  const input = document.getElementById('cardSearchInput');
+  if (input) { input.value = ''; input.focus(); }
+  const btn = document.getElementById('searchClearBtn');
+  if (btn) btn.style.display = 'none';
+  filterCards();
 }
 
 function clearCardFilter() {
@@ -5970,6 +6237,8 @@ function clearCardFilter() {
   if (ii) ii.value = '';
   if (li) li.value = '';
   if (ci) ci.value = '';
+  const scb = document.getElementById('searchClearBtn');
+  if (scb) scb.style.display = 'none';
   filterCards();
 }
 
@@ -5977,7 +6246,11 @@ function updateProgress() {
   const cards = document.querySelectorAll('.setting-card:not(.na)');
   const checked = document.querySelectorAll('.setting-card.checked');
   const pct = cards.length ? (checked.length / cards.length) * 100 : 0;
-  document.getElementById('progressBar').style.width = pct + '%';
+  const pb = document.getElementById('progressBar');
+  if (pb) {
+    pb.style.width = pct + '%';
+    pb.setAttribute('aria-valuenow', Math.round(pct));
+  }
   document.getElementById('stickyProgressFill').style.width = pct + '%';
   document.getElementById('stickyProgressText').textContent = `${checked.length} / ${cards.length}`;
   // DC左サイドバーのチェック数バッジを更新
@@ -5991,6 +6264,24 @@ function updateProgress() {
   if (desc && cards.length > 0) {
     desc.textContent = `${cards.length}${t('progressTopbarDesc')}${checked.length}${t('progressTopbarDescSuffix')}`;
   }
+  // プリセットバーの全チェック/全解除ボタン更新
+  const uncheckBtn = document.getElementById('uncheckAllBtn');
+  if (uncheckBtn) {
+    uncheckBtn.style.opacity = checked.length > 0 ? '1' : '0.4';
+    uncheckBtn.style.pointerEvents = checked.length > 0 ? '' : 'none';
+  }
+  // 達成演出: チェック済みが全体の80%以上かつ競合0
+  const progressBarEl = document.getElementById('progressBar');
+  if (progressBarEl) {
+    const hasConflict = document.querySelector('.setting-card.conflict.checked');
+    const highProgress = cards.length > 0 && (checked.length / cards.length) >= 0.8;
+    if (highProgress && !hasConflict && checked.length > 0) {
+      progressBarEl.classList.add('all-green');
+    } else {
+      progressBarEl.classList.remove('all-green');
+    }
+  }
+
   // 「設定を書き出す」ボタンのアピール演出
   const exportBtn = document.querySelector('[data-action="exportBat"]');
   if (exportBtn) {
@@ -6023,12 +6314,26 @@ function escXml(str) {
     .replace(/'/g,'&apos;');
 }
 
+
+function showCopyToast() {
+  const el = document.getElementById('copyToast');
+  if (!el) return;
+  el.textContent = currentLang === 'en' ? '✓ Copied!' : currentLang === 'zh' ? '✓ 已复制' : '✓ コピーしました';
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', 'polite');
+  el.classList.add('show');
+  clearTimeout(showCopyToast._t);
+  showCopyToast._t = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
 function clipboardCopy(btn, text, resetLabel) {
   const label = resetLabel || t('cardCopyBtn');
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = t('cardCopied');
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = label; btn.classList.remove('copied'); }, 2000);
+    // ミニトースト
+    showCopyToast();
   }).catch(() => {
     btn.textContent = t('cardCopyFail');
     setTimeout(() => { btn.textContent = label; }, 2000);
@@ -6172,18 +6477,23 @@ function showErrorToast(msg) {
     'display:flex','align-items:center','gap:10px',
     'max-width:320px','animation:stepIn 0.2s ease',
   ].join(';');
+  toast.setAttribute('role', 'alert');
+  toast.setAttribute('aria-live', 'assertive');
   toast.innerHTML = `<span>⚠️</span><span>${msg}</span>`;
   document.body.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
 }
 
 function exportBat() {
+  // PS内メッセージ言語切替
+  const _L = currentLang;
+  const _ps = (ja, en, zh) => _L === 'en' ? en : _L === 'zh' ? zh : ja;
   const settings = getSettings();
   const checkedIds = new Set(
     [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
   );
   if (checkedIds.size === 0) {
-    showErrorToast('設定を1つ以上チェックしてからエクスポートしてください。');
+    showErrorToast(t('toastExportEmpty'));
     return;
   }
 
@@ -6198,7 +6508,7 @@ function exportBat() {
     const cmds = getCommandText(s);
     if (!cmds?.length) return;
     const psLines = cmds
-      .filter(c => c.label.includes('PowerShell') || c.label.includes('レジストリ'))
+      .filter(c => c.label.includes('PowerShell') || c.label.includes(_ps('レジストリ','Registry','注册表')))
       .map(c => c.text);
     if (!psLines.length) return;
     cards.push({ id: s.id, title: s.title.replace(/"/g, "'").replace(/\n/g, ' '), psLines, verify: s.verify || '' });
@@ -6224,9 +6534,9 @@ function exportBat() {
     psFunctions += `  } catch {\n`;
     psFunctions += `    $msg = $_.Exception.Message\n`;
     psFunctions += `    if ($msg -match "not found|見つかりません|supported|対応") {\n`;
-    psFunctions += `      Write-Host "  --> この環境では対応していません（スキップ）" -ForegroundColor DarkGray\n`;
+    psFunctions += _ps(`      Write-Host "  --> この環境では対応していません（スキップ）" -ForegroundColor DarkGray\n`,`      Write-Host "  --> Not supported in this environment (skipped)" -ForegroundColor DarkGray\n`,`      Write-Host "  --> 此环境不支持（已跳过）" -ForegroundColor DarkGray\n`);
     psFunctions += `    } else {\n`;
-    psFunctions += `      Write-Host "  --> エラー: $msg" -ForegroundColor Red\n`;
+    psFunctions += _ps(`      Write-Host "  --> エラー: $msg" -ForegroundColor Red\n`,`      Write-Host "  --> Error: $msg" -ForegroundColor Red\n`,`      Write-Host "  --> 错误: $msg" -ForegroundColor Red\n`);
     psFunctions += `    }\n`;
     psFunctions += `  }\n`;
     psFunctions += `  ${verifyBlock}\n`;
@@ -6306,12 +6616,12 @@ Read-Host "  Enterキーで終了"
   const batLines = [
     '@echo off',
     'chcp 65001 >nul',
-    'REM PCゲーム遅延最適化 ランチャー',
-    'REM このファイルを右クリック →「管理者として実行」',
+    _ps('REM PCゲーム遅延最適化 ランチャー','REM PC Game Latency Optimizer Launcher','REM PC游戏延迟优化 启动器'),
+    _ps(_ps('REM このファイルを右クリック →「管理者として実行」','REM Right-click this file → Run as administrator','REM 右键此文件 → 以管理员身份运行'),'REM Right-click this file → Run as administrator','REM 右键此文件 → 以管理员身份运行'),
     '',
     'fltmc >nul 2>&1',
     'if %errorlevel% neq 0 (',
-    '    echo 管理者権限が必要です。昇格して再実行します...',
+    _ps('    echo 管理者権限が必要です。昇格して再実行します...','    echo Administrator rights required. Re-launching with elevation...','    echo 需要管理员权限。正在提升权限重新启动...'),
     `    powershell -Command "Start-Process -FilePath '%~f0' -Verb RunAs"`,
     '    exit /b',
     ')',
@@ -6337,16 +6647,19 @@ Read-Host "  Enterキーで終了"
       showPs1Guide(batName, ps1Name, zipName, rebootCount);
     })
     .catch(err => {
-      console.error('ZIP生成エラー:', err);
-      showErrorToast('ZIPの生成に失敗しました。ブラウザを更新して再試行してください。');
+      console.error(_ps('ZIP生成エラー:','ZIP generation error:','ZIP生成错误:'), err);
+      showErrorToast(t('toastZipFail'));
     });
 }
 function exportRollbackBat() {
+  // PS内メッセージ言語切替
+  const _L = currentLang;
+  const _ps = (ja, en, zh) => _L === 'en' ? en : _L === 'zh' ? zh : ja;
   const checkedIds = new Set(
     [...document.querySelectorAll('.setting-card.checked')].map(c => c.id.replace('card-', ''))
   );
   if (checkedIds.size === 0) {
-    showErrorToast('設定を1つ以上チェックしてからバックアップ作成を実行してください。');
+    showErrorToast(t('toastBackupEmpty'));
     return;
   }
 
@@ -6389,80 +6702,80 @@ Write-Host "  --> バックアップ完了: $backupDir" -ForegroundColor Green`;
 
   // ── Phase 2: ロールバック定義 ──
   const rollbackDefs = [
-    { id: 'power', title: '電源プランをバランスに戻す',
+    { id: 'power', title: _ps('電源プランをバランスに戻す','Restore power plan to Balanced','还原电源计划为平衡'),
       psCode: `$balanced = "381b4222-f694-41f0-9685-ff5bb260df2e"\nStart-Process powercfg -ArgumentList "/setactive $balanced" -Wait -NoNewWindow\nWrite-Host "  --> 電源プランをバランスに戻しました" -ForegroundColor Green` },
-    { id: 'nic_lso', title: 'NIC LSO・FlowControl・EEEを再有効化',
+    { id: 'nic_lso', title: _ps('NIC LSO・FlowControl・EEEを再有効化','Re-enable NIC LSO, FlowControl, EEE','重新启用NIC LSO、FlowControl、EEE'),
       psCode: `$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name\nif (-not $nic) { Write-Host "  --> 有効なNICが見つかりません（スキップ）" -ForegroundColor DarkGray; return }\nforeach ($kw in @("*LsoV2IPv4","*LsoV2IPv6","*FlowControl","*EEE")) {\n  try { Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword $kw -RegistryValue 1 -ErrorAction Stop; Write-Host "  $kw 有効化完了" -ForegroundColor Green }\n  catch { Write-Host "  $kw はこの環境では対応していません（スキップ）" -ForegroundColor DarkGray }\n}` },
-    { id: 'nic_buffer', title: 'NICバッファをデフォルト(256)に戻す',
+    { id: 'nic_buffer', title: _ps('NICバッファをデフォルト(256)に戻す','Restore NIC buffer to default (256)','还原NIC缓冲区为默认值(256)'),
       psCode: `$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name\nif (-not $nic) { Write-Host "  --> 有効なNICが見つかりません（スキップ）" -ForegroundColor DarkGray; return }\nforeach ($kw in @("*ReceiveBuffers","*TransmitBuffers")) {\n  try { Set-NetAdapterAdvancedProperty -Name $nic -RegistryKeyword $kw -RegistryValue 256 -ErrorAction Stop; Write-Host "  $kw デフォルトに戻しました" -ForegroundColor Green }\n  catch { Write-Host "  $kw はこの環境では対応していません（スキップ）" -ForegroundColor DarkGray }\n}` },
-    { id: 'nagle', title: 'Nagleアルゴリズムを再有効化',
+    { id: 'nagle', title: _ps('Nagleアルゴリズムを再有効化','Re-enable Nagle algorithm','重新启用Nagle算法'),
       psCode: `$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces"\nGet-ChildItem $path | ForEach-Object {\n  Remove-ItemProperty -Path $_.PSPath -Name "TcpAckFrequency" -ErrorAction SilentlyContinue\n  Remove-ItemProperty -Path $_.PSPath -Name "TCPNoDelay" -ErrorAction SilentlyContinue\n}\nWrite-Host "  --> Nagleアルゴリズムを再有効化しました" -ForegroundColor Green` },
-    { id: 'gamedvr', title: 'Game DVRを再有効化',
+    { id: 'gamedvr', title: _ps('Game DVRを再有効化','Re-enable Game DVR','重新启用Game DVR'),
       psCode: `Set-ItemProperty -Path "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR" -Name "AppCaptureEnabled" -Value 1 -Type DWord\nSet-ItemProperty -Path "HKCU:\\System\\GameConfigStore" -Name "GameDVR_Enabled" -Value 1 -Type DWord\nWrite-Host "  --> Game DVRを再有効化しました" -ForegroundColor Green` },
-    { id: 'network_throttle', title: 'NetworkThrottlingIndexをデフォルトに戻す',
+    { id: 'network_throttle', title: _ps('NetworkThrottlingIndexをデフォルトに戻す','Restore NetworkThrottlingIndex to default','还原NetworkThrottlingIndex为默认值'),
       psCode: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"\nSet-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 10 -Type DWord\nSet-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 20 -Type DWord\nWrite-Host "  --> NetworkThrottlingIndexをデフォルトに戻しました" -ForegroundColor Green` },
-    { id: 'registry', title: 'GPUスケジューラ優先度をデフォルトに戻す',
+    { id: 'registry', title: _ps('GPUスケジューラ優先度をデフォルトに戻す','Restore GPU scheduler priority to default','还原GPU调度器优先级为默认值'),
       psCode: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games"\nSet-ItemProperty -Path $path -Name "GPU Priority" -Value 8 -Type DWord\nSet-ItemProperty -Path $path -Name "Priority" -Value 2 -Type DWord\nSet-ItemProperty -Path $path -Name "Scheduling Category" -Value "Medium" -Type String\nWrite-Host "  --> GPUスケジューラ優先度をデフォルトに戻しました" -ForegroundColor Green` },
-    { id: 'win32priority', title: 'Win32PrioritySeparationをデフォルトに戻す',
+    { id: 'win32priority', title: _ps('Win32PrioritySeparationをデフォルトに戻す','Restore Win32PrioritySeparation to default','还原Win32PrioritySeparation为默认值'),
       psCode: `Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl" -Name "Win32PrioritySeparation" -Value 2 -Type DWord\nWrite-Host "  --> Win32PrioritySeparationをデフォルトに戻しました" -ForegroundColor Green` },
-    { id: 'vbs', title: 'VBS/HVCIを再有効化',
+    { id: 'vbs', title: _ps('VBS/HVCIを再有効化','Re-enable VBS/HVCI','重新启用VBS/HVCI'),
       psCode: `Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Value 1 -Type DWord\nWrite-Host "  --> VBS/HVCIを再有効化しました（再起動後に反映）" -ForegroundColor Green` },
-    { id: 'spectre', title: 'Spectre/Meltdownパッチを再有効化',
+    { id: 'spectre', title: _ps('Spectre/Meltdownパッチを再有効化','Re-enable Spectre/Meltdown patches','重新启用Spectre/Meltdown补丁'),
       psCode: `$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"\nRemove-ItemProperty -Path $path -Name "FeatureSettingsOverride" -ErrorAction SilentlyContinue\nRemove-ItemProperty -Path $path -Name "FeatureSettingsOverrideMask" -ErrorAction SilentlyContinue\nWrite-Host "  --> Spectre/Meltdownパッチを再有効化しました（再起動後に反映）" -ForegroundColor Green` },
-    { id: 'hpet', title: 'HPETを再有効化',
+    { id: 'hpet', title: _ps('HPETを再有効化','Re-enable HPET','重新启用HPET'),
       psCode: `Start-Process bcdedit -ArgumentList '/set useplatformclock true' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/deletevalue useplatformtick' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/deletevalue disabledynamictick' -Wait -NoNewWindow\nWrite-Host "  --> HPETを再有効化しました（再起動後に反映）" -ForegroundColor Green` },
 
     // ── v2追加カード ──
-    { id: 'mpo', title: 'MPO（OverlayTestMode）をデフォルトに戻す',
+    { id: 'mpo', title: _ps('MPO（OverlayTestMode）をデフォルトに戻す','Restore MPO (OverlayTestMode) to default','还原MPO（OverlayTestMode）为默认值'),
       psCode: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm"\nRemove-ItemProperty -Path $path -Name "OverlayTestMode" -ErrorAction SilentlyContinue\nWrite-Host "  --> OverlayTestMode を削除しました（再起動後に反映）" -ForegroundColor Green` },
 
     // mmcss_sr: network_throttle と registry が両方チェックされていても
     // このエントリが優先され、以下の排他フィルターで重複を除去する
-    { id: 'mmcss_sr', title: 'MMCSS SystemResponsivenessをデフォルトに戻す',
+    { id: 'mmcss_sr', title: _ps('MMCSS SystemResponsivenessをデフォルトに戻す','Restore MMCSS SystemResponsiveness to default','还原MMCSS SystemResponsiveness为默认值'),
       psCode: `$path = "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"\nSet-ItemProperty -Path $path -Name "SystemResponsiveness" -Value 20 -Type DWord\nSet-ItemProperty -Path $path -Name "NetworkThrottlingIndex" -Value 10 -Type DWord\n$gPath = "$path\\Tasks\\Games"\nSet-ItemProperty -Path $gPath -Name "GPU Priority" -Value 2 -Type DWord\nSet-ItemProperty -Path $gPath -Name "Priority" -Value 2 -Type DWord\nSet-ItemProperty -Path $gPath -Name "Scheduling Category" -Value "Medium" -Type String\nSet-ItemProperty -Path $gPath -Name "SFIO Priority" -Value "Normal" -Type String\nWrite-Host "  --> MMCSS設定をデフォルトに戻しました" -ForegroundColor Green` },
 
-    { id: 'hags', title: 'HAGSをデフォルト（無効）に戻す',
+    { id: 'hags', title: _ps('HAGSをデフォルト（無効）に戻す','Restore HAGS to default (disabled)','还原HAGS为默认值（禁用）'),
       psCode: `Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers" -Name "HwSchMode" -Value 0 -Type DWord\nWrite-Host "  --> HwSchMode を 0 に設定しました（再起動後に反映）" -ForegroundColor Green` },
 
-    { id: 'shader_cache', title: 'NVIDIAシェーダーキャッシュ制限をデフォルトに戻す',
+    { id: 'shader_cache', title: _ps('NVIDIAシェーダーキャッシュ制限をデフォルトに戻す','Restore NVIDIA shader cache limit to default','还原NVIDIA着色器缓存限制为默认值'),
       psCode: `foreach ($p in @("HKLM:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak","HKCU:\\SOFTWARE\\NVIDIA Corporation\\Global\\NVTweak")) {\n  Remove-ItemProperty -Path $p -Name "Shaders" -ErrorAction SilentlyContinue\n}\nWrite-Host "  --> シェーダーキャッシュ設定を削除しました（4GBキャップに戻ります）" -ForegroundColor Green` },
 
-    { id: 'usb_suspend', title: 'USBセレクティブサスペンドを再有効化',
-      psCode: `$guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'\nif (-not $guid) { Write-Host '  --> GUIDの取得に失敗しました（スキップ）' -ForegroundColor DarkYellow } else {\nStart-Process powercfg -ArgumentList "/setacvalueindex $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setdcvalueindex $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow\nWrite-Host "  --> USBセレクティブサスペンドを再有効化しました" -ForegroundColor Green }` },
+    { id: 'usb_suspend', title: _ps('USBセレクティブサスペンドを再有効化','Re-enable USB Selective Suspend','重新启用USB选择性挂起'),
+      psCode: `$guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'\nif (-not $guid) { Write-Host _ps('  --> GUIDの取得に失敗しました（スキップ）','  --> Failed to get GUID (skipped)','  --> 获取GUID失败（已跳过）') -ForegroundColor DarkYellow } else {\nStart-Process powercfg -ArgumentList "/setacvalueindex $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setdcvalueindex $guid 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow\nWrite-Host "  --> USBセレクティブサスペンドを再有効化しました" -ForegroundColor Green }` },
 
-    { id: 'rss', title: 'RSS設定をシステムデフォルトに戻す',
+    { id: 'rss', title: _ps('RSS設定をシステムデフォルトに戻す','Restore RSS to system default','还原RSS设置为系统默认值'),
       psCode: `$nic = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.PhysicalMediaType -ne "Unspecified" } | Sort-Object LinkSpeed -Descending | Select-Object -First 1).Name\nif (-not $nic) { Write-Host "  --> 有効なNICが見つかりません（スキップ）" -ForegroundColor DarkGray } else { Set-NetAdapterRss -Name $nic -NumberOfReceiveQueues 1 -BaseProcessorNumber 0; Write-Host "  --> RSS設定をデフォルトに戻しました" -ForegroundColor Green }` },
 
-    { id: 'tcp_autotuning', title: 'TCP自動チューニングを再有効化',
+    { id: 'tcp_autotuning', title: _ps('TCP自動チューニングを再有効化','Re-enable TCP Auto-Tuning','重新启用TCP自动调整'),
       psCode: `Start-Process netsh -ArgumentList 'int tcp set global autotuninglevel=normal' -Wait -NoNewWindow\nWrite-Host "  --> TCP自動チューニングをnormalに戻しました" -ForegroundColor Green` },
 
-    { id: 'timer', title: 'タイマー解像度設定を元に戻す（Win10のみ）',
+    { id: 'timer', title: _ps('タイマー解像度設定を元に戻す（Win10のみ）','Restore timer resolution setting (Win10 only)','还原计时器分辨率设置（仅Win10）'),
       psCode: `Start-Process bcdedit -ArgumentList '/set useplatformclock true' -Wait -NoNewWindow\nWrite-Host "  --> useplatformclock を true に設定しました（再起動後に反映）" -ForegroundColor Green` },
 
-    { id: 'coreparking', title: 'コアパーキングをデフォルトに戻す',
-      psCode: `$guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'\nif (-not $guid) { Write-Host '  --> GUIDの取得に失敗しました（スキップ）' -ForegroundColor DarkYellow } else {\nStart-Process powercfg -ArgumentList "/setacvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 5" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setdcvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 5" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow\nWrite-Host "  --> コアパーキングをデフォルト（5%）に戻しました" -ForegroundColor Green }` },
+    { id: 'coreparking', title: _ps('コアパーキングをデフォルトに戻す','Restore Core Parking to default','还原Core Parking为默认值'),
+      psCode: `$guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'\nif (-not $guid) { Write-Host _ps('  --> GUIDの取得に失敗しました（スキップ）','  --> Failed to get GUID (skipped)','  --> 获取GUID失败（已跳过）') -ForegroundColor DarkYellow } else {\nStart-Process powercfg -ArgumentList "/setacvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 5" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setdcvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 5" -Wait -NoNewWindow\nStart-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow\nWrite-Host "  --> コアパーキングをデフォルト（5%）に戻しました" -ForegroundColor Green }` },
 
     // 動的レジストリパス系：静的に復元不可のため手順案内メッセージを表示
-    { id: 'msi_mode', title: 'MSIモード — 手動復元が必要',
+    { id: 'msi_mode', title: _ps('MSIモード — 手動復元が必要','MSI Mode — manual restore required','MSI模式 — 需要手动恢复'),
       psCode: `Write-Host "  --> MSIモードの復元は手動操作が必要です:" -ForegroundColor Yellow\nWrite-Host "  regedit → HKLM\\SYSTEM\\CurrentControlSet\\Enum\\PCI\\[GPUパス]" -ForegroundColor Gray\nWrite-Host "  \\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties" -ForegroundColor Gray\nWrite-Host "  MSISupported を 0 に変更して再起動してください" -ForegroundColor Gray` },
 
-    { id: 'interrupt_affinity', title: 'NVIDIA割り込みアフィニティ — 手動復元が必要',
+    { id: 'interrupt_affinity', title: _ps('NVIDIA割り込みアフィニティ — 手動復元が必要','NVIDIA Interrupt Affinity — manual restore required','NVIDIA中断亲和性 — 需要手动恢复'),
       psCode: `Write-Host "  --> NVIDIA割り込みアフィニティの復元は手動操作が必要です:" -ForegroundColor Yellow\nWrite-Host "  regedit → HKLM\\SYSTEM\\CurrentControlSet\\Enum\\PCI\\[GPUパス]" -ForegroundColor Gray\nWrite-Host "  \\Device Parameters\\Interrupt Management\\Affinity Policy" -ForegroundColor Gray\nWrite-Host "  DevicePolicy と AssignmentSetOverride を削除して再起動してください" -ForegroundColor Gray` },
 
-    { id: 'affinity', title: 'CPUアフィニティ — 再起動で自動リセット',
+    { id: 'affinity', title: _ps('CPUアフィニティ — 再起動で自動リセット','CPU Affinity — auto-reset on reboot','CPU亲和性 — 重启后自动重置'),
       psCode: `Write-Host "  --> CPUアフィニティはPC再起動で自動的にリセットされます" -ForegroundColor Green\nWrite-Host "  永続化ツール（Process Lasso等）を使用していた場合は該当設定を削除してください" -ForegroundColor Gray` },
 
-    { id: 'irq_affinity', title: 'IRQアフィニティ — 手動復元が必要',
+    { id: 'irq_affinity', title: _ps('IRQアフィニティ — 手動復元が必要','IRQ Affinity — manual restore required','IRQ亲和性 — 需要手动恢复'),
       psCode: `Write-Host "  --> IRQアフィニティの復元は手動操作が必要です:" -ForegroundColor Yellow\nWrite-Host "  regedit → 各デバイスの Affinity Policy キーを削除して再起動してください" -ForegroundColor Gray` },
 
-    { id: 'process', title: 'プロセス優先度 — 再起動で自動リセット',
+    { id: 'process', title: _ps('プロセス優先度 — 再起動で自動リセット','Process Priority — auto-reset on reboot','进程优先级 — 重启后自动重置'),
       psCode: `Write-Host "  --> プロセス優先度はPC再起動で自動的にリセットされます" -ForegroundColor Green\nWrite-Host "  Process Lasso等で永続化していた場合は該当ルールを削除してください" -ForegroundColor Gray` },
 
     // ── v22追加カード ──
-    { id: 'dpc_latency', title: 'DPC/ISRレイテンシ軽減をデフォルトに戻す',
+    { id: 'dpc_latency', title: _ps('DPC/ISRレイテンシ軽減をデフォルトに戻す','Restore DPC/ISR latency mitigation to default','还原DPC/ISR延迟缓解为默认值'),
       psCode: `$ndisPath = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NDIS\\Parameters"\nRemove-ItemProperty -Path $ndisPath -Name "MaxNumRoutineCallbacks" -ErrorAction SilentlyContinue\n$krnPath = "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel"\nRemove-ItemProperty -Path $krnPath -Name "DpcWatchdogProfileOffset" -ErrorAction SilentlyContinue\nWrite-Host "  --> DPC/ISR設定をデフォルトに戻しました（再起動後に反映）" -ForegroundColor Green` },
 
-    { id: 'nvme_queue', title: 'NVMe I/Oレイテンシ設定をデフォルトに戻す',
+    { id: 'nvme_queue', title: _ps('NVMe I/Oレイテンシ設定をデフォルトに戻す','Restore NVMe I/O latency setting to default','还原NVMe I/O延迟设置为默认值'),
       psCode: `$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\StorNVMe\\Parameters\\Device"\nRemove-ItemProperty -Path $path -Name "QueueDepth" -ErrorAction SilentlyContinue\nWrite-Host "  --> NVMe I/Oキューサイズを元の値（254）に戻しました（再起動後に反映）" -ForegroundColor Green` },
 
   ].filter(r => {
@@ -6489,10 +6802,10 @@ Write-Host "  --> バックアップ完了: $backupDir" -ForegroundColor Green`;
     rbFunctions += '    ' + body + '\n';
     rbFunctions += '  } catch {\n';
     rbFunctions += '    $msg = $_.Exception.Message\n';
-    rbFunctions += '    if ($msg -match "not found|見つかりません|supported|対応") {\n';
-    rbFunctions += '      Write-Host "  --> この環境では対応していません（スキップ）" -ForegroundColor DarkGray\n';
+    rbFunctions += _ps('    if ($msg -match "not found|見つかりません|supported|対応") {\n','    if ($msg -match "not found|not supported") {\n','    if ($msg -match "not found|找不到|supported|不支持") {\n');
+    rbFunctions += _ps('      Write-Host "  --> この環境では対応していません（スキップ）" -ForegroundColor DarkGray\n','      Write-Host "  --> Not supported in this environment (skipped)" -ForegroundColor DarkGray\n','      Write-Host "  --> 此环境不支持（已跳过）" -ForegroundColor DarkGray\n');
     rbFunctions += '    } else {\n';
-    rbFunctions += '      Write-Host "  --> エラー: $msg" -ForegroundColor Red\n';
+    rbFunctions += _ps('      Write-Host "  --> エラー: $msg" -ForegroundColor Red\n','      Write-Host "  --> Error: $msg" -ForegroundColor Red\n','      Write-Host "  --> 错误: $msg" -ForegroundColor Red\n');
     rbFunctions += '    }\n';
     rbFunctions += '  }\n';
     rbFunctions += '}\n\n';
@@ -6536,60 +6849,60 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
   // ── メインPSスクリプト生成 ──
   const psMain =
     '#Requires -RunAsAdministrator\n' +
-    '# PCゲーム遅延最適化 ロールバックツール\n' +
+    _ps('# PCゲーム遅延最適化 ロールバックツール\n', '# PC Game Latency Optimizer - Rollback Tool\n', '# PC游戏延迟优化 回滚工具\n') +
     '# GPU: ' + (env.gpu || '').toUpperCase() + ' / OS: ' + (env.os || '').toUpperCase() + '\n' +
-    '# 実行方法: ファイルを右クリック →「PowerShellで実行」\n\n' +
+    _ps('# 実行方法: ファイルを右クリック →「PowerShellで実行」\n\n','# How to run: Right-click the file → Run with PowerShell\n\n','# 运行方法: 右键文件 → 使用PowerShell运行\n\n') +
     rbFunctions + '\n' +
     '$applyList = @(' + rbIdList + ')\n\n' +
     'Write-Host ""\n' +
     'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
-    'Write-Host "   ロールバックツール" -ForegroundColor White\n' +
+    _ps('Write-Host "   ロールバックツール" -ForegroundColor White\n','Write-Host "   Rollback Tool" -ForegroundColor White\n','Write-Host "   回滚工具" -ForegroundColor White\n') +
     'Write-Host "   GPU: ' + (env.gpu || '').toUpperCase() + ' / OS: ' + (env.os || '').toUpperCase() + '" -ForegroundColor Gray\n' +
     'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
     'Write-Host ""\n' +
-    'Write-Host "  Phase 1: 現在の設定をバックアップします..."\n' +
+    _ps('Write-Host "  Phase 1: 現在の設定をバックアップします..."\n','Write-Host "  Phase 1: Backing up current settings..."\n','Write-Host "  Phase 1: 正在备份当前设置..."\n') +
     backupPs + '\n' +
     'Write-Host ""\n' +
     'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
-    'Write-Host "  操作を選択してください" -ForegroundColor White\n' +
-    'Write-Host "  [1] 設定をデフォルトに戻す" -ForegroundColor White\n' +
-    'Write-Host "  [2] バックアップファイルから復元" -ForegroundColor White\n' +
-    'Write-Host "  [3] バックアップのみ（終了）" -ForegroundColor White\n' +
+    _ps('Write-Host "  操作を選択してください" -ForegroundColor White\n','Write-Host "  Please select an action" -ForegroundColor White\n','Write-Host "  请选择操作" -ForegroundColor White\n') +
+    _ps('Write-Host "  [1] 設定をデフォルトに戻す" -ForegroundColor White\n','Write-Host "  [1] Restore settings to default" -ForegroundColor White\n','Write-Host "  [1] 将设置恢复为默认值" -ForegroundColor White\n') +
+    _ps('Write-Host "  [2] バックアップファイルから復元" -ForegroundColor White\n','Write-Host "  [2] Restore from backup file" -ForegroundColor White\n','Write-Host "  [2] 从备份文件恢复" -ForegroundColor White\n') +
+    _ps('Write-Host "  [3] バックアップのみ（終了）" -ForegroundColor White\n','Write-Host "  [3] Backup only (exit)" -ForegroundColor White\n','Write-Host "  [3] 仅备份（退出）" -ForegroundColor White\n') +
     'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
     'Write-Host ""\n' +
-    '$choice = Read-Host "  番号を入力 (1 / 2 / 3)"\n\n' +
+    _ps('$choice = Read-Host "  番号を入力 (1 / 2 / 3)"\n\n','$choice = Read-Host "  Enter a number (1 / 2 / 3)"\n\n','$choice = Read-Host "  请输入数字 (1 / 2 / 3)"\n\n') +
     'if ($choice -eq "3") {\n' +
-    '  Write-Host "  バックアップのみ完了しました。" -ForegroundColor Green\n' +
-    '  Read-Host "  Enterキーで終了"\n' +
+    _ps('  Write-Host "  バックアップのみ完了しました。" -ForegroundColor Green\n','  Write-Host "  Backup-only completed." -ForegroundColor Green\n','  Write-Host "  仅备份已完成。" -ForegroundColor Green\n') +
+    _ps('  Read-Host "  Enterキーで終了"\n','  Read-Host "  Press Enter to exit"\n','  Read-Host "  按Enter键退出"\n') +
     '  exit 0\n' +
     '}\n\n' +
     'if ($choice -eq "2") {\n' +
     '  Write-Host ""\n' +
-    '  Write-Host "  バックアップファイルから復元します..." -ForegroundColor Cyan\n' +
+    _ps('  Write-Host "  バックアップファイルから復元します..." -ForegroundColor Cyan\n','  Write-Host "  Restoring from backup file..." -ForegroundColor Cyan\n','  Write-Host "  正在从备份文件恢复..." -ForegroundColor Cyan\n') +
     restorePs + '\n' +
     '  Write-Host ""\n' +
-    '  Write-Host "  復元完了。PCを再起動してください。" -ForegroundColor Yellow\n' +
-    '  Read-Host "  Enterキーで終了"\n' +
+    _ps('  Write-Host "  復元完了。PCを再起動してください。" -ForegroundColor Yellow\n', '  Write-Host "  Restore complete. Please restart your PC." -ForegroundColor Yellow\n', '  Write-Host "  还原完成。请重启电脑。" -ForegroundColor Yellow\n') +
+    _ps('  Read-Host "  Enterキーで終了"\n','  Read-Host "  Press Enter to exit"\n','  Read-Host "  按Enter键退出"\n') +
     '  exit 0\n' +
     '}\n\n' +
     'if ($choice -ne "1") {\n' +
-    '  Write-Host "  無効な入力です。" -ForegroundColor Red\n' +
-    '  Read-Host "  Enterキーで終了"\n' +
+    _ps('  Write-Host "  無効な入力です。" -ForegroundColor Red\n','  Write-Host "  Invalid input." -ForegroundColor Red\n','  Write-Host "  无效输入。" -ForegroundColor Red\n') +
+    _ps('  Read-Host "  Enterキーで終了"\n','  Read-Host "  Press Enter to exit"\n','  Read-Host "  按Enter键退出"\n') +
     '  exit 1\n' +
     '}\n\n' +
-    '# Phase 2: デフォルトに戻す\n' +
+    _ps('# Phase 2: デフォルトに戻す\n','# Phase 2: Restoring to defaults\n','# Phase 2: 还原为默认值\n') +
     'Write-Host ""\n' +
-    'Write-Host "  Phase 2: 設定をデフォルトに戻しています..." -ForegroundColor Cyan\n' +
+    _ps('Write-Host "  Phase 2: 設定をデフォルトに戻しています..." -ForegroundColor Cyan\n','Write-Host "  Phase 2: Restoring settings to default..." -ForegroundColor Cyan\n','Write-Host "  Phase 2: 正在将设置恢复为默认值..." -ForegroundColor Cyan\n') +
     'foreach ($id in $applyList) {\n' +
     '  $fn = "RB_$id"\n' +
     '  & $fn\n' +
     '}\n\n' +
     'Write-Host ""\n' +
     'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
-    'Write-Host "  すべての設定をデフォルトに戻しました" -ForegroundColor Green\n' +
-    'Write-Host "  PCを再起動してください" -ForegroundColor Yellow\n' +
+    _ps('Write-Host "  すべての設定をデフォルトに戻しました" -ForegroundColor Green\n', 'Write-Host "  All settings restored to default" -ForegroundColor Green\n', 'Write-Host "  已将所有设置恢复为默认值" -ForegroundColor Green\n') +
+    _ps('Write-Host "  PCを再起動してください" -ForegroundColor Yellow\n', 'Write-Host "  Please restart your PC" -ForegroundColor Yellow\n', 'Write-Host "  请重启电脑" -ForegroundColor Yellow\n') +
     'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
-    'Read-Host "  Enterキーで終了"\n';
+    _ps('Read-Host "  Enterキーで終了"\n','Read-Host "  Press Enter to exit"\n','Read-Host "  按Enter键退出"\n');
 
   // ── ps1 + bat を ZIP にまとめてダウンロード ──
   const ps1Name = `latency-ROLLBACK-${env.gpu}-${env.os}.ps1`;
@@ -6601,12 +6914,12 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
   const batLines = [
     '@echo off',
     'chcp 65001 >nul',
-    'REM PCゲーム遅延最適化 ロールバック ランチャー',
-    'REM このファイルを右クリック →「管理者として実行」',
+    _ps('REM PCゲーム遅延最適化 ロールバック ランチャー','REM PC Game Latency Optimizer - Rollback Launcher','REM PC游戏延迟优化 回滚启动器'),
+    _ps(_ps('REM このファイルを右クリック →「管理者として実行」','REM Right-click this file → Run as administrator','REM 右键此文件 → 以管理员身份运行'),'REM Right-click this file → Run as administrator','REM 右键此文件 → 以管理员身份运行'),
     '',
     'fltmc >nul 2>&1',
     'if %errorlevel% neq 0 (',
-    '    echo 管理者権限が必要です。昇格して再実行します...',
+    _ps('    echo 管理者権限が必要です。昇格して再実行します...','    echo Administrator rights required. Re-launching with elevation...','    echo 需要管理员权限。正在提升权限重新启动...'),
     `    powershell -Command "Start-Process -FilePath '%~f0' -Verb RunAs"`,
     '    exit /b',
     ')',
@@ -6629,8 +6942,8 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
       showPs1Guide(batName, ps1Name, zipName);
     })
     .catch(err => {
-      console.error('ロールバックZIP生成エラー:', err);
-      showErrorToast('ZIPの生成に失敗しました。ブラウザを更新して再試行してください。');
+      console.error(_ps('ロールバックZIP生成エラー:','Rollback ZIP generation error:','回滚ZIP生成错误:'), err);
+      showErrorToast(t('toastZipFail'));
     });
 }
 // ══════════════════════════════════════════════
@@ -6712,7 +7025,7 @@ function buildShareData() {
 
 function generateShareCode() {
   if (!env.gpu || !env.os || !env.genre) {
-    showShareMsg('先にGPU・OS・ジャンルを選択してください', 'err');
+    showShareMsg(t('shareMsgNeedEnv'), 'err');
     return;
   }
   const data = buildShareData();
@@ -6727,7 +7040,7 @@ function generateShareCode() {
 
   // URLパラメータ ?lt= に反映（ハッシュより安定・OGP対応しやすい）
   try { history.replaceState(null, '', location.pathname + '?lt=' + encodeURIComponent(code)); } catch(e) {}
-  showShareMsg('✓ 共有コードを生成しました', 'ok');
+  showShareMsg(t('shareMsgGenerated'), 'ok');
 }
 
 // サイドバーの共有コード表示枠をリアルタイム更新
@@ -6754,7 +7067,7 @@ function copyShareCode(btn) {
 function copyShareUrl(btn) {
   const code = document.getElementById('shareCodeText').textContent;
   if (!code || code === '——') {
-    showShareMsg('先に「共有コードを生成」してください', 'err');
+    showShareMsg(t('shareMsgNeedGenerate'), 'err');
     return;
   }
   const url = location.origin + location.pathname + '?lt=' + encodeURIComponent(code);
@@ -6803,12 +7116,12 @@ function applyShareData(data) {
 function importShareCode() {
   const input = document.getElementById('shareInput');
   const code = input.value.trim();
-  if (!code) { showShareMsg('コードを入力してください', 'err'); return; }
+  if (!code) { showShareMsg(t('shareMsgNeedCode'), 'err'); return; }
 
   const data = decodeSharePayload(code);
   if (!data) {
     input.classList.add('error');
-    showShareMsg('無効なコードです。コードを確認してください', 'err');
+    showShareMsg(t('shareMsgInvalid'), 'err');
     return;
   }
   input.classList.remove('error');
@@ -6963,6 +7276,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function switchLang(lang) {
   if (!I18N[lang]) return;
   currentLang = lang;
+  // html要素のlang属性を更新（スクリーンリーダー・SEO対応）
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
   // ボタン状態更新
   document.querySelectorAll('.lang-btn').forEach(btn => {
     const isActive = btn.dataset.lang === lang;
@@ -6977,6 +7292,12 @@ function switchLang(lang) {
   if (env.gpu && env.os && env.genre) {
     renderResults();
     initSliders(); // スライダーマーカーのラベル再構築
+  }
+  // Step4 NIPパネルが表示中なら再レンダリング
+  const nipList = document.getElementById('nipSettingsList');
+  if (nipList && nipList.children.length > 0) {
+    const nipSel = document.getElementById('nipGameSelect');
+    if (nipSel) renderNipSettings(nipSel.value);
   }
   // topbarを現在のステップで更新
   const activeStep = (() => {
@@ -7025,9 +7346,128 @@ function applyLang() {
 }
 
 // 起動時に保存言語を復元
+
+
+// ── 全チェック / 全解除 ──
+function toggleKbdHelp() {
+  const el = document.getElementById('kbdHelp');
+  if (el) el.classList.toggle('show');
+}
+
+function checkAllCards() {
+  // 表示中（filterで絞られている）カードのみ対象
+  document.querySelectorAll('.setting-card:not(.na)').forEach(card => {
+    if (card.style.display === 'none') return;
+    const id = card.id.replace('card-', '');
+    card.classList.add('checked');
+    const check = document.getElementById('check-' + id);
+    if (check) check.textContent = '✓';
+  });
+  updateProgress();
+  saveCheckedCards();
+  checkConflicts(null);
+  updateConflictsWithBadges();
+}
+
+function uncheckAllCards() {
+  document.querySelectorAll('.setting-card.checked').forEach(card => {
+    const id = card.id.replace('card-', '');
+    card.classList.remove('checked', 'open');
+    const check = document.getElementById('check-' + id);
+    if (check) check.textContent = '';
+  });
+  updateProgress();
+  saveCheckedCards();
+  checkConflicts(null);
+  updateConflictsWithBadges();
+}
+
+// ── キーボードショートカット ──
+document.addEventListener('keydown', function(e) {
+  // 入力フィールドにフォーカス中は一部を除きスキップ
+  const tag = document.activeElement?.tagName;
+  const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+
+  // Escape: フィルタークリア（入力中でも動作）
+  if (e.key === 'Escape') {
+    const searchInput = document.getElementById('cardSearchInput');
+    if (searchInput && document.activeElement === searchInput) {
+      clearCardFilter();
+      searchInput.blur();
+      return;
+    }
+  }
+
+  // card-headerのEnter/Spaceキー操作
+  if ((e.key === 'Enter' || e.key === ' ') && 
+      document.activeElement?.classList.contains('card-header')) {
+    e.preventDefault();
+    document.activeElement.click();
+    return;
+  }
+
+  if (inInput) return;
+
+  // ?: ショートカットヘルプ
+  if (e.key === '?') {
+    e.preventDefault();
+    toggleKbdHelp();
+    return;
+  }
+
+  // Ctrl+F: カード検索フォーカス
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+    const searchInput = document.getElementById('cardSearchInput');
+    if (searchInput && searchInput.offsetParent !== null) {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    return;
+  }
+
+  // Ctrl+E: エクスポート
+  if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+    const exportBtn = document.querySelector('[data-action="exportBat"]');
+    if (exportBtn && exportBtn.offsetParent !== null) {
+      e.preventDefault();
+      exportBat();
+    }
+    return;
+  }
+
+  // Ctrl+B: バックアップ作成
+  if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+    const backupBtn = document.querySelector('[data-action="exportRollbackBat"]');
+    if (backupBtn && backupBtn.offsetParent !== null) {
+      e.preventDefault();
+      exportRollbackBat();
+    }
+    return;
+  }
+
+  // Ctrl+Shift+Z: 全チェック解除
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Z') {
+    const checked = document.querySelectorAll('.setting-card.checked');
+    if (checked.length > 0) {
+      e.preventDefault();
+      checked.forEach(card => {
+        const id = card.id.replace('card-', '');
+        card.classList.remove('checked', 'open');
+        const check = document.getElementById('check-' + id);
+        if (check) check.textContent = '';
+      });
+      updateProgress();
+      saveCheckedCards();
+      updateConflictsWithBadges();
+    }
+    return;
+  }
+});
+
 (function() {
   try {
-    const saved = localStorage.getItem('lang');
+    const saved = localStorage.getItem('lt2_lang') ?? localStorage.getItem('lang'); // v23移行フォールバック
     if (saved && I18N[saved] && saved !== 'ja') {
       currentLang = saved;
       // DOMロード後に適用
@@ -7037,5 +7477,23 @@ function applyLang() {
 })();
 
 </script>
+
+<!-- キーボードショートカットヘルプ -->
+<div id="kbdHelp" role="dialog" aria-modal="true" aria-label="キーボードショートカット" onclick="if(event.target===this)toggleKbdHelp()">
+  <div id="kbdHelpBox">
+    <h3>
+      <span>⌨️ キーボードショートカット</span>
+      <button onclick="toggleKbdHelp()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;">✕</button>
+    </h3>
+    <div class="kbd-row"><span>カード検索</span><span class="kbd-key">Ctrl + F</span></div>
+    <div class="kbd-row"><span>設定をエクスポート</span><span class="kbd-key">Ctrl + E</span></div>
+    <div class="kbd-row"><span>バックアップ作成</span><span class="kbd-key">Ctrl + B</span></div>
+    <div class="kbd-row"><span>全チェック解除</span><span class="kbd-key">Ctrl + Shift + Z</span></div>
+    <div class="kbd-row"><span>検索クリア</span><span class="kbd-key">Escape</span></div>
+    <div class="kbd-row"><span>このヘルプを閉じる</span><span class="kbd-key">?</span></div>
+  </div>
+</div>
+
+<div id="copyToast">✓ コピーしました</div>
 </body>
 </html>
