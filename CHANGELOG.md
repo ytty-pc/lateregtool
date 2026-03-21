@@ -4,6 +4,85 @@ PCゲーム遅延最適化ツール — バージョン履歴
 
 ---
 
+## [v23.2] - 2026-03
+
+### 追加・改善
+
+- **PSスクリプト内メッセージの全多言語化**  
+  `exportBat` / `exportRollbackBat` が生成する `.bat` / `.ps1` 内の `Write-Host` メッセージ・ラベル・メニュー文字列（54件）を `_ps(ja, en, zh)` ヘルパーで多言語化。EN/ZH切替後にエクスポートしたスクリプトのユーザー向けメッセージが対応言語で出力されるようになった。
+
+- **Step4 NVIDIAプロファイルの i18n 漏れ補完**  
+  - `NIP_LABEL_I18N` 辞書を新規追加（12設定項目のEN/ZH翻訳）。`renderNipSettings` でラベルをi18n参照に変更。  
+  - 「このゲーム向け」バッジ・カスタム名警告を `t()` 参照に変換。  
+  - Shader Cache推奨手順ブロックを `data-i18n` 属性で多言語化。  
+  - セキュリティバナー・verify PowerShellラベルをi18n化。  
+  - `switchLang()` に `renderNipSettings()` 再呼び出しを追加。言語切替時にStep4が表示中の場合も設定リストが即時再描画されるよう修正。
+
+- **アクセシビリティ強化（18項目）**  
+  - `<html lang="ja">` 追加、`switchLang()` で `zh-CN` / `en` に動的更新。  
+  - スキップリンク追加（Tabキー初回フォーカス時に「メインコンテンツへスキップ」を表示）。  
+  - `:focus-visible` スタイル追加（キーボードフォーカス時のみアクセントカラーのアウトライン表示）。  
+  - エラートーストに `role="alert"` `aria-live="assertive"` を追加。  
+  - コピートーストに `role="status"` `aria-live="polite"` を追加。  
+  - プログレスバーに `role="progressbar"` `aria-valuemin/max/now` を追加し JS で動的更新。  
+  - サイドバーに `role="navigation"`、メインコンテンツに `role="main"`、フィルターバーに `role="search"` を追加。  
+  - ショートカットヘルプモーダルに `role="dialog"` `aria-modal="true"` を追加。  
+  - Step1ボタン群に `role="group"` + `aria-label`（GPU/OS/ジャンル）を追加。  
+  - 設定カードに `role="article"` `aria-expanded` を追加。open/close に連動して JS で動的更新。  
+  - カードヘッダーに `role="button"` `tabindex="0"` を追加。Enter/Space キーで展開可能に。
+
+---
+
+## [v23.1] - 2026-03
+
+### バグ修正
+
+- **`APP_VERSION` が `v22.0` のまま更新されていなかった問題を修正**
+
+- **NVIDIAプロファイル EN/ZH 翻訳が適用されない問題を修正**  
+  `NIP_DESC_I18N` のキーが `NIP_SETTINGS` のキーと7箇所不一致だったため、EN/ZH切替時にdescが未翻訳のまま表示されていた問題を修正。  
+  修正対象: `tex_filter` → `texture_filtering` / `power_mgmt` → `power_management` / `prerender` → `prerendered_frames` / `rbar` → `rbar_feature` / `mem_alloc` → `memory_allocation` / `aa_trans` → `aa_transparency` / `aniso` → `predefined_aniso`
+
+- **`rbar_feature` のラベルから日本語を除去**  
+  `label` フィールドに日本語が混入していたため EN 表示でも日本語が残っていた問題を修正。
+
+- **`nipCustomName` / `nipCustomExe` / `nipFpsLimit` の placeholder 翻訳漏れを修正**  
+  `data-i18n-placeholder` 属性を追加し `applyLang()` 経由で翻訳されるよう対応。
+
+---
+
+## [v23.0] - 2026-03
+
+### 追加
+
+- **カード説明文（desc）の改善（4枚）**  
+  - `vbs`: 無効化で失われる保護を具体列挙（HVCI/Credential Guard/Device Guard）、使用禁止環境を明確化。  
+  - `spectre`: サイドチャネル攻撃の具体的リスク（JSからのパスワード漏洩）を追記。  
+  - `tcp_autotuning`: safeプリセット除外理由（帯域制限リスク）をdescに明記。  
+  - `win32priority`: 0x26の内訳（短い量子・3:1比率）と効果条件を追記。
+
+- **Step1 UI 改善**  
+  各env-cardに補足説明文を追加（GPU確認方法・OSバージョン確認方法・ジャンル説明）。`sel-btn` のパディング拡大（9px→12px）・`min-width:180px` 追加。
+
+- **Step1「次へ →」ボタン追加**  
+  3項目揃うまでグレーアウト（`opacity:0.4 / pointer-events:none`）。未選択のenv-cardを黄色ハイライト。`:has()` 非対応ブラウザ向けフォールバック（`closest('.env-card')`）付き。ボタン押下でStep2へ遷移（従来の「3項目揃ったら自動遷移」から変更）。
+
+- **Step3フィルター改善**  
+  - `cardFilterBar` の重複 `display` 指定修正。  
+  - 「✓ チェック済み」「□ 未チェック」フィルター追加。フィルター適用中はカウント表示をアクセントカラーで強調。
+
+- **サイドバー改善**  
+  プリセット各項目に枚数バッジ追加（`updatePresetCounts` と連動）。`title` 属性でツールチップ追加。
+
+- **バックアップボタンの表示条件修正**  
+  `updateTopbarBtns` の条件を `step === 3` → `step === 3 || step === 4` に変更。NVIDIAプロファイル（Step4）表示中もトップバーの「💾 バックアップ作成」が維持されるよう修正。
+
+- **ゲーム別プリセット実装（B案）**  
+  サイドバーにアコーディオン式ゲームツリーを追加（タクティカルFPS / バトルロイヤル / その他）。Step4でゲームを選択すると推奨カードに青ボーダー＋「🎯 推奨」バッジを表示。Step3上部に通知バナーを表示。サイドバーのゲームツリーとStep4のゲーム選択が双方向連動。`renderResults()` 後にハイライトを自動再適用（`currentGameHighlight` 変数で管理）。  
+  対応ゲーム9種: Fortnite / VALORANT / Apex Legends / Overwatch 2 / CS2 / R6S / PUBG / Tarkov / BF2042
+
+---
+
 ## [v22.0] - 2026-03
 
 ### 追加
