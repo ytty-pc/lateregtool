@@ -31,7 +31,7 @@ ja: {
   presetNoconflict: '競合なし',
   presetFps: 'FPS特化',
   presetEco: '省電力ゲーミング',
-  presetAll: '全部盛り',
+  presetAll: '全チェック',
   presetClear: '✕ クリア',
   sideGameLabel: 'ゲーム別',
   gameTreeFps: '⚡ タクティカルFPS',
@@ -214,7 +214,7 @@ ja: {
   presetBarNoconflict: '🤝 競合なし',
   presetBarFps: '🎯 FPS特化',
   presetBarEco: '🔋 省電力',
-  presetBarAll: '⚡ 全部盛り',
+  presetBarAll: '⚡ 全チェック',
   presetBarClear: '✕ クリア',
   // updateProgress
   progressExportBtn: '📦 設定を書き出す',
@@ -3322,7 +3322,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
       <div class="dc-nav-item" data-action="preset:noconflict" title="競合ゼロ保証 / 20枚の安全な組み合わせ">🤝 <span data-i18n="presetNoconflict" style="margin-left:4px;">競合なし</span><span id="dcPresetCount-noconflict" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
       <div class="dc-nav-item" data-action="preset:fps" title="入力遅延・描画遅延に特化 / FPS・格闘ゲーム向け">🎯 <span data-i18n="presetFps" style="margin-left:4px;">FPS特化</span><span id="dcPresetCount-fps" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
       <div class="dc-nav-item" data-action="preset:eco" title="省電力でも安定FPS / ノートPC・発熱対策に">🔋 <span data-i18n="presetEco" style="margin-left:4px;">省電力ゲーミング</span><span id="dcPresetCount-eco" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
-      <div class="dc-nav-item" data-action="preset:all" title="全カードを選択 / 上級者・検証用">⚡ <span data-i18n="presetAll" style="margin-left:4px;">全部盛り</span><span id="dcPresetCount-all" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
+      <div class="dc-nav-item" data-action="preset:all" title="全カードを選択 / 上級者・検証用">⚡ <span data-i18n="presetAll" style="margin-left:4px;">全チェック</span><span id="dcPresetCount-all" style="margin-left:auto;font-size:10px;font-family:var(--mono);color:#949ba4;"></span></div>
       <div class="dc-nav-item" data-action="preset:clear" style="color:#949ba4;font-size:12px;"><span data-i18n="presetClear">✕ クリア</span></div>
 
       <!-- ゲーム別ツリー -->
@@ -3671,12 +3671,9 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
           <button class="preset-btn" data-action="preset:noconflict"><span data-i18n="presetBarNoconflict">🤝 競合なし</span><span class="preset-count" id="presetCount-noconflict">—</span></button>
           <button class="preset-btn" data-action="preset:fps"><span data-i18n="presetBarFps">🎯 FPS特化</span><span class="preset-count" id="presetCount-fps">—</span></button>
           <button class="preset-btn" data-action="preset:eco"><span data-i18n="presetBarEco">🔋 省電力</span><span class="preset-count" id="presetCount-eco">—</span></button>
-          <button class="preset-btn" data-action="preset:all"><span data-i18n="presetBarAll">⚡ 全部盛り</span><span class="preset-count" id="presetCount-all">—</span></button>
+          <button class="preset-btn" data-action="preset:all"><span data-i18n="presetBarAll">⚡ 全チェック</span><span class="preset-count" id="presetCount-all">—</span></button>
           <button class="preset-clear" data-action="preset:clear" data-i18n="presetBarClear">✕ クリア</button>
-          <div style="margin-left:auto;display:flex;gap:6px;">
-            <button id="checkAllBtn" onclick="checkAllCards()" title="表示中のカードを全チェック" style="padding:5px 10px;background:var(--green-light);color:var(--green);border:1px solid var(--green);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">✓ 全チェック</button>
-            <button id="uncheckAllBtn" onclick="uncheckAllCards()" title="全チェック解除" style="padding:5px 10px;background:var(--dc-input);color:var(--muted);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">□ 全解除</button>
-          </div>
+
         </div>
 
         <!-- 3:1 レイアウト -->
@@ -3869,7 +3866,7 @@ input[type=text]:focus, input[type=number]:focus { border-color: #5865f2 !import
 </div><!-- /dcApp -->
 
 <script>
-const APP_VERSION = 'v24.0';
+const APP_VERSION = 'v25.1';
 const env = { gpu: null, os: null, genre: null, cpu_cores: null };
 const pingState = { avg: null, jitter: null };
 
@@ -4034,6 +4031,7 @@ function updateStatusLine() {
     exportBtn.style.opacity = cnt > 0 ? '1' : '0.45';
     exportBtn.style.pointerEvents = cnt > 0 ? 'auto' : 'none';
   }
+
 }
 
 // ── PRESETS ──
@@ -5357,8 +5355,8 @@ Write-Host "DPC/ISRレイテンシ軽減設定を適用しました"`,
     title: 'タイマー解像度を1ms化',
     sub: e => e.os === 'win11' ? 'Win11 22H2以降は自動設定済み' : 'TimerResolutionツールを使用',
     desc: e => e.os === 'win11'
-      ? 'Windows 11 22H2以降ではゲーム実行中に自動で1msに設定されます（Per-Process Timer Resolution）。追加設定は不要ですが、旧バージョンの場合はTimerResolutionツールを使用してください。\n\n💡 「HPET無効化」カードとの関係: HPETとタイマー解像度は別レイヤーの設定です。HPETはハードウェアタイマーソースの選択、こちらはOS側のタイマー割り込み間隔の設定です。両方適用できますが、Win10環境ではHPETを先に無効化してからTimerResolutionを設定すると効果的です。'
-      : 'Windowsの内部タイマー（デフォルト15.6ms）を1ms化することで処理精度が向上します。TimerResolutionをスタートアップに登録して常時有効にしてください。\n\n💡 「HPET無効化」カードとの関係: HPETはハードウェアタイマーソースの選択、こちらはOS側のタイマー割り込み間隔の設定です。Win10環境ではHPETを先に無効化してからTimerResolutionを設定すると効果的です。',
+      ? 'Windows 11 22H2以降ではゲーム実行中に自動で1msに設定されます（Per-Process Timer Resolution）。ゲームプロセスが終了すると自動で元の解像度に戻るため、追加設定は不要です。旧バージョンのWin11やWin10環境ではTimerResolutionツールをスタートアップに登録してください。\n\n🔧 仕組み: WindowsはデフォルトでタイマーをIRQで約15.6ms間隔で発行します。`timeBeginPeriod(1)` API（または `NtSetTimerResolution`）を呼び出すことでこれを1msに短縮し、スリープ精度・スケジューラの応答性が向上します。ただし全プロセス共通のため、バッテリー消費が増加します。\n\n⚠️ Win11 22H2以降の「Per-Process」制限: プロセスが終了すると解像度リクエストも失効します。常時1ms化したい場合はTimerResolutionツール（常駐型）が必要です。\n\n💡 「HPET無効化」カードとの関係: HPETはハードウェアタイマーソースの選択（TSC vs HPET）、こちらはOS側の割り込み間隔の設定です。独立した別レイヤーのため両方適用可能。Win10ではHPET無効化後にTimerResolutionを設定するとTSCベースの高精度タイマーと組み合わさり効果的です。'
+      : 'Windowsの内部タイマー（デフォルト15.6ms）を1ms化することで処理精度・スケジューラ応答性が向上します。TimerResolutionをスタートアップに登録して常時有効にしてください。\n\n🔧 仕組み: `timeBeginPeriod(1)` API を常時呼び出すことでシステム全体のタイマー割り込み間隔を1msに固定します。Win10ではPer-Process制限がないため、ツールが常駐している間は全プロセスに恩恵があります（バッテリー消費は増加）。\n\n⚠️ 0.5ms設定について: `NtSetTimerResolution` で0.5msも設定可能ですが、CPUとチップセットによっては不安定になる場合があります。まず1msで運用してください。\n\n💡 「HPET無効化」カードとの関係: HPETはハードウェアタイマーソースの選択（TSC vs HPET）、こちらはOS側の割り込み間隔の設定。Win10ではHPET無効化後にTimerResolutionを設定するとTSCベースの高精度タイマーと組み合わさり効果的です。BCDEdit `/useplatformclock yes` でHPETを強制有効にしている場合は先にその設定を解除してください。',
     risk: 'none', riskLabel: 'リスクなし',
     impact: 'medium',
     fps: '◎', mmo: '○',
@@ -5377,7 +5375,7 @@ Write-Host "DPC/ISRレイテンシ軽減設定を適用しました"`,
     emoji: '⚙️',
     title: 'NetworkThrottlingIndex を無効化',
     sub: 'レジストリ → マルチメディアスケジューラのネットワーク制限を解除',
-    desc: 'WindowsのMultimedia Class Scheduler Service（MMCSS）はマルチメディア処理を優先するため、ゲーム中のネットワーク帯域を10Mbpsに制限する場合があります。NetworkThrottlingIndexを0xFFFFFFFFに設定することでこの制限を解除し、ゲーム中のパケット処理が改善されます。SystemResponsiveness（デフォルト20）も同時に0に変更し、ゲームスレッドへのCPUタイム配分を最大化します。\n\n💡 「MMCSS SystemResponsiveness」カードとの関係: 両カードは同一レジストリキーを操作します。どちらか一方を適用すれば効果は得られますが、MMCSS側のカードはTasks\\Gamesの優先度設定も含むため、より包括的です。競合はしませんが二重設定になります。',
+    desc: 'WindowsのMultimedia Class Scheduler Service（MMCSS）はマルチメディア処理を優先するため、ゲーム中のネットワーク帯域を約10Mbpsに制限する場合があります。\n\n🔧 設定の意味:\n・NetworkThrottlingIndex=0xFFFFFFFF: スロットリングを完全無効化。値は32bit最大値（符号なし）で「制限なし」を意味します。デフォルト値は10（≒10Mbps上限）。高速回線でパケット処理の取りこぼしが減ります。\n・SystemResponsiveness=0: MMCSSがゲームスレッドに割り当てるCPUタイムを最大化（デフォルト20%→0%でオーバーヘッド削減）。ただし0にするとバックグラウンドのオーディオ処理（音楽再生・配信）が途切れる場合があります。配信者はデフォルト値（20）か小さい値（10）を推奨。\n\n⚠️ 有線/Wi-Fi環境の差: 有線LAN環境では体感しやすい設定ですが、Wi-Fiではパケット再送・輻輳制御の仕組みが異なるため効果は限定的です。\n\n💡 「MMCSS SystemResponsiveness」カードとの関係: 両カードは同一レジストリキー（HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile）を操作します。MMCSS側はTasks\\Gamesの優先度設定も含むためより包括的ですが、このカードのみ適用でも主要な効果（スロットリング解除）は得られます。',
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
     fps: '◎', mmo: '◎',
@@ -5401,7 +5399,7 @@ Write-Host "NetworkThrottlingIndex を無効化しました"`,
     emoji: '⚙️',
     title: 'LSO・Flow Control・EEE の無効化',
     sub: 'NIC詳細設定 — まとめて無効化',
-    desc: 'ゲーム用途では不要な3つのNIC機能をまとめて無効化します。\n・LSO（Large Send Offload）：送信データをまとめて処理する機能。遅延が増加するケースあり。\n・Flow Control：ネットワーク混雑時に送信を一時停止する機能。ゲームでは逆効果。\n・EEE（Energy Efficient Ethernet）：アイドル時にNICをスリープさせる省電力機能。復帰遅延の原因になる。',
+    desc: 'ゲーム用途では不要な3つのNIC機能をまとめて無効化します。\n\n・LSO（Large Send Offload）：複数パケットをまとめてNICにオフロードする機能。スループットは上がるが、小パケット連続送信時にバッファ待ちが発生しレイテンシが増加します。LSO v1（IPv4）とLSO v2（IPv4/IPv6）が存在し、ゲームには両方とも不要です。\n\n・Flow Control：ネットワーク混雑時に PAUSE フレームを送受信して送信を一時停止する機能。ゲームでは双方向とも無効化が推奨です（スイッチ側のFlow Controlも切ると効果的）。\n\n・EEE（Energy Efficient Ethernet）：アイドル時にNICをLow Power Idle状態に遷移させる省電力機能。スリープからの復帰遅延（数百μs〜数ms）がゲームパケットに直撃するケースがあります。\n\n💡 NICメーカー別の注意: Intel NICはドライバ詳細設定で「Interrupt Moderation Rate」も合わせて確認。Realtek系はドライバによって設定名が異なる場合があります（"Jumbo Frame"設定も1500で固定推奨）。',
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
     fps: '◎', mmo: '◎',
