@@ -5014,7 +5014,7 @@ const SETTINGS_CONFIG = [
     available: e => e.gpu === 'nvidia',
     naReason: 'AMD環境では対象外です',
     commands: e => e.gpu === 'nvidia' ? [
-      { label: 'PowerShell（管理者）', text: '# NVIDIAコントロールパネルで手動設定\n# 3D設定の管理 → 事前レンダリングする最大フレーム数 → Ultra' }
+      { label: 'PowerShell（管理者）', text: `Write-Host ""` + "`n" + `Write-Host "  Ultra Low Latency Mode の設定手順:" -ForegroundColor Cyan` + "`n" + `Write-Host "  ① NVIDIAコントロールパネルを開く（タスクトレイ右クリック）" -ForegroundColor White` + "`n" + `Write-Host "  ② 「3D設定の管理」→「グローバル設定」タブ" -ForegroundColor White` + "`n" + `Write-Host "  ③ 「事前レンダリングする最大フレーム数」→「Ultra」を選択" -ForegroundColor White` + "`n" + `Write-Host "  ④ 「適用」をクリック" -ForegroundColor White` + "`n" + `Write-Host ""` + "`n" + `Write-Host "  ※ レジストリ変更なし・再起動不要" -ForegroundColor DarkGray` + "`n" + `Write-Host "  ※ Reflex対応ゲームではドライバーに無視されます" -ForegroundColor DarkGray` }
     ] : [],
     manual: e => e.gpu === 'nvidia'
       ? '① NVIDIAコントロールパネルを開く\n② 「3D設定の管理」→「グローバル設定」\n③ 「事前レンダリングする最大フレーム数」→「Ultra」'
@@ -6847,7 +6847,7 @@ if ($nic) {
 }
 Write-Host "  --> バックアップ完了: $backupDir" -ForegroundColor Green`;
 
-  // ── Phase 2: ロールバック定義 ──
+  // ── Phase 2: バックアップ復元定義 ──
   const rollbackDefs = [
     { id: 'power', title: _ps('電源プランをバランスに戻す','Restore power plan to Balanced','还原电源计划为平衡'),
       psCode: `$balanced = "381b4222-f694-41f0-9685-ff5bb260df2e"\nStart-Process powercfg -ArgumentList "/setactive $balanced" -Wait -NoNewWindow\nWrite-Host "  --> 電源プランをバランスに戻しました" -ForegroundColor Green` },
@@ -6925,6 +6925,9 @@ Write-Host "  --> バックアップ完了: $backupDir" -ForegroundColor Green`;
     { id: 'nvme_queue', title: _ps('NVMe I/Oレイテンシ設定をデフォルトに戻す','Restore NVMe I/O latency setting to default','还原NVMe I/O延迟设置为默认值'),
       psCode: `$path = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\StorNVMe\\Parameters\\Device"\nRemove-ItemProperty -Path $path -Name "QueueDepth" -ErrorAction SilentlyContinue\nWrite-Host "  --> NVMe I/Oキューサイズを元の値（254）に戻しました（再起動後に反映）" -ForegroundColor Green` },
 
+    { id: 'ull', title: _ps('Ultra Low Latency Mode を無効に戻す','Disable Ultra Low Latency Mode','禁用Ultra Low Latency Mode'),
+      psCode: `Write-Host "  Ultra Low Latency Mode の復元手順:" -ForegroundColor Cyan\nWrite-Host "  ① NVIDIAコントロールパネルを開く" -ForegroundColor White\nWrite-Host "  ② 「3D設定の管理」→「グローバル設定」タブ" -ForegroundColor White\nWrite-Host "  ③ 「事前レンダリングする最大フレーム数」→「アプリケーション設定」を選択" -ForegroundColor White\nWrite-Host "  ④ 「適用」をクリック" -ForegroundColor White\nWrite-Host "  ※ レジストリ変更なし・再起動不要" -ForegroundColor DarkGray` },
+
   ].filter(r => {
     if (!checkedIds.has(r.id)) return false;
     // 二重実行排他制御:
@@ -6996,14 +6999,14 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
   // ── メインPSスクリプト生成 ──
   const psMain =
     '#Requires -RunAsAdministrator\n' +
-    _ps('# PCゲーム遅延最適化 ロールバックツール\n', '# PC Game Latency Optimizer - Rollback Tool\n', '# PC游戏延迟优化 回滚工具\n') +
+    _ps('# PCゲーム遅延最適化 バックアップ・復元ツール\n', '# PC Game Latency Optimizer - Backup & Restore Tool\n', '# PC游戏延迟优化 备份还原工具\n') +
     '# GPU: ' + (env.gpu || '').toUpperCase() + ' / OS: ' + (env.os || '').toUpperCase() + '\n' +
     _ps('# 実行方法: ファイルを右クリック →「PowerShellで実行」\n\n','# How to run: Right-click the file → Run with PowerShell\n\n','# 运行方法: 右键文件 → 使用PowerShell运行\n\n') +
     rbFunctions + '\n' +
     '$applyList = @(' + rbIdList + ')\n\n' +
     'Write-Host ""\n' +
     'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
-    _ps('Write-Host "   ロールバックツール" -ForegroundColor White\n','Write-Host "   Rollback Tool" -ForegroundColor White\n','Write-Host "   回滚工具" -ForegroundColor White\n') +
+    _ps('Write-Host "   バックアップ・復元ツール" -ForegroundColor White\n','Write-Host "   Backup & Restore Tool" -ForegroundColor White\n','Write-Host "   备份还原工具" -ForegroundColor White\n') +
     'Write-Host "   GPU: ' + (env.gpu || '').toUpperCase() + ' / OS: ' + (env.os || '').toUpperCase() + '" -ForegroundColor Gray\n' +
     'Write-Host "  ==========================================" -ForegroundColor Cyan\n' +
     'Write-Host ""\n' +
@@ -7052,16 +7055,16 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
     _ps('Read-Host "  Enterキーで終了"\n','Read-Host "  Press Enter to exit"\n','Read-Host "  按Enter键退出"\n');
 
   // ── ps1 + bat を ZIP にまとめてダウンロード ──
-  const ps1Name = `latency-ROLLBACK-${env.gpu}-${env.os}.ps1`;
-  const batName = `latency-ROLLBACK-${env.gpu}-${env.os}.bat`;
-  const zipName = `latency-ROLLBACK-${env.gpu}-${env.os}.zip`;
+  const ps1Name = `latency-backup-${env.gpu}-${env.os}.ps1`;
+  const batName = `latency-backup-${env.gpu}-${env.os}.bat`;
+  const zipName = `latency-backup-${env.gpu}-${env.os}.zip`;
 
   const ps1Bytes = encodePs1WithBom(psMain);
 
   const batLines = [
     '@echo off',
     'chcp 65001 >nul',
-    _ps('REM PCゲーム遅延最適化 ロールバック ランチャー','REM PC Game Latency Optimizer - Rollback Launcher','REM PC游戏延迟优化 回滚启动器'),
+    _ps('REM PCゲーム遅延最適化 バックアップ・復元ランチャー','REM PC Game Latency Optimizer - Backup & Restore Launcher','REM PC游戏延迟优化 备份还原启动器'),
     _ps(_ps('REM このファイルを右クリック →「管理者として実行」','REM Right-click this file → Run as administrator','REM 右键此文件 → 以管理员身份运行'),'REM Right-click this file → Run as administrator','REM 右键此文件 → 以管理员身份运行'),
     '',
     'fltmc >nul 2>&1',
@@ -7089,7 +7092,7 @@ Write-Host "  --> レジストリの復元が完了しました" -ForegroundColo
       showPs1Guide(batName, ps1Name, zipName);
     })
     .catch(err => {
-      console.error(_ps('ロールバックZIP生成エラー:','Rollback ZIP generation error:','回滚ZIP生成错误:'), err);
+      console.error(_ps('バックアップZIP生成エラー:','Backup ZIP generation error:','备份ZIP生成错误:'), err);
       showErrorToast(t('toastZipFail'));
     });
 }
