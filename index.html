@@ -917,14 +917,14 @@ const CARD_I18N = {
     nagle: {
       title: 'Disable Nagle Algorithm',
       sub: 'Registry → Disable small packet buffering',
-      desc: 'The Nagle algorithm batches small packets for bandwidth efficiency but adds delay to game input packets. Setting TCPNoDelay and TcpAckFrequency in the registry disables it. Especially effective for online competitive games.',
+      desc: 'The Nagle algorithm batches small TCP packets for bandwidth efficiency, adding delay to small TCP sends. Setting TCPNoDelay and TcpAckFrequency in the registry disables it.\n\n⚠️ Important: Nagle and TcpAckFrequency apply to TCP only. The competitive shooters this tool targets (VALORANT, CS2, Overwatch 2, Apex, etc.) use UDP for gameplay, so these tweaks do NOT affect in-game input latency for those titles. They only matter for the few games/launchers/chat that use TCP — and most games already set TCP_NODELAY on their sockets in-app.',
       riskLabel: 'Check behavior',
       manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\n③ Open each interface key and add/change (DWORD):\n   · TcpAckFrequency = 1\n   · TCPNoDelay = 1\n④ Reboot',
     },
     vbs: {
       title: 'Disable VBS / HVCI (Virtualization-Based Security)',
       sub: 'Windows security feature — Security risk · Proceed with understanding',
-      desc: 'VBS (Virtualization Based Security) and HVCI (Hypervisor Protected Code Integrity) are Windows 11 security features. When enabled, virtualization layer overhead can reduce game frame rate by 5–15%.\n\n⚠️ 【Note for VALORANT players】The interaction between VALORANT\'s anti-cheat "Vanguard" and VBS varies by environment and driver version. If VALORANT fails to launch after disabling VBS, re-enable VBS. Check Riot\'s official support if unsure.\n\n⚠️ 【Specific risks】Disabling removes these security protections:\n· HVCI protection against unauthorized kernel memory access (rootkit defense)\n· Credential Guard protecting authentication credentials (password hashes)\n· Device Guard restriction on unsigned driver execution\n\nOnly recommended for personal gaming PCs / competitive-only machines. Never apply in corporate, shared PC, or online banking environments.',
+      desc: 'VBS (Virtualization Based Security) and HVCI (Hypervisor Protected Code Integrity) are Windows 11 security features. When enabled, virtualization-layer overhead can reduce frame rate, but the magnitude is environment-dependent and on recent CPUs game measurements are usually a few percent (this affects throughput such as average FPS, not input latency itself).\n\n⚠️ 【Note for VALORANT players】The interaction between VALORANT\'s anti-cheat "Vanguard" and VBS varies by environment and driver version. If VALORANT fails to launch after disabling VBS, re-enable VBS. Check Riot\'s official support if unsure.\n\n⚠️ 【Specific risks】Disabling removes these security protections:\n· HVCI protection against unauthorized kernel memory access (rootkit defense)\n· Credential Guard protecting authentication credentials (password hashes)\n· Device Guard restriction on unsigned driver execution\n\nOnly recommended for personal gaming PCs / competitive-only machines. Never apply in corporate, shared PC, or online banking environments.',
       riskLabel: 'High Risk (Security Reduction)',
       naReason: 'Not applicable for Windows 10.',
       manual: '① Win+R → msinfo32 to check current VBS status\n② Run the command above in administrator PowerShell\n③ Reboot\n④ Confirm "Virtualization-based security: Off" in msinfo32',
@@ -932,7 +932,7 @@ const CARD_I18N = {
     spectre: {
       title: 'Disable Spectre / Meltdown Patches',
       sub: 'CPU speculative execution vulnerability patch — Security risk · For competitive-only PCs',
-      desc: 'Spectre/Meltdown mitigation patches restrict CPU speculative execution, causing 5–15% CPU performance loss in some games. Only in personal gaming-only PCs where remote code execution risk is low, disabling can improve FPS and 1% Low FPS.\n\n⚠️ 【Specific risks】Spectre/Meltdown is a vulnerability that allows "other processes or browser JavaScript on the same CPU to read kernel memory or other process data that should be inaccessible." Disabling means:\n· Passwords and encryption keys can leak via malicious website JS\n· Data theft between virtual machines becomes possible\n\nOnly for gaming-only PCs / offline environments / competitive-only machines. Never apply if you use a browser regularly or online banking.',
+      desc: 'Spectre/Meltdown mitigations restrict speculative execution, costing CPU performance — but the magnitude depends heavily on CPU generation and workload. It can be large on older CPUs or syscall-heavy paths, yet on Zen3/Zen4 (e.g. 9800X3D) and recent Intel, game measurements are typically within a few percent or measurement noise. What this mainly changes is average FPS / 1% Low (throughput), NOT input latency itself. Disable only on personal gaming-only PCs where remote code-execution risk is low.\n\n⚠️ 【Specific risks】Spectre/Meltdown is a vulnerability that allows "other processes or browser JavaScript on the same CPU to read kernel memory or other process data that should be inaccessible." Disabling means:\n· Passwords and encryption keys can leak via malicious website JS\n· Data theft between virtual machines becomes possible\n\nOnly for gaming-only PCs / offline environments / competitive-only machines. Never apply if you use a browser regularly or online banking.',
       riskLabel: 'High Risk (Security Reduction)',
       manual: '① Run the command above in administrator PowerShell\n② Reboot\n③ Run Get-SpeculationControlSettings in PowerShell to verify\n\nTo revert: Delete FeatureSettingsOverride and FeatureSettingsOverrideMask to restore.',
     },
@@ -951,7 +951,7 @@ const CARD_I18N = {
         : 'The default Windows timer resolution is 15.6ms. Changing it to 1ms (0.5ms on some hardware) improves sleep precision and frame time stability. Use the TimerResolution tool or SetTimerResolution to set it persistently.',
       riskLabel: 'No Risk',
       manual: e => e.os === 'win11'
-        ? 'Automatically applied in Win11 22H2+. No manual setup needed.\nIf issues occur outside games, run: bcdedit /set useplatformtick yes'
+        ? 'Automatically applied in Win11 22H2+. No manual setup needed.\nFor frame-time spikes outside games, use a resident timer tool (e.g. TimerResolution). Do NOT force useplatformtick/disabledynamictick — they add periodic interrupts and can worsen latency.'
         : '① Download TimerResolution (free)\n② Run as administrator → Set to 0.5ms (or 1.0ms)\n③ Keep running while gaming',
     },
     network_throttle: {
@@ -992,21 +992,21 @@ const CARD_I18N = {
     tcp_autotuning: {
       title: 'Disable TCP Auto-Tuning',
       sub: 'netsh → Stop automatic receive window size fluctuation',
-      desc: "Windows TCP auto-tuning dynamically changes receive window size. When combined with Nagle disabling (TcpAckFrequency=1), the OS varying the receive window can cause packet interval irregularities. Disabling and fixing window size improves communication stability.\n\n💡 Applying together with Nagle disable is the basic set. More effective in combination than alone.\n\n⚠️ 【Why excluded from Stable preset】: In some router/ISP environments, a fixed window size may limit bandwidth below the maximum, reducing large download speeds. This is a setting optimized for 'communication response speed' in FPS/Fighting games. For MMO/RTS with heavy data transfer, consider carefully.",
+      desc: "Windows TCP auto-tuning dynamically changes receive window size. This concerns TCP receive-window control and does NOT affect UDP traffic — it is not a setting that directly lowers in-game latency for UDP competitive shooters.\n\n⚠️ Fixing the window trades away large-download throughput, and the benefit is limited. There is no clear measured basis for a \"synergy with Nagle disable\" claim.\n\n⚠️ 【Why excluded from Stable preset】: In some router/ISP environments, a fixed window size may limit bandwidth below the maximum, reducing large download speeds. This is a setting optimized for 'communication response speed' in FPS/Fighting games. For MMO/RTS with heavy data transfer, consider carefully.",
       riskLabel: 'Check behavior',
-      manual: '① Run the command above in administrator command prompt\n② After reboot, verify "Receive Window Auto-Tuning Level: disabled" with netsh int tcp show global\n\nTo revert: netsh int tcp set global autotuninglevel=normal\n\n⚠️ Applying with Nagle disable creates a synergistic effect',
+      manual: '① Run the command above in administrator command prompt\n② After reboot, verify "Receive Window Auto-Tuning Level: disabled" with netsh int tcp show global\n\nTo revert: netsh int tcp set global autotuninglevel=normal\n\n⚠️ This is a TCP setting; it does not affect in-game latency for UDP-based competitive shooters.',
     },
     hpet: {
       title: 'Disable HPET (High Precision Event Timer)',
       sub: 'System Timer — Recommended with Timer Resolution card',
       desc: e => e.os === 'win11'
         ? 'In Windows 11, HPET handling has changed and its impact is limited. Focus on the "Timer Resolution" card instead (Win11 22H2+ auto-applies 1ms during games).'
-        : 'Windows uses TSC (Time Stamp Counter) as the primary timer, but when HPET is enabled, the OS may choose HPET over TSC in some situations. HPET access has higher overhead than TSC. Disabling HPET via bcdedit forces the OS to use TSC consistently.\n\nNote: Effectiveness varies by hardware/driver. Measure with LatencyMon or frame time tools before and after.',
+        : 'Windows uses TSC (Time Stamp Counter) as the primary timer, but when HPET is enabled, the OS may choose HPET over TSC in some situations. HPET access has higher overhead than TSC. Removing a forced platform clock (bcdedit /deletevalue useplatformclock) lets the OS prefer TSC. Note: do NOT add useplatformtick/disabledynamictick — those force a periodic tick and raise interrupt/DPC load, the opposite of low latency.\n\nNote: Effectiveness varies by hardware/driver. Measure with LatencyMon or frame time tools before and after.',
       riskLabel: 'Check behavior',
       naReason: 'HPET handling has changed in Windows 11 and effect is limited. See the "Timer Resolution" card instead (Win11 22H2+ auto-applies 1ms in games).',
       manual: e => e.os === 'win11'
         ? 'Effect is limited in Win11. Check the Timer Resolution card.\nbcdedit /deletevalue useplatformclock (to revert if already disabled)'
-        : '① Run in administrator command prompt: bcdedit /set useplatformclock false\n② Reboot\n③ Verify with LatencyMon',
+        : '① Run in administrator PowerShell: bcdedit /deletevalue useplatformclock\n② Reboot\n③ Verify with LatencyMon',
     },
     nvme_queue: {
       title: 'Reduce NVMe I/O Latency',
@@ -1040,7 +1040,7 @@ const CARD_I18N = {
     coreparking: {
       title: 'Disable Core Parking',
       sub: 'CPU core management independent of power plan',
-      desc: 'The "High Performance" power plan generally suppresses core parking on Windows 10, but on Windows 11, core parking may still occur regardless of the power plan setting. Setting minimum/maximum processor state to 100% via powercfg explicitly disables this. When game load spikes, the cost of waking parked cores can cause momentary frame time degradation — especially relevant on Windows 11.',
+      desc: 'The "High Performance" plan usually suppresses core parking on Windows 10, but on Windows 11 parking can still occur regardless of the plan.\n\n🔧 Mechanism: the dedicated control for core parking is CPMINCORES (minimum % of logical cores kept unparked). The commonly used "minimum processor state = 100%" (PROCTHROTTLEMIN) is a different setting that pins the P-state (frequency) floor — it prevents downclocking and can incidentally reduce parking, but it is not the parking control itself. This card sets BOTH to 100% to suppress parking and frequency drops.\n\nWhen load spikes, the cost of waking parked cores can momentarily degrade frame time, so this tends to help on Windows 11.\n\n⚠️ All cores stay active, raising power draw and heat — avoid on battery. Intel 12th-gen+ E-cores will also stay active.',
       riskLabel: 'Check behavior',
       manual: '① Run the command above in administrator PowerShell\n② Or powercfg.cpl → current plan details → Processor power management\n③ Set "Minimum processor state" to 100%\n④ Reboot to verify',
     },
@@ -1091,14 +1091,14 @@ const CARD_I18N = {
     win32priority: {
       title: 'Optimize Win32PrioritySeparation',
       sub: 'Maximize CPU time slice for foreground (game)',
-      desc: 'Win32PrioritySeparation controls the CPU time slice ratio between foreground and background. Setting to 0x26 (fixed, short quantum, foreground-priority) allows foreground apps like games to run at high priority continuously.\n\n💡 【0x26 breakdown】This value instructs the Windows CPU scheduler to "prioritize foreground at a 3:1 ratio with a fixed short quantum." Shorter quanta mean the input→process→render cycle runs more frequently, reducing input latency.\n\nMost effective in environments where OBS, Discord, or browsers run simultaneously in the background. Difference is smaller when only the game is running.',
+      desc: 'Win32PrioritySeparation controls the ratio and length of CPU time slices (quanta) between foreground and background.\n\n💡 Important: the desktop Windows default is 0x2, which already applies a variable, dynamic foreground boost (roughly 3:1). 0x26 forces a short, FIXED quantum with a 3:1 foreground ratio. But quantum length governs preemption granularity between equal-priority ready threads — it does NOT drive the game input→render pipeline (that is set by the game loop and present interval). So a direct input-latency benefit is, in theory, limited; this is a commonly misattributed mechanism.\n\nAny real effect is limited to setups where OBS/Discord/browsers run alongside the game and contend for CPU. With only the game running there is essentially no perceptible difference from the default 0x2. Forcing a fixed quantum also disables the adaptive foreground boost, so if you cannot measure an improvement, revert to the default (0x2).\n\n📏 Measure: compare frame-time distribution before/after with PresentMon/CapFrameX. True input latency can only be evaluated rigorously with hardware tools such as LDAT.',
       riskLabel: 'Low Risk',
       manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl\n③ Change Win32PrioritySeparation to DWORD 26 (hex)\n④ No restart required (takes effect immediately)',
     },
     registry: {
       title: 'Set GPU Scheduler Priority + SFIO Priority via Registry',
       sub: 'HKLM → Multimedia → SystemProfile → Tasks → Games',
-      desc: "Changes the GPU priority and I/O priority Windows MMCSS assigns to games. Setting SFIO Priority to High reduces brief stutters during in-game asset loading (background map loading, etc.).\n\n💡 Relationship to 'MMCSS SystemResponsiveness' card: That card changes SystemResponsiveness and NetworkThrottlingIndex. This card changes Tasks\\Games priorities (GPU Priority, Priority, SFIO Priority). Different registry keys — no conflict, but if MMCSS card is already applied, GPU Priority and Priority here become double-settings.",
+      desc: "Changes the GPU/IO priorities Windows MMCSS assigns to the Games task. ⚠️ Note: GPU Priority=8, Priority=6, Scheduling Category=High and SFIO Priority=High are the Windows defaults for this task. On most systems the values are unchanged, so applying this card is effectively a no-op (re-writing defaults); its real use is verifying/restoring them if a third-party tool altered them. SFIO (Scheduled File I/O) priority only matters when MMCSS-registered threads contend for disk I/O — on NVMe its effect on asset-loading stutter is negligible, and any benefit is limited to HDD/SATA SSD with heavy streaming.\n\n💡 Relationship to 'MMCSS SystemResponsiveness' card: That card changes SystemResponsiveness and NetworkThrottlingIndex. This card changes Tasks\\Games priorities (GPU Priority, Priority, SFIO Priority). Different registry keys — no conflict, but if MMCSS card is already applied, GPU Priority and Priority here become double-settings.",
       riskLabel: 'Minor Risk',
       manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games\n③ GPU Priority → 8, Priority → 6, Scheduling Category → High\n④ SFIO Priority → High (string value)',
     },
@@ -1175,14 +1175,14 @@ const CARD_I18N = {
     nagle: {
       title: '禁用Nagle算法',
       sub: '注册表 → 禁用小数据包缓冲',
-      desc: 'Nagle算法通过合并多个小数据包发送来提高带宽效率，但会给游戏输入数据包增加延迟。通过注册表设置TCPNoDelay和TcpAckFrequency来禁用。对在线对战游戏特别有效。',
+      desc: 'Nagle算法通过合并多个小TCP数据包发送来提高带宽效率，但会给小的TCP发送增加延迟。通过注册表设置TCPNoDelay和TcpAckFrequency来禁用。\n\n⚠️ 重要：Nagle和TcpAckFrequency仅作用于TCP。本工具主要面向的竞技FPS（VALORANT、CS2、Overwatch 2、Apex等）的游戏通信使用UDP，因此这些设置不会影响这些游戏的游戏内输入延迟。仅对少数使用TCP的游戏/启动器/聊天有意义——而且大多数游戏已在应用内对套接字设置了TCP_NODELAY。',
       riskLabel: '需确认运行状态',
       manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\n③ 打开各接口键，添加/修改（DWORD值）：\n   ·TcpAckFrequency = 1\n   ·TCPNoDelay = 1\n④ 重启',
     },
     vbs: {
       title: '禁用VBS / HVCI（基于虚拟化的安全）',
       sub: 'Windows安全功能 — 存在安全风险·请充分理解后执行',
-      desc: 'VBS（基于虚拟化的安全）和HVCI（虚拟机监控程序保护的代码完整性）是Windows 11的安全功能。启用时，虚拟化层的开销可能导致游戏帧率下降5~15%。\n\n⚠️ 【VALORANT玩家注意】VALORANT的反作弊程序「Vanguard」与VBS的关系因环境和驱动版本而异。禁用VBS后如果VALORANT出现启动问题，请重新启用VBS。不确定时建议查阅Riot官方支持。\n\n⚠️【具体风险】禁用后将失去以下安全保护：\n·防止非法访问内核内存的HVCI保护（防rootkit）\n·保护认证信息（密码哈希）的Credential Guard\n·Device Guard对未签名驱动执行的限制\n\n仅推荐个人游戏PC/竞技专用机。企业环境、共用PC、使用网上银行的环境中绝对不可执行。',
+      desc: 'VBS（基于虚拟化的安全）和HVCI（虚拟机监控程序保护的代码完整性）是Windows 11的安全功能。启用时，虚拟化层开销可能降低帧率，但幅度因环境而异，在近期CPU的游戏实测中通常为几个百分点（影响的是平均FPS等吞吐量，而非输入延迟本身）。\n\n⚠️ 【VALORANT玩家注意】VALORANT的反作弊程序「Vanguard」与VBS的关系因环境和驱动版本而异。禁用VBS后如果VALORANT出现启动问题，请重新启用VBS。不确定时建议查阅Riot官方支持。\n\n⚠️【具体风险】禁用后将失去以下安全保护：\n·防止非法访问内核内存的HVCI保护（防rootkit）\n·保护认证信息（密码哈希）的Credential Guard\n·Device Guard对未签名驱动执行的限制\n\n仅推荐个人游戏PC/竞技专用机。企业环境、共用PC、使用网上银行的环境中绝对不可执行。',
       riskLabel: '高风险（降低安全性）',
       naReason: 'Windows 10不适用。',
       manual: '① Win+R → msinfo32 确认当前VBS状态\n② 以管理员身份运行PowerShell执行上述命令\n③ 重启\n④ 在msinfo32中确认「基于虚拟化的安全性: 已禁用」',
@@ -1190,7 +1190,7 @@ const CARD_I18N = {
     spectre: {
       title: '禁用Spectre / Meltdown补丁',
       sub: 'CPU推测执行漏洞补丁 — 存在安全风险·仅限竞技专用PC',
-      desc: 'Spectre/Meltdown缓解补丁限制CPU推测执行，某些游戏中会导致5~15%的CPU性能下降。仅在个人纯游戏PC且来自外部网络的代码执行风险较低的环境中，禁用可提升FPS和1% Low FPS。\n\n⚠️【具体风险】Spectre/Meltdown是「同一CPU上的其他进程或浏览器JavaScript可读取本不应访问的内核内存或其他进程数据」的漏洞。禁用后：\n·恶意网站的JS可能泄露密码和加密密钥\n·虚拟机间的数据窃取成为可能\n\n仅适用于游戏专用PC/离线环境/竞技专用机。经常使用浏览器或网上银行的环境中绝对不可执行。',
+      desc: 'Spectre/Meltdown缓解补丁限制CPU推测执行，会带来CPU性能下降，但幅度高度依赖CPU世代和工作负载。在旧CPU或系统调用密集的路径上可能较大，但在Zen3/Zen4（如9800X3D）和近期Intel上，游戏实测通常在几个百分点以内或测量误差范围内。它主要改变的是平均FPS/1% Low（吞吐量指标），而非输入延迟本身。仅应在外部代码执行风险较低的个人纯游戏PC上禁用。\n\n⚠️【具体风险】Spectre/Meltdown是「同一CPU上的其他进程或浏览器JavaScript可读取本不应访问的内核内存或其他进程数据」的漏洞。禁用后：\n·恶意网站的JS可能泄露密码和加密密钥\n·虚拟机间的数据窃取成为可能\n\n仅适用于游戏专用PC/离线环境/竞技专用机。经常使用浏览器或网上银行的环境中绝对不可执行。',
       riskLabel: '高风险（降低安全性）',
       manual: '① 以管理员身份运行PowerShell执行上述命令\n② 重启\n③ 在PowerShell中运行 Get-SpeculationControlSettings 确认\n\n恢复方法：删除FeatureSettingsOverride和FeatureSettingsOverrideMask即可恢复。',
     },
@@ -1209,7 +1209,7 @@ const CARD_I18N = {
         : 'Windows默认计时器分辨率为15.6ms。将其改为1ms（部分硬件可达0.5ms）可提高睡眠精度和帧时间稳定性。使用TimerResolution工具或SetTimerResolution持续设置。',
       riskLabel: '无风险',
       manual: e => e.os === 'win11'
-        ? 'Win11 22H2以上自动应用，无需手动设置。\n如有问题可运行：bcdedit /set useplatformtick yes'
+        ? 'Win11 22H2以上自动应用，无需手动设置。\n如游戏外出现帧时间峰值，请使用常驻型计时器工具（如TimerResolution）。请勿强制 useplatformtick/disabledynamictick——它们会增加周期性中断、反而可能恶化延迟。'
         : '① 下载TimerResolution（免费）\n② 以管理员身份运行 → 设置为0.5ms（或1.0ms）\n③ 游戏期间保持运行',
     },
     network_throttle: {
@@ -1250,21 +1250,21 @@ const CARD_I18N = {
     tcp_autotuning: {
       title: '禁用TCP自动调整',
       sub: 'netsh → 停止接收窗口大小的自动变动',
-      desc: 'Windows TCP自动调整会动态改变接收窗口大小。与Nagle禁用（TcpAckFrequency=1）组合使用时，OS自行改变接收窗口会导致数据包间隔不规则。禁用并固定窗口大小可提高通信稳定性。\n\n💡 与Nagle禁用组合应用是基本套装，单独使用不如组合效果好。\n\n⚠️【从稳定预设中排除的原因】部分路由器/ISP环境中，固定窗口大小可能使带宽低于上限，降低大文件下载速度。这是针对FPS等「通信响应速度」最优先用途的设置，MMO/RTS等大量数据传输较多的情况请谨慎判断。',
+      desc: 'Windows TCP自动调整会动态改变接收窗口大小。这是关于TCP接收窗口的控制，对UDP通信不起作用——并不是直接降低UDP竞技FPS游戏内延迟的设置。\n\n⚠️ 固定窗口会牺牲大文件下载吞吐量，收益有限。「与Nagle禁用有协同效果」的说法没有明确的实测依据。\n\n⚠️【从稳定预设中排除的原因】部分路由器/ISP环境中，固定窗口大小可能使带宽低于上限，降低大文件下载速度。这是针对FPS等「通信响应速度」最优先用途的设置，MMO/RTS等大量数据传输较多的情况请谨慎判断。',
       riskLabel: '需确认运行状态',
-      manual: '① 以管理员身份运行命令提示符执行上述命令\n② 重启后用netsh int tcp show global确认「Receive Window Auto-Tuning Level: disabled」\n\n恢复方法：netsh int tcp set global autotuninglevel=normal\n\n⚠️ 与Nagle禁用组合应用有协同效果',
+      manual: '① 以管理员身份运行命令提示符执行上述命令\n② 重启后用netsh int tcp show global确认「Receive Window Auto-Tuning Level: disabled」\n\n恢复方法：netsh int tcp set global autotuninglevel=normal\n\n⚠️ 这是TCP设置，不影响使用UDP的竞技FPS的游戏内延迟。',
     },
     hpet: {
       title: '禁用HPET（高精度事件计时器）',
       sub: '系统计时器 — 建议与计时器分辨率卡片配合使用',
       desc: e => e.os === 'win11'
         ? 'Windows 11中HPET的处理已变更，效果有限。请改用「计时器分辨率」卡片（Win11 22H2以上在游戏中自动设为1ms）。'
-        : 'Windows以TSC（时间戳计数器）为主计时器，但启用HPET时OS在某些情况下可能选择HPET而非TSC。HPET访问比TSC开销更高。通过bcdedit禁用HPET可强制OS始终使用TSC。\n\n注：效果因硬件/驱动而异，请用LatencyMon或帧时间工具在应用前后进行测量。',
+        : 'Windows以TSC（时间戳计数器）为主计时器，但启用HPET时OS在某些情况下可能选择HPET而非TSC。HPET访问比TSC开销更高。移除强制平台时钟（bcdedit /deletevalue useplatformclock）可让OS优先使用TSC。注意：请勿添加 useplatformtick/disabledynamictick——它们会强制周期性滴答、增加中断/DPC负载，与低延迟相反。\n\n注：效果因硬件/驱动而异，请用LatencyMon或帧时间工具在应用前后进行测量。',
       riskLabel: '需确认运行状态',
       naReason: 'Windows 11中HPET处理已变更，效果有限。请改用「计时器分辨率」卡片（Win11 22H2以上游戏中自动设为1ms）。',
       manual: e => e.os === 'win11'
         ? 'Win11效果有限，请参考计时器分辨率卡片。\nbcdedit /deletevalue useplatformclock（如已禁用，此命令可恢复）'
-        : '① 以管理员身份运行命令提示符：bcdedit /set useplatformclock false\n② 重启\n③ 用LatencyMon确认',
+        : '① 以管理员身份运行PowerShell：bcdedit /deletevalue useplatformclock\n② 重启\n③ 用LatencyMon确认',
     },
     nvme_queue: {
       title: '降低NVMe I/O延迟',
@@ -1298,7 +1298,7 @@ const CARD_I18N = {
     coreparking: {
       title: '禁用Core Parking（核心停用）',
       sub: '独立于电源计划的CPU核心管理功能',
-      desc: '「高性能」电源计划在Windows 10上通常会抑制核心停用，但在Windows 11环境中，无论电源计划如何设置，核心停用仍可能发生。通过powercfg命令将最小/最大处理器状态明确固定为100%可确保禁用此功能。游戏负载突发增加时，从停用状态唤醒核心的代价会导致帧时间瞬间恶化，Windows 11环境中尤为推荐此设置。',
+      desc: '「高性能」电源计划在Windows 10上通常会抑制核心停用，但在Windows 11上无论电源计划如何，停用仍可能发生。\n\n🔧 机制：核心停用的专用控制值是CPMINCORES（保持不停用的逻辑核心最小百分比）。常用的「最小处理器状态=100%」（PROCTHROTTLEMIN）是另一项设置，它固定P-state（频率）下限，可防止降频并可能间接减少停用，但并非停用本身的控制。本卡片将两者都设为100%，同时抑制停用和降频。\n\n负载突发时，唤醒已停用核心的代价会瞬间恶化帧时间，因此在Windows 11上往往有效。\n\n⚠️ 所有核心持续运行会增加功耗和发热——电池供电时请勿使用。Intel 12代以后的E核也会持续运行。',
       riskLabel: '需确认运行状态',
       manual: '① 以管理员身份运行PowerShell执行上述命令\n② 或通过powercfg.cpl → 当前计划详情 → 处理器电源管理\n③ 将「最小处理器状态」改为100%\n④ 重启PC确认',
     },
@@ -1349,14 +1349,14 @@ const CARD_I18N = {
     win32priority: {
       title: '优化Win32PrioritySeparation',
       sub: '最大化前台（游戏）的CPU时间片',
-      desc: 'Win32PrioritySeparation控制前台和后台CPU时间片的比率。设置为0x26（固定、短量子、前台优先）后，游戏等前台应用可以高优先级连续执行。\n\n💡【0x26的含义】此值指示Windows CPU调度器「以3:1的比率优先前台，并使用固定的短量子」。量子短意味着输入→处理→渲染的循环频率更高，有助于改善输入延迟。\n\n在后台同时运行OBS、Discord、浏览器等的环境中效果尤为明显。仅运行游戏时差异较小。',
+      desc: 'Win32PrioritySeparation控制前台与后台CPU时间片（量子）的比率和长度。\n\n💡 重要：桌面版Windows的默认值为0x2，已经对前台进行可变、动态的提升（大致3:1）。0x26会强制使用「短且固定」的量子并固定3:1前台比率。但量子长度决定的是同优先级就绪线程之间的抢占粒度，并不驱动游戏的输入→渲染管线（后者由游戏循环和呈现间隔决定）。因此对输入延迟的直接效果在理论上有限，这是常被误解的机制。\n\n若有实际效果，也仅限于同时运行OBS/Discord/浏览器并与游戏争抢CPU的环境。仅运行游戏时与默认0x2几乎没有可感差异。固定量子还会禁用前台的自适应提升，若无法测出改善，请恢复默认（0x2）。\n\n📏 测量：用PresentMon/CapFrameX对比前后的帧时间分布。真正的输入延迟只能用LDAT等硬件工具严格评估。',
       riskLabel: '低风险',
       manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl\n③ 将Win32PrioritySeparation改为DWORD 26（十六进制）\n④ 无需重启（即时生效）',
     },
     registry: {
       title: '通过注册表修改GPU调度器优先级 + SFIO Priority',
       sub: 'HKLM → Multimedia → SystemProfile → Tasks → Games',
-      desc: '修改Windows MMCSS（多媒体调度器）为游戏分配的GPU优先级和I/O优先级。将SFIO Priority设为High可减少游戏中资产加载（地图后台读取等）引起的瞬间卡顿。\n\n💡 与「MMCSS SystemResponsiveness」卡片的关系：那张卡片修改SystemResponsiveness和NetworkThrottlingIndex。此卡片修改Tasks\\Games的优先级（GPU Priority、Priority、SFIO Priority）。注册表键不同，不冲突，但如已应用MMCSS卡片，此卡片的GPU Priority和Priority会重复设置。',
+      desc: '修改Windows MMCSS（多媒体调度器）为「Games」任务分配的GPU/IO优先级。⚠️ 注意：GPU Priority=8、Priority=6、Scheduling Category=High、SFIO Priority=High 正是该任务的Windows默认值。大多数系统的值并未改变，因此应用此卡片实际上是空操作（重写默认值），其真正用途是当第三方工具改动后用于核对/恢复。SFIO（计划文件I/O）优先级仅在MMCSS注册线程争抢磁盘I/O时起作用——在NVMe上对资产加载卡顿的影响可忽略，仅在HDD/SATA SSD大量流式读取时可能有微小效果。\n\n💡 与「MMCSS SystemResponsiveness」卡片的关系：那张卡片修改SystemResponsiveness和NetworkThrottlingIndex。此卡片修改Tasks\\Games的优先级（GPU Priority、Priority、SFIO Priority）。注册表键不同，不冲突，但如已应用MMCSS卡片，此卡片的GPU Priority和Priority会重复设置。',
       riskLabel: '轻微风险',
       manual: '① Win+R → regedit\n② HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games\n③ GPU Priority → 8，Priority → 6，Scheduling Category → High\n④ SFIO Priority → High（字符串值）',
     },
@@ -5242,10 +5242,10 @@ Get-ItemProperty $path | Select-Object SystemResponsiveness, NetworkThrottlingIn
     emoji: '⚙️',
     title: 'Nagle アルゴリズムを無効化',
     sub: 'レジストリ → 小パケットのバッファリングをOFF',
-    desc: 'Nagleアルゴリズムは複数の小パケットをまとめて送信することで帯域効率を高めますが、ゲームの入力パケットに遅延を加えます。TCPNoDelayとTcpAckFrequencyをレジストリで設定することで無効化します。オンライン対戦ゲームで特に有効です。',
+    desc: 'Nagleアルゴリズムは複数の小さなTCPパケットをまとめて送信することで帯域効率を高めますが、TCP通信の小パケットに遅延を加えます。TCPNoDelayとTcpAckFrequencyをレジストリで設定することで無効化します。\n\n⚠️ 重要：Nagle・TcpAckFrequencyは TCP にのみ作用します。本ツールが主対象とする競技FPS（VALORANT・CS2・Overwatch 2・Apex 等）のゲーム通信は UDP のため、これらのタイトルのゲーム内入力遅延には効果がありません。TCPを用いる一部のゲーム/ランチャー・チャット等でのみ意味があります。多くのゲームはアプリ側でソケットに TCP_NODELAY を設定済みです。',
     risk: 'low', riskLabel: '要動作確認',
-    impact: 'high',
-    fps: '◎', mmo: '◎',
+    impact: 'low',
+    fps: '○', mmo: '○',
     available: true,
     commands: [{
       label: 'PowerShell（管理者）',
@@ -5272,7 +5272,7 @@ Write-Host "Nagleアルゴリズムを無効化しました"`,
     emoji: '⚙️',
     title: 'VBS / HVCI（仮想化ベースセキュリティ）を無効化',
     sub: 'Windows セキュリティ機能 — セキュリティリスクあり・理解した上で実行',
-    desc: 'VBS（Virtualization Based Security）とHVCI（Hypervisor Protected Code Integrity）はWindows 11のセキュリティ機能です。有効化されていると仮想化レイヤーのオーバーヘッドによりゲームのフレームレートが5〜15%低下するケースがあります。\n\n⚠️ 【VALORANTプレイヤーへの注意】VALORANTのアンチチート「Vanguard」とVBSの動作関係は環境・ドライバーバージョンによって異なります。VBS無効化後にVALORANTの起動に問題が発生した場合はVBSを再有効化してください。不明な場合はRiot公式サポートを確認することを推奨します。\n\n⚠️ 【具体的なリスク】無効化すると以下のセキュリティ保護が失われます:\n・ カーネルメモリへの不正アクセスを防ぐHVCI保護（ルートキット対策）\n・ 認証情報（パスワードハッシュ）を保護するCredential Guard\n・ Device Guardによる未署名ドライバーの実行制限\n\n個人ゲーミングPC専用・競技使用のみ推奨。企業環境・共有PC・オンラインバンキング利用環境では絶対に実行しないでください。',
+    desc: 'VBS（Virtualization Based Security）とHVCI（Hypervisor Protected Code Integrity）はWindows 11のセキュリティ機能です。有効時は仮想化レイヤーのオーバーヘッドでフレームレートが低下し得ますが、その幅は環境依存で、近年のCPUのゲーム実測では多くが数%程度です（改善対象は平均FPS等のスループットで、入力レイテンシそのものではありません）。\n\n⚠️ 【VALORANTプレイヤーへの注意】VALORANTのアンチチート「Vanguard」とVBSの動作関係は環境・ドライバーバージョンによって異なります。VBS無効化後にVALORANTの起動に問題が発生した場合はVBSを再有効化してください。不明な場合はRiot公式サポートを確認することを推奨します。\n\n⚠️ 【具体的なリスク】無効化すると以下のセキュリティ保護が失われます:\n・ カーネルメモリへの不正アクセスを防ぐHVCI保護（ルートキット対策）\n・ 認証情報（パスワードハッシュ）を保護するCredential Guard\n・ Device Guardによる未署名ドライバーの実行制限\n\n個人ゲーミングPC専用・競技使用のみ推奨。企業環境・共有PC・オンラインバンキング利用環境では絶対に実行しないでください。',
     risk: 'high', riskLabel: '高リスク（セキュリティ低下）',
     impact: 'high',
     fps: '◎', mmo: '◎',
@@ -5299,7 +5299,7 @@ Write-Host "VBS/HVCIを無効化しました。再起動後に反映されます
     emoji: '⚙️',
     title: 'Spectre / Meltdown パッチを無効化',
     sub: 'CPU投機実行の脆弱性パッチ — セキュリティリスクあり・競技専用PC向け',
-    desc: 'Spectre・Meltdownの緩和パッチはCPUの投機的実行を制限するため、ゲームによっては5〜15%のCPU性能低下を引き起こします。個人のゲーム専用PCで外部ネットワークからのコード実行リスクが低い環境に限り、無効化することでFPSと1% Low FPSが向上します。\n\n⚠️ 【具体的なリスク】Spectre/Meltdownは「同一CPU上の他プロセスやブラウザのJavaScriptから、本来アクセスできないカーネルメモリや他プロセスのデータを読み取れる」脆弱性です。無効化すると:\n・ 悪意あるWebサイトのJSからパスワード・暗号鍵が漏洩する危険\n・ 仮想マシン間でのデータ盗取が可能になる\n\nゲーム専用PC・オフライン環境・競技専用機のみ推奨。ブラウザ常用・ネットバンキング利用環境では絶対に実行しないでください。',
+    desc: 'Spectre・Meltdownの緩和パッチはCPUの投機的実行を制限するため、投機実行を抑制するためCPU性能が低下しますが、その幅はCPU世代とワークロード依存です。旧世代CPUやシステムコール多発時には大きく出る一方、Zen3/Zen4（例: 9800X3D）や近年のIntelのゲーム実測では多くが数%以内〜計測誤差の範囲にとどまります。改善するのは主に平均FPS/1% Low（スループット指標）であり、入力レイテンシそのものの低減ではない点に注意してください。無効化は個人のゲーム専用PCで外部からのコード実行リスクが低い環境に限定すべきです。\n\n⚠️ 【具体的なリスク】Spectre/Meltdownは「同一CPU上の他プロセスやブラウザのJavaScriptから、本来アクセスできないカーネルメモリや他プロセスのデータを読み取れる」脆弱性です。無効化すると:\n・ 悪意あるWebサイトのJSからパスワード・暗号鍵が漏洩する危険\n・ 仮想マシン間でのデータ盗取が可能になる\n\nゲーム専用PC・オフライン環境・競技専用機のみ推奨。ブラウザ常用・ネットバンキング利用環境では絶対に実行しないでください。',
     risk: 'high', riskLabel: '高リスク（セキュリティ低下）',
     impact: 'high',
     fps: '◎', mmo: '◎',
@@ -5531,7 +5531,7 @@ Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueue
     emoji: '⚙️',
     title: 'TCP 自動チューニングを無効化',
     sub: 'netsh → 受信ウィンドウサイズの自動変動を停止',
-    desc: 'WindowsのTCP自動チューニングは受信ウィンドウサイズを動的に変化させます。Nagle無効化（TcpAckFrequency=1）と組み合わせた場合、OSが受信ウィンドウを勝手に変動させることでパケット間隔がばらつく原因になります。無効化してウィンドウサイズを固定することで通信の安定性が向上します。\n\n💡 Nagle無効化と合わせて適用するのが基本セットです。単体より組み合わせで効果が出ます。\n\n⚠️ 【安定重視プリセットから除外している理由】一部のルーター・ISP環境では固定ウィンドウサイズが帯域を上限より制限し、大容量ダウンロード速度が低下する場合があります。FPS・格闘など「通信の応答速度」が最優先の用途向けの設定で、MMO・RTS等で大量データ転送が多い場合は慎重に判断してください。',
+    desc: 'WindowsのTCP自動チューニングは受信ウィンドウサイズを動的に変化させます。これは TCP の受信ウィンドウ制御の話で、UDP通信には作用しません。競技FPS（UDP）のゲーム内遅延を直接下げる設定ではない点に注意してください。\n\n⚠️ 無効化（固定）は大容量ダウンロードのスループットを下げるトレードオフがあり、得られる利点は限定的です。「Nagle無効化と相乗効果」という主張に明確な計測根拠はありません。\n\n⚠️ 【安定重視プリセットから除外している理由】一部のルーター・ISP環境では固定ウィンドウサイズが帯域を上限より制限し、大容量ダウンロード速度が低下する場合があります。FPS・格闘など「通信の応答速度」が最優先の用途向けの設定で、MMO・RTS等で大量データ転送が多い場合は慎重に判断してください。',
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
     fps: '◎', mmo: '◎',
@@ -5541,7 +5541,7 @@ Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueue
       text:
 `# TCP 自動チューニングを無効化\nStart-Process netsh -ArgumentList 'int tcp set global autotuninglevel=disabled' -Wait -NoNewWindow\nWrite-Host "TCP自動チューニングを無効化しました"\n\n# 設定確認\n& netsh int tcp show global | Select-String 'Receive Window'`
     }],
-    manual: '① 管理者コマンドプロンプトで上記コマンドを実行\n② 再起動後に netsh int tcp show global で「Receive Window Auto-Tuning Level: disabled」を確認\n\n復元方法: netsh int tcp set global autotuninglevel=normal\n\n⚠️ Nagle無効化と合わせて適用することで相乗効果があります',
+    manual: '① 管理者コマンドプロンプトで上記コマンドを実行\n② 再起動後に netsh int tcp show global で「Receive Window Auto-Tuning Level: disabled」を確認\n\n復元方法: netsh int tcp set global autotuninglevel=normal\n\n⚠️ これはTCPの設定です。UDPを使う競技FPSのゲーム内遅延には影響しません。',
     verify: '& netsh int tcp show global | Select-String -Pattern "Receive Window Auto-Tuning"',
   },
   {
@@ -5552,7 +5552,7 @@ Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueue
     sub: 'システムタイマー — タイマー解像度カードと併用推奨',
     desc: e => e.os === 'win11'
       ? '⚠️ 【Win11の場合】Win11ではHPETの扱いが変更されており、bcdeditでの無効化効果は非常に限定的です（Win10で有効だった手法がWin11では形骸化しています）。Win11 22H2以降はゲーム中に自動で1ms設定される「Per-Process Timer Resolution」が実装されているため、追加設定は不要です。代わりに「タイマー解像度」カードをご確認ください。\n\n参考: HPETはWindowsが精密な時間計測に使用するハードウェアタイマーです。bcdeditでHPETを無効化しTSCベースのタイマーに切り替えることでフレームタイムが改善するケースがあります（Win10環境での効果が顕著）。'
-      : 'HPETはWindowsが精密な時間計測に使用するハードウェアタイマーです。一部のシステムではHPETの割り込みオーバーヘッドがCPUの処理に影響し、フレームタイムの不安定さにつながります。bcdeditでHPETを無効化し、TSCベースのタイマーに切り替えることで改善が見込めます。効果は環境によって異なるため、前後でフレームタイムを比較してください。\n\n💡 「タイマー解像度」カードとの関係: HPETは「どのタイマーソースを使うか」、タイマー解像度は「割り込み間隔を何msにするか」という別レイヤーの設定です。両立可能で、HPETを先に無効化してからTimerResolutionを適用するのが推奨順序です。',
+      : 'HPETはWindowsが精密な時間計測に使用するハードウェアタイマーです。一部のシステムではHPETの割り込みオーバーヘッドがCPUの処理に影響し、フレームタイムの不安定さにつながります。bcdeditでuseplatformclockの強制を解除しTSCを優先させることで改善が見込めるケースがあります（旧来のuseplatformtick/disabledynamictick強制は周期割り込みを増やし逆効果になり得るため使用しません）。効果は環境によって異なるため、前後でフレームタイムを比較してください。\n\n💡 「タイマー解像度」カードとの関係: HPETは「どのタイマーソースを使うか」、タイマー解像度は「割り込み間隔を何msにするか」という別レイヤーの設定です。両立可能で、HPETを先に無効化してからTimerResolutionを適用するのが推奨順序です。',
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
     fps: '◎', mmo: '○',
@@ -5562,12 +5562,12 @@ Get-NetAdapterRss -Name $nic | Select-Object Name, Enabled, NumberOfReceiveQueue
     commands: e => e.os === 'win11' ? [] : [{
       label: 'PowerShell（管理者）',
       text:
-`# HPET を無効化してTSCタイマーに切り替え\nStart-Process bcdedit -ArgumentList '/deletevalue useplatformclock' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/set useplatformtick yes' -Wait -NoNewWindow\nStart-Process bcdedit -ArgumentList '/set disabledynamictick yes' -Wait -NoNewWindow\nWrite-Host "HPET を無効化しました。再起動後に反映されます。"`
+`# useplatformclockの強制を解除しTSCを優先（Win10向け）\nStart-Process bcdedit -ArgumentList '/deletevalue useplatformclock' -Wait -NoNewWindow\nWrite-Host "useplatformclock の強制を解除しました（再起動後に反映）"`
     }],
     manual: e => e.os === 'win11'
       ? 'Win11環境ではこの設定の効果は限定的です。「タイマー解像度」カードをご確認ください。\n\n適用する場合:\n① 管理者PowerShellで上記コマンドを実行\n② 再起動\n③ フレームタイムを計測して変化を確認'
-      : '① 管理者PowerShellで上記コマンドを実行\n② 再起動\n③ フレームタイムを計測して変化を確認\n\n復元方法:\nbcdedit /set useplatformclock true\nbcdedit /deletevalue useplatformtick\nbcdedit /deletevalue disabledynamictick',
-    verify: '& bcdedit /enum | Select-String -Pattern "useplatformclock|useplatformtick|disabledynamictick"',
+      : '① 管理者PowerShellで上記コマンドを実行\n② 再起動\n③ フレームタイムを計測して変化を確認\n\n復元方法:\nbcdedit /set useplatformclock true',
+    verify: '& bcdedit /enum | Select-String -Pattern "useplatformclock"',
   },
   {
     id: 'nvme_queue',
@@ -5704,7 +5704,7 @@ if ($gpuPath) {
     emoji: '🔲',
     title: 'コアパーキング（Core Parking）を無効化',
     sub: '電源プランとは独立したCPUコア管理機能',
-    desc: '「高パフォーマンス」電源プランはWindows 10では通常コアパーキングを抑制しますが、Windows 11環境ではプラン設定にかかわらずコアパーキングが動作するケースが報告されています。このカードでpowercfgコマンドにより最小・最大プロセッサー数を100%に明示的に固定することで確実に無効化できます。ゲームの負荷が突発的に上がった際にパークから復帰するコストがフレームタイムの瞬間的な悪化を引き起こすため、Win11環境では特に推奨します。\n\n💡 「電源プランを高パフォーマンスに変更」カードと組み合わせることで相乗効果があります。\n\n⚠️ 常時全コアが稼働するため消費電力と発熱がわずかに増加します。ノートPCでのバッテリー駆動時は適用を避けてください。Intel 12世代（Alder Lake）以降のEコアはパーキングが積極的に行われますが、本設定で固定するとEコアも常時動作します。FPS向上より電力効率が優先される場合は適用しないでください。',
+    desc: '「高パフォーマンス」電源プランはWindows 10では通常コアパーキングを抑制しますが、Windows 11ではプラン設定にかかわらずパーキングが動作するケースが報告されています。\n\n🔧 機序の整理: コアパーキングの直接的な制御値は CPMINCORES（パーク解除する論理コアの最小割合）です。一方、よく使われる「最小プロセッサ状態=100%」（PROCTHROTTLEMIN）は P-state（動作周波数）の下限を固定する別設定で、ダウンクロックを防ぎ副次的にパーキングを抑制することはありますが、パーキングそのものの制御ではありません。本カードは両方を100%に設定し、パーキングと周波数低下の両方を抑止します。\n\nゲーム負荷が突発的に上がった際、パーク済みコアの復帰コストがフレームタイムの瞬間的悪化を招くため、Win11環境では効果が出やすい設定です。\n\n⚠️ 常時全コアが稼働するため消費電力と発熱が増加します。ノートPCのバッテリー駆動時は適用を避けてください。Intel 12世代（Alder Lake）以降のEコアも常時動作するようになります。FPS向上より電力効率が優先される場合は適用しないでください。',
     risk: 'low', riskLabel: '要動作確認',
     impact: 'medium',
     fps: '◎', mmo: '◎',
@@ -5716,13 +5716,19 @@ if ($gpuPath) {
 $guid = (& powercfg /getactivescheme) -replace '.*GUID: ([a-f0-9-]+).*', '$1'
 Write-Host "現在の電源プランGUID: $guid"
 
-# 最小プロセッサ状態を 100% に設定（コアパーキング無効化）
+# コアパーキングを直接無効化（CPMINCORES = 100%）
+$SUB = "54533251-82be-4824-96c1-47b60b740d00"
+$CPMIN = "0cc5b647-c1df-4637-891a-dec35c318583"
+Start-Process powercfg -ArgumentList "/setacvalueindex $guid $SUB $CPMIN 100" -Wait -NoNewWindow
+Start-Process powercfg -ArgumentList "/setdcvalueindex $guid $SUB $CPMIN 100" -Wait -NoNewWindow
+
+# 最小プロセッサ状態を100%に固定（P-stateダウンクロック防止：パーキングとは別機構）
 Start-Process powercfg -ArgumentList "/setacvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 100" -Wait -NoNewWindow
 Start-Process powercfg -ArgumentList "/setdcvalueindex $guid SUB_PROCESSOR PROCTHROTTLEMIN 100" -Wait -NoNewWindow
 
 # 設定を反映
 Start-Process powercfg -ArgumentList "/setactive $guid" -Wait -NoNewWindow
-Write-Host "コアパーキングを無効化しました（最小プロセッサ状態 = 100%）"`,
+Write-Host "コアパーキング（CPMINCORES）と最小プロセッサ状態を100%に設定しました"`,
     }],
     manual: '① 管理者PowerShellで上記コマンドを実行\n② または powercfg.cpl → 現在のプランの詳細 → プロセッサの電源管理\n③ 「最小のプロセッサの状態」を 100% に変更\n④ PCを再起動して確認',
     verify: '(& powercfg /query ((& powercfg /getactivescheme) -replace \'.*GUID: ([a-f0-9-]+).*\', \'$1\').Trim() SUB_PROCESSOR PROCTHROTTLEMIN) | Select-String "Current AC"',
@@ -5847,7 +5853,7 @@ Write-Host "復元: DevicePolicy と AssignmentSetOverride を削除して再起
     emoji: '🔲',
     title: 'Win32PrioritySeparation の最適化',
     sub: 'フォアグラウンド（ゲーム）のCPUタイムスライスを最大化',
-    desc: 'Win32PrioritySeparationはフォアグラウンドとバックグラウンドのCPUタイムスライス比率を制御します。0x26（固定・短い量子・フォアグラウンド優先）に設定するとゲームなどのフォアグラウンドアプリが高優先度で連続実行されます。\n\n💡 【0x26の内訳】この値はWindowsのCPUスケジューラに対して「フォアグラウンドを3:1の比率で優先し、量子を短く固定する」よう指示します。量子を短くすることで入力→処理→描画のサイクルが細かく回り、入力遅延の改善につながります。\n\nバックグラウンドでOBS・Discord・ブラウザ等を同時使用している環境で特に効果が出やすいです。ゲームのみ起動する場合は差が小さい場合があります。',
+    desc: 'Win32PrioritySeparationはフォアグラウンドとバックグラウンドのCPUタイムスライス（量子）の比率と長さを制御します。\n\n💡 【重要】デスクトップ版Windowsの既定値は 0x2 で、すでにフォアグラウンドへ可変・動的なブースト（おおむね3:1）を行っています。0x26 は量子を「短く固定」し前景3:1を強制する値ですが、量子はゲームの入力→描画パイプラインのレート（ゲームループとプレゼント間隔が支配）を直接決めるものではなく、同一優先度の実行可能スレッド間のプリエンプション粒度を決めるものです。したがって入力遅延への直接効果は理論上限定的で、誤解されやすい点です。\n\n効果が出るとすればOBS・Discord・ブラウザ等を同時に動かし前景がCPUを奪われやすい環境に限られます。ゲーム単独起動では既定の 0x2 と体感差はほぼありません。固定量子化は前景の適応的ブーストを無効化するため、改善が確認できない場合は既定（0x2）に戻すことを推奨します。\n\n📏 計測: 適用前後でPresentMon/CapFrameXのフレームタイム分布を比較。入力遅延はLDAT等のハードウェア計測でのみ厳密に評価できます。',
     risk: 'low', riskLabel: '低リスク',
     impact: 'medium',
     fps: '◎', mmo: '○',
@@ -5871,7 +5877,7 @@ Write-Host "現在値: $((Get-ItemProperty $path).Win32PrioritySeparation)"`,
     emoji: '🔲',
     title: 'GPUスケジューラ優先度 + SFIO Priority をレジストリで変更',
     sub: 'HKLM → Multimedia → SystemProfile → Tasks → Games',
-    desc: 'WindowsのMMCSS（マルチメディアスケジューラ）がゲームに割り当てるGPU優先度とI/O優先度を変更します。GPU Priority=8・Priority=6 でGPUリソースとCPUタイムをゲームプロセスに優先的に確保します。SFIO Priority を High にすることでゲーム中のアセット読み込み（マップの裏読み・テクスチャストリーミング）のI/O優先度が上がります。HDD・SATA SSD環境で効果が出やすく、NVMe SSD環境では体感差が小さい場合があります。オープンワールドゲームやMMOのような大量アセット読み込みが発生するゲームが主な対象です。\n\n💡 「MMCSS SystemResponsiveness」カードとの関係: そちらはSystemResponsiveness・NetworkThrottlingIndexをグローバルに変更します。このカードはTasks\\Gamesキー配下のGPU Priority・Priority・SFIO Priorityを変更します。設定するレジストリキーが異なるため競合はなく、両方適用することで相乗効果が期待できます。MMCSS側のカードを先に適用済みの場合はこのカードのGPU Priority・Priorityが上書き設定になりますが、値は同じ意図のため問題ありません。',
+    desc: 'WindowsのMMCSS（マルチメディアスケジューラ）がゲームに割り当てるGPU優先度とI/O優先度を変更します。⚠️ 注意：GPU Priority=8・Priority=6・Scheduling Category=High・SFIO Priority=High は、Windowsの "Games" タスクの既定値そのものです。多くの環境では値が変更されていないため、このカードの適用は実質的にno-op（既定値の再設定）になります。第三者ツールで書き換えられていないかの確認・復元が主目的です。SFIO（Scheduled File I/O）優先度はMMCSS登録スレッドがディスクI/Oで競合する場合にのみ作用し、NVMe環境ではアセット読み込みスタッターへの効果はほぼありません。HDD・SATA SSDの大量アセット読み込み環境でのみ僅かに効く可能性があります。オープンワールドゲームやMMOのような大量アセット読み込みが発生するゲームが主な対象です。\n\n💡 「MMCSS SystemResponsiveness」カードとの関係: そちらはSystemResponsiveness・NetworkThrottlingIndexをグローバルに変更します。このカードはTasks\\Gamesキー配下のGPU Priority・Priority・SFIO Priorityを変更します。設定するレジストリキーが異なるため競合はなく、両方適用することで相乗効果が期待できます。MMCSS側のカードを先に適用済みの場合はこのカードのGPU Priority・Priorityが上書き設定になりますが、値は同じ意図のため問題ありません。',
     risk: 'low', riskLabel: '軽微なリスク',
     impact: 'medium',
     fps: '○', mmo: '◎',
